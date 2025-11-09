@@ -1,0 +1,5 @@
+normal: duh
+racist: noir = 2 coups, blancs = 2 pv
+meme temps: board actualiser apres les 2 coups
+sniper: les pieces mortes deviennent des corps
+boom: atomic chess
