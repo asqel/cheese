@@ -57,7 +57,7 @@ typedef struct {
 	oe_hashmap_t rooms;
 } server_t;
 
-int server_parse_args(int argc, char **argv, server_t *srv);
-int server_start(int argc, char **argv);
+int srv_parse_args(int argc, char **argv, server_t *srv);
+int srv_start(int argc, char **argv);
 
 #endif

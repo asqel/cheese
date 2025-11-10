@@ -26,7 +26,7 @@ static int init_socket(server_t *srv) {
 		return 1;
 }
 
-int server_start(int argc, char **argv) {
+int srv_start(int argc, char **argv) {
 	server_t srv = (server_t){0};
 	default_init(&srv);
 	if (server_parse_args(argc, argv, &srv))
@@ -35,7 +35,7 @@ int server_start(int argc, char **argv) {
 		return 1;
 	if (init_srv(&srv))
 		return 1;
-	int ret = server_loop(&srv);
-	server_end(&srv);
+	int ret = srv_loop(&srv);
+	srv_end(&srv);
 	return ret;
 }
