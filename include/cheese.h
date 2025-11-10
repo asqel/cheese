@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <string.h>
+#include <stdint.h>
 
 #define CURSOR_UP "\033[A"
 #define CURSOR_DOWN "\033[B"
@@ -50,5 +51,16 @@ void	init_board(char *filepath, board_t *board);
 char	*strjoin(char *s1, char *s2, int free_s1);
 int		max(int a, int b);
 int		min(int a, int b);
+
+//buffers
+typedef struct {
+	void *data;
+	size_t len;
+	size_t alloc_len;
+} buffer_t;
+
+int		buffer_append(buffer_t *buffer, void *data, size_t len);
+void	buffer_remove(buffer_t *buffer, size_t start, size_t len);
+void 	buffer_free(buffer_t *buffer);
 
 #endif

@@ -1,0 +1,8 @@
+connect to server:
+	send  start(name, sha256(passwd))
+	server reponse
+	if (fail)
+		create account(name, sha256(passwd))
+		and retry
+
+
