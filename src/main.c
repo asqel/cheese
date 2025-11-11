@@ -32,4 +32,4 @@ int	main(void) {
 	
 	//getc(stdin);
 	return (0);
-}
+
