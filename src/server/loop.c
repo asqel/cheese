@@ -54,10 +54,10 @@ int srv_loop(server_t *srv) {
 			int ret = recv(fds[i].fd, buffer, 1024, 0);
 			if (ret <= 0) {
 				need_rebuild = 1;
-				srv_disconnect(srv, keys[i]);
+				srv_disconnect(srv, keys[i - 1]);
 				break;
 			}
-			srv_on_read(srv, keys[i], buffer, ret);
+			srv_on_read(srv, keys[i - 1], buffer, ret);
 		}
 		if (need_rebuild) {
 			free(fds);

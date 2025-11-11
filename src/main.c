@@ -61,17 +61,27 @@ void	free_board(board_t *board)
 	free(board->tiles);
 }
 
+#include <signal.h>
+void lexit(void) {
+	printf("\e[?1049l");
+	fflush(stdout);
+}
+
+void on_sigint(int) {
+	exit(1);
+}
+
 int	main(void) {
 	board_t		board = {0};
 
 	printf("\e[?1049h");
 	fflush(stdout);
-
+	atexit(lexit);
+	signal(SIGINT, on_sigint);
+	srv_start(0, NULL);
 	init_board("base", &board);
 	print_board(&board);
 	free_board(&board);
 	
 	getc(stdin);
-	printf("\e[?1049l");
-	fflush(stdout);
 }
