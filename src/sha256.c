@@ -63,7 +63,7 @@ char *sha256(char *str) {
 	if (!res)
 		return NULL;
 
-	ress[256] = '\0';
+	res[256] = '\0';
 
 	return res;
 }

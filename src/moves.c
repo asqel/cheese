@@ -1,262 +1,73 @@
 #include "cheese.h"
 
-int	move_pawn(board_t *board, piece_t *target, int y, int x)
+void	remove_piece(tile_t *target, int id, int free_pieces)
 {
-	tile_t	*tile;
-	int		valid_move = 0;
-	int		vert_goal = 1;
-
-	if (target->color == BLACK)
-		vert_goal = -1;
-	if ((vert_goal == -1 && y == 0) || (vert_goal == 1 && y == (board->height - 1)))
-		return (0);
-	for (int i = -1; i < 2; i++) {
-		tile = &board->tiles[y + vert_goal][x + i];
-		if (!i && !tile->nb_piece) {
-			board->possible_moves[y + vert_goal][x] = 1;
-			valid_move = 1;
-			if (target->move_counter)
-				continue ;
-			if ((vert_goal == 1 && y == (board->height - 2)) || (vert_goal == -1 && y == 1))
-				continue ;
-			if (!board->tiles[y + vert_goal * 2][x].nb_piece)
-				board->possible_moves[y + vert_goal * 2][x] = 1;
-		}
-		else if (i && (tile->nb_piece && tile->pieces[0].color != target->color)) {
-			board->possible_moves[y + vert_goal][x + i] = 1;
-			valid_move = 1;
-		}
+	for (int i = (id + 1); i < target->nb_piece; i++)
+		target->pieces[i - 1] = target->pieces[i];
+	if (!--target->nb_piece && free_pieces) {
+		free(target->pieces);
+		target->pieces = NULL;
 	}
-	return (valid_move);
 }
 
-int	move_rook(board_t *board, piece_t *target, int y, int x)
+void	move_piece(board_t *board, int y, int x)
 {
-	tile_t	*tile;
-	int		valid_move = 0;
-	int		target_y = y;
-	int		target_x = x;
+	board->selector.target_y = y;
+	board->selector.target_x = x;
+	tile_t	*origin_tile = &board->tiles[board->selector.origin_y][board->selector.origin_x];
+	tile_t	*target_tile = &board->tiles[board->selector.target_y][board->selector.target_x];
+	piece_t selected_piece = origin_tile->pieces[0];//board->selector.origin_id];
 
-	while (--target_y >= 0) {
-		tile = &board->tiles[target_y][x];
-		if (tile->nb_piece) {
-			if (tile->pieces[0].color != target->color) {
-				board->possible_moves[target_y][x] = 1;
-				valid_move = 1;
-			}
-			break ;
-		}
-		board->possible_moves[target_y][x] = 1;
-		valid_move = 1;
+	for (int i = (board->selector.origin_id + 1); i < origin_tile->nb_piece; i++)
+		origin_tile->pieces[i - 1] = origin_tile->pieces[i];
+	if (!--origin_tile->nb_piece && board->copy_board) {
+		free(origin_tile->pieces);
+		origin_tile->pieces = NULL;
 	}
-	target_y = y;
-	while (++target_y < board->height) {
-		tile = &board->tiles[target_y][x];
-		if (tile->nb_piece) {
-			if (tile->pieces[0].color != target->color) {
-				board->possible_moves[target_y][x] = 1;
-				valid_move = 1;
-			}
-			break ;
-		}
-		board->possible_moves[target_y][x] = 1;
-		valid_move = 1;
+	if (target_tile->nb_piece) {
+		remove_piece(target_tile, 0, board->copy_board != NULL);
+		selected_piece.kill_count++;
 	}
-	while (++target_x < board->width) {
-		tile = &board->tiles[y][target_x];
-		if (tile->nb_piece) {
-			if (tile->pieces[0].color != target->color) {
-				board->possible_moves[y][target_x] = 1;
-				valid_move = 1;
-			}
-			break ;
-		}
-		board->possible_moves[y][target_x] = 1;
-		valid_move = 1;
+	selected_piece.move_counter++;
+	if (!board->copy_board) {
+		piece_t	*real_pieces = target_tile->pieces;
+		target_tile->pieces = malloc(sizeof(piece_t) *
+				(target_tile->nb_piece + 1));
+		memcpy(target_tile->pieces, real_pieces, target_tile->nb_piece * sizeof(piece_t));
 	}
-	target_x = x;
-	while (--target_x >= 0) {
-		if (board->tiles[y][target_x].nb_piece) {
-			if (board->tiles[y][target_x].pieces[0].color != target->color) {
-				board->possible_moves[y][target_x] = 1;
-				valid_move = 1;
-			}
-			break ;
-		}
-		board->possible_moves[y][target_x] = 1;
-		valid_move = 1;
-	}
-	return (valid_move);
-}
-
-int	move_knight(board_t *board, piece_t *target, int y, int x)
-{
-	tile_t	*tile;
-	int		valid_move = 0;
-
-	if (y > 1) {
-		tile = &board->tiles[y - 2][x - 1];
-		if (x && (!tile->nb_piece || tile->pieces[0].color != target->color)) {
-			board->possible_moves[y - 2][x - 1] = 1;
-			valid_move = 1;
-		}
-		tile = &board->tiles[y - 2][x + 1];
-		if ((x < (board->width - 1)) && (!tile->nb_piece || tile->pieces[0].color != target->color)) {
-			board->possible_moves[y - 2][x + 1] = 1;
-			valid_move = 1;
-		}
-	}
-	if (y < (board->height - 2)) {
-		tile = &board->tiles[y + 2][x - 1];
-		if (x && (!tile->nb_piece || tile->pieces[0].color != target->color)) {
-			board->possible_moves[y + 2][x - 1] = 1;
-			valid_move = 1;
-		}
-		tile = &board->tiles[y + 2][x + 1];
-		if ((x < (board->width - 1)) && (!tile->nb_piece || tile->pieces[0].color != target->color)) {
-			board->possible_moves[y + 2][x + 1] = 1;
-			valid_move = 1;
-		}
-	}
-	if (x > 1) {
-		tile = &board->tiles[y - 1][x - 2];
-		if (y && (!tile->nb_piece || tile->pieces[0].color != target->color)) {
-			board->possible_moves[y - 1][x - 2] = 1;
-			valid_move = 1;
-		}
-		tile = &board->tiles[y + 1][x - 2];
-		if ((y < (board->height - 1)) && (!tile->nb_piece || tile->pieces[0].color != target->color)) {
-			board->possible_moves[y + 1][x - 2] = 1;
-			valid_move = 1;
-		}
-	}
-	if (x < (board->width - 2)) {
-		tile = &board->tiles[y - 1][x + 2];
-		if (y && (!tile->nb_piece || tile->pieces[0].color != target->color)) {
-			board->possible_moves[y - 1][x + 2] = 1;
-			valid_move = 1;
-		}
-		tile = &board->tiles[y + 1][x + 2];
-		if ((y < (board->height - 1)) && (!tile->nb_piece || tile->pieces[0].color != target->color)) {
-			board->possible_moves[y + 1][x + 2] = 1;
-			valid_move = 1;
-		}
-	}
-	return (valid_move);
-}
-
-int	move_bishop(board_t *board, piece_t *target, int y, int x)
-{
-	tile_t	*tile;
-	int		valid_move = 0;
-	int		target_y = y;
-	int		target_x = x;
-
-	while (--target_y >= 0 && --target_x >= 0) {
-		tile = &board->tiles[target_y][target_x];
-		if (tile->nb_piece) {
-			if (tile->pieces[0].color != target->color) {
-				board->possible_moves[target_y][target_x] = 1;
-				valid_move = 1;
-			}
-			break ;
-		}
-		board->possible_moves[target_y][target_x] = 1;
-		valid_move = 1;
-	}
-	target_y = y;
-	target_x = x;
-	while (++target_y < board->height && ++target_x < board->width) {
-		tile = &board->tiles[target_y][target_x];
-		if (tile->nb_piece) {
-			if (tile->pieces[0].color != target->color) {
-				board->possible_moves[target_y][target_x] = 1;
-				valid_move = 1;
-			}
-			break ;
-		}
-		board->possible_moves[target_y][target_x] = 1;
-		valid_move = 1;
-	}
-	target_y = y;
-	target_x = x;
-	while (++target_y < board->height && --target_x >= 0) {
-		tile = &board->tiles[target_y][target_x];
-		if (tile->nb_piece) {
-			if (tile->pieces[0].color != target->color) {
-				board->possible_moves[target_y][target_x] = 1;
-				valid_move = 1;
-			}
-			break ;
-		}
-		board->possible_moves[target_y][target_x] = 1;
-		valid_move = 1;
-	}
-	target_y = y;
-	target_x = x;
-	while (--target_y >= 0 && ++target_x < board->width) {
-		tile = &board->tiles[target_y][target_x];
-		if (tile->nb_piece) {
-			if (tile->pieces[0].color != target->color) {
-				board->possible_moves[target_y][target_x] = 1;
-				valid_move = 1;
-			}
-			break ;
-		}
-		board->possible_moves[target_y][target_x] = 1;
-		valid_move = 1;
-	}
-	return (valid_move);
-}
-
-int	move_king(board_t *board, piece_t *target, int y, int x)
-{
-	tile_t	*tile;
-	int		valid_move = 0;
-
-	for (int target_y = (y - 1); target_y < (y + 2); target_y++) {
-		if (target_y < 0 || target_y >= board->height)
-			continue ;
-		for (int target_x = (x - 1); target_x < (x + 2); target_x++) {
-			if (target_x < 0 || target_x >= board->width)
-				continue ;
-			if (target_x == x && target_y == y)
-				continue ;
-			tile = &board->tiles[target_y][target_x];
-			if (!tile->nb_piece || (tile->pieces[0].color != target->color)) {
-				board->possible_moves[target_y][target_x] = 1;
-				valid_move = 1;
-			}
-		}
-	}
-	return (valid_move);
-}
-
-int	update_possible_moves(board_t *board, int y, int x)
-{
+	else
+		target_tile->pieces = realloc(target_tile->pieces,
+				sizeof(piece_t) * (target_tile->nb_piece + 1));
+	if (!target_tile->pieces)
+		exit(1);
+	target_tile->pieces[target_tile->nb_piece++] = selected_piece;
 	reset_possible_moves(board);
-	board->selector.origin_x = x;
-	board->selector.origin_y = y;
-	board->selector.origin_id = 0;
-	piece_t	*target = &board->tiles[y][x].pieces[board->selector.origin_id];
+}
 
-	if (target->type == PAWN)
-		return (move_pawn(board, target, y, x));
-	else if (target->type == ROOK)
-		return (move_rook(board, target, y, x));
-	else if (target->type == KNIGHT)
-		return (move_knight(board, target, y, x));
-	else if (target->type == BISHOP)
-		return (move_bishop(board, target, y, x));
-	else if (target->type == QUEEN)
-		return (move_rook(board, target, y, x) + move_bishop(board, target, y, x));
-	else if (target->type == KING)
-		return (move_king(board, target, y, x));
-	else {
-		if (y > 1) {
-			board->possible_moves[y - 1][x] = 1;
-			board->possible_moves[y - 2][x] = 1;
+void	highlight_board(board_t *board, int y, int x)
+{
+	int cursor_y;
+	int	cursor_x;
+
+	get_cursor_position(&cursor_x, &cursor_y);
+	write(1, "\e[?25l", 6);
+	for (int j = y; j > 0; j--)
+		for (int k = 0; k < 2; k++)
+			printf("%s", CURSOR_UP);
+	for (int i = x; i > 0; i--)
+		for (int k = 0; k < 4; k++)
+			printf("%s", CURSOR_LEFT);
+	for (int j = 0; j < board->height; j++) {
+		printf("\r%s%s", CURSOR_RIGHT, CURSOR_RIGHT);
+		for (int i = 0; i < board->width; i++) {
+			printf("%s%s%s", board->possible_moves[j][i] ? BLUE_BG : BLACK_BG,
+					get_tile_pieces(board, i, j), BLACK_BG);
+			for (int k = 0; k < 3; k++)
+				printf("%s", CURSOR_RIGHT);
 		}
+		for (int i = 0; i < 2; i++)
+			printf("%s", CURSOR_DOWN);
 	}
-	return (1);
+	printf("\033[%d;%dH\e[?25h", cursor_y, cursor_x);
+	fflush(stdout);
 }
