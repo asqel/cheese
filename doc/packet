@@ -1,0 +1,6 @@
+packets:
+	uint32_t opcode
+	uint16_t data_len
+	... (data)
+
+

@@ -19,7 +19,7 @@ int	main(void) {
 	fflush(stdout);
 	atexit(lexit);
 	signal(SIGINT, on_sigint);
-	//srv_start(0, NULL);
+	srv_start(0, NULL);
 	init_board("base", &board);
 	while (1) {
 		write(1, "\033[2J\033[H", 7);
