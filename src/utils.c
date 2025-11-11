@@ -75,16 +75,20 @@ void	reset_possible_moves(board_t *board)
 void	free_board(board_t *board, int free_char)
 {
 	for (int j = 0; j < board->height; j++) {
-		free(board->occupied_map[j]);
-		free(board->possible_moves[j]);
+		if (board->occupied_map)
+			free(board->occupied_map[j]);
+		if (board->possible_moves)
+			free(board->possible_moves[j]);
 		for (int i = 0; i < board->width; i++) {
 			if (free_char && board->tiles[j][i].nb_piece)
 				free(board->tiles[j][i].pieces);
 		}
 		free(board->tiles[j]);
 	}
-	free(board->occupied_map);
-	free(board->possible_moves);
+	if (board->occupied_map)
+		free(board->occupied_map);
+	if (board->possible_moves)
+		free(board->possible_moves);
 	free(board->tiles);
 }
 

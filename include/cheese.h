@@ -53,7 +53,7 @@ typedef struct {
 	piece_t		*pieces;
 }	tile_t;
 
-typedef struct {
+typedef struct board_s {
 	int			width;
 	int			height;
 	int			white_pieces;
@@ -64,6 +64,7 @@ typedef struct {
 	char		**occupied_map;
 	char		**possible_moves;
 	selector_t	selector;
+	board_s		copy_board;
 }	board_t;
 
 void	free_board(board_t *board, int free_char);
