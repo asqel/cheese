@@ -64,7 +64,14 @@ void	free_board(board_t *board)
 int	main(void) {
 	board_t		board = {0};
 
+	printf("\e[?1049h");
+	fflush(stdout);
+
 	init_board("base", &board);
 	print_board(&board);
 	free_board(&board);
+	
+	getc(stdin);
+	printf("\e[?1049l");
+	fflush(stdout);
 }

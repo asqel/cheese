@@ -3,6 +3,7 @@
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <poll.h>
 #include <oeuf.h>
 #include "cheese.h"
 
@@ -65,5 +66,9 @@ int srv_loop(server_t *srv);
 
 void srv_free_client(char *, client_info_t *clt);
 void srv_free_room(char *, room_info_t *clt);
+
+void srv_connect(server_t *srv);
+void srv_disconnect(server_t *srv, char *name);
+void srv_on_read(server_t *srv, char *name, void *buffer, int len);
 
 #endif
