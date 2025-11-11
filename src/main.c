@@ -1,4 +1,5 @@
 #include "cheese.h"
+#include "server.h"
 
 void	print_board(board_t	*board)
 {

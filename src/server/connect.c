@@ -6,4 +6,5 @@ void srv_connect(server_t *srv) {
 	clt->fd = accept(srv->fd, NULL, NULL);
 	sprintf(clt->name, "==%d", last++);
 	oe_hashmap_set(&srv->clients, clt->name, clt); 
+	printf("new client %s\n", clt->name);
 }
