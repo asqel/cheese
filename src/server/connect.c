@@ -1,10 +1,21 @@
 #include "server.h"
 
 void srv_connect(server_t *srv) {
-	static int last = 0;
+	static uint64_t last = 0;
+
 	client_info_t *clt = calloc(1, sizeof(client_info_t));
 	clt->fd = accept(srv->fd, NULL, NULL);
-	sprintf(clt->name, "==%d", last++);
-	oe_hashmap_set(&srv->clients, clt->name, clt); 
-	printf("new client %s\n", clt->name);
+
+	int tries = 30;
+	while (tries--) {
+		sprintf(clt->name, "=%lx", last++);
+		if (oe_hashmap_get(&srv->clients, clt->name))
+			continue;
+		oe_hashmap_set(&srv->clients, clt->name, clt); 
+		printf("new client %s\n", clt->name);
+		return ;
+	}
+	close(clt->fd);
+	free(clt);
+	printf("too much temporary clients\n");
 }

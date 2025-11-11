@@ -68,7 +68,8 @@ void lexit(void) {
 	fflush(stdout);
 }
 
-void on_sigint(int) {
+void on_sigint(int _) {
+	(void)_;
 	exit(1);
 }
 

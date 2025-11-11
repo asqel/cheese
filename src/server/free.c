@@ -1,10 +1,13 @@
 #include "server.h"
 
-void srv_free_client(char *, client_info_t *clt) {
+void srv_free_client(char *name, client_info_t *clt) {
 	// TODO
+	(void)name;
 	close(clt->fd);
 }
 
-void srv_free_room(char *, room_info_t *) {
+void srv_free_room(char *name, room_info_t *room) {
+	(void)name;
+	(void)room;
 	// TODO
 }
