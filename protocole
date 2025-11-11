@@ -1,8 +1,15 @@
 connect to server:
-	send  start(name, sha256(passwd))
+	send  connect(name, sha256(sha256(passwd) + time), time)
 	server reponse
 	if (fail)
-		create account(name, sha256(passwd))
-		and retry
-
+		socket is closed
+	
+create account:
+	send create(name, sha256(passwd))
+	server response
+	if (fail)
+		socket is closed
+	else
+		connected
+		
 
