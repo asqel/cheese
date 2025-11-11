@@ -68,6 +68,7 @@ typedef struct board_s
 	struct board_s	*copy_board;
 }	board_t;
 
+int		play(board_t *board);
 void	free_board(board_t *board, int free_char);
 void	init_board(char *filepath, board_t *board);
 int		update_possible_moves(board_t *board, int y, int x);
