@@ -1,5 +1,4 @@
-#include <string.h>
-#include <stdlib.h>
+#include "cheese.h"
 
 int	max(int a, int b)
 {
@@ -35,4 +34,33 @@ char	*strjoin(char *s1, char *s2, int free_s1)
 	if (free_s1)
 		free(s1);
 	return (dest);
+}
+
+void	get_cursor_position(int *x, int *y)
+{
+	char	buffer[16];
+
+	tcflush(0, TCIFLUSH);
+	write(1, "\033[6n", 4);
+	enable_raw_mode();
+	int readd = read(0, buffer, sizeof(buffer));
+	disable_raw_mode();
+	if (readd <= 3 || readd >= (int)sizeof(buffer)) {
+		fprintf(stderr, "Problem while reading stdin\n");
+		exit(1);
+	}
+	buffer[readd] = 0;
+	int offset = 0;
+	while (buffer[offset] < '0' || buffer[offset] > '9')
+		offset++;
+
+	*y = atoi(buffer + offset);
+	*x = atoi(strchr(buffer, ';') + 1);
+}
+
+char	*get_tile_pieces(board_t *board, int x, int y)
+{
+	if (board->tiles[y][x].nb_piece)
+		return (board->tiles[y][x].pieces[0].character);
+	return (" ");
 }

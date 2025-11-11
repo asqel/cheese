@@ -71,7 +71,6 @@ void	init_tiles(char *board_str, board_t *board)
 			board->tiles[j][i].pieces = NULL;
 			i++;
 		}
-		board->tiles[board->width] = NULL;
 	}
 	board->tiles[board->height] = NULL;
 }
@@ -95,9 +94,16 @@ void	init_board(char *filepath, board_t *board)
 		board->width = max(board->width, line_len - 1);
 	}
 	fclose(f);
-	printf("%s", board_str);
-	printf("Width = %d, Height = %d\n", board->width, board->height);
+	board->occupied_map = calloc(board->height + 1, sizeof(char *));
+	board->possible_moves = calloc(board->height + 1, sizeof(char *));
+	if (!board->occupied_map || !board->possible_moves)
+		exit(1);
+	for (int i = 0; i < board->height; i++) {
+		board->occupied_map[i] = calloc(board->width + 1, sizeof(char));
+		board->possible_moves[i] = calloc(board->width + 1, sizeof(char));
+		if (!board->occupied_map[i] || !board->possible_moves[i])
+			exit(1);
+	}
 	init_tiles(board_str, board);
 	free(board_str);
-	printf("%d white pieces, %d black pieces\n", board->white_pieces, board->black_pieces);
 }

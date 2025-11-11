@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <termios.h>
 #include <string.h>
 #include <stdint.h>
 
@@ -12,6 +13,10 @@
 #define CURSOR_DOWN "\033[B"
 #define CURSOR_RIGHT "\033[C"
 #define CURSOR_LEFT "\033[D"
+#define HIDE_CURSOR "\e[?25l"
+#define SHOW_CURSOR "\e[?25h"
+#define BLACK_BG "\033[40m"
+#define WHITE_BG "\033[47m"
 
 #define WHITE	0
 #define BLACK	1
@@ -43,12 +48,16 @@ typedef struct {
 	int		white_pieces;
 	int		black_pieces;
 	tile_t	**tiles;
+	char	**occupied_map;
+	char	**possible_moves;
 }	board_t;
 
 void	init_board(char *filepath, board_t *board);
 
 //utils
+char	*get_tile_pieces(board_t *board, int x, int y);
 char	*strjoin(char *s1, char *s2, int free_s1);
+void	get_cursor_position(int *x, int *y);
 int		max(int a, int b);
 int		min(int a, int b);
 
@@ -62,5 +71,8 @@ typedef struct {
 int		buffer_append(buffer_t *buffer, void *data, size_t len);
 void	buffer_remove(buffer_t *buffer, size_t start, size_t len);
 void 	buffer_free(buffer_t *buffer);
+void	disable_raw_mode(void);
+void	enable_raw_mode(void);
+char	read_char(void);
 
 #endif
