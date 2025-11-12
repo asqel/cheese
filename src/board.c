@@ -2,38 +2,38 @@
 
 void	print_board(board_t	*board)
 {
-	printf("\033[2J\033[0;0m\033[?25l\033[0;0H");
+	printf("\033[2J\033[0;0m\033[?25l\033[%d;0H", PROMO_OFFSET);
 	fflush(stdout);
-	printf("┌──");
+	printf("%*s┌──", PROMO_OFFSET, "");
 	for (int i = 0; i < board->width - 1; i++)
 		printf("─┬──");
-	printf("─┐\n");
+	printf("─┐\n%*s", PROMO_OFFSET, "");
 
 	for (int i = 0; i < board->height - 1; i++) {
 		for (int j = 0; j < board->width; j++)
 			printf("│   ");
-		printf("│\n├──");
+		printf("│\n%*s├──", PROMO_OFFSET, "");
 		for (int j = 0; j < board->width - 1; j++)
 			printf("─┼──");
-		printf("─┤\n");
+		printf("─┤\n%*s", PROMO_OFFSET, "");
 	}
 	for (int i = 0; i < board->width; i++)
 		printf("│   ");
-	printf("│\n└──");
+	printf("│\n%*s└──", PROMO_OFFSET, "");
 	for (int i = 0; i < board->width - 1; i++)
 		printf("─┴──");
-	printf("─┘\n");
+	printf("─┘\n%*s", PROMO_OFFSET, "");
 	for (int i = 0; i < (board->height * 2); i++)
 		printf("%s", CURSOR_UP);
 	for (int j = 0; j < board->height; j++) {
-		printf("\r");
+		printf("\r%*s", PROMO_OFFSET, "");
 		for (int i = 0; i < (j * 2); i++)
 			printf("%s", CURSOR_DOWN);
 		for (int i = 0; i < board->width; i++) {
 			board->occupied_map[j][i] = board->tiles[j][i].nb_piece != 0;
 			if (!board->tiles[j][i].nb_piece)
 				continue ;
-			printf("%s", "\r");
+			printf("\r%*s", PROMO_OFFSET, "");
 			printf("%s", CURSOR_RIGHT);
 			printf("%s", CURSOR_RIGHT);
 			for (int k = 0; k < (i * 4); k++)
@@ -43,7 +43,7 @@ void	print_board(board_t	*board)
 		for (int i = 0; i < (j * 2); i++)
 			printf("%s", CURSOR_UP);
 	}
-	printf("\r");
+	printf("\r%*s", PROMO_OFFSET, "");
 	for (int i = 0; i < ((board->height + 1) * 2); i++)
 		printf("%s", CURSOR_DOWN);
 	printf("\e[?25h");
@@ -59,7 +59,7 @@ int	play(board_t *board)
 	print_board(board);
 	if (board->promo_tile) {
 		piece_t *ref = &board->promo_tile->pieces[board->promo_tile->nb_piece - 1];
-		int new_piece_type = promo_menu(board->height + 1, ref->color) + 1;
+		int new_piece_type = promo_menu(!ref->color * (board->height + 3), ref->color, board) + 1;
 
 		ref->type = new_piece_type;
 		strcpy(ref->character, "♔");

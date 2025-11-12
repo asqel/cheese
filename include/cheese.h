@@ -9,6 +9,8 @@
 #include <string.h>
 #include <stdint.h>
 
+#define PROMO_OFFSET	5
+
 #define CURSOR_UP "\033[A"
 #define CURSOR_DOWN "\033[B"
 #define CURSOR_RIGHT "\033[C"
@@ -73,7 +75,7 @@ int		play(board_t *board);
 void	free_board(board_t *board, int free_char);
 void	init_board(char *filepath, board_t *board);
 int		update_possible_moves(board_t *board, int y, int x);
-int		promo_menu(int y, int color);
+int		promo_menu(int y, int color, board_t *board);
 void	move_piece(board_t *board, int y, int x);
 
 //simulations
