@@ -6,6 +6,7 @@
 #include <poll.h>
 #include <oeuf.h>
 #include "cheese.h"
+#include "opcode.h"
 
 /*
 server args:
@@ -70,5 +71,6 @@ void srv_free_room(char *, room_info_t *clt);
 void srv_connect(server_t *srv);
 void srv_disconnect(server_t *srv, char *name);
 void srv_on_read(server_t *srv, char *name, void *buffer, int len);
+void srv_handle_msg(client_info_t *clt, uint32_t opcode, void *data, uint16_t len, server_t *srv);
 
 #endif
