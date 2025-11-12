@@ -12,9 +12,14 @@ void on_sigint(int _) {
 	exit(1);
 }
 
-int	main(void) {
+int	main(int argc, char **argv) {
 	board_t		board = {0};
-
+	
+	if (argc > 1) {
+		char *hash = sha256(argv[1]);
+		printf("%s\n", hash);
+		free(hash);
+	}
 	printf("\e[?1049h");
 	fflush(stdout);
 	atexit(lexit);

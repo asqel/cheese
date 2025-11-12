@@ -43,7 +43,7 @@ static inline uint8_t get_byte(const uint8_t *str, size_t pos, size_t len) {
 
 	if (pos > 7)
 		return 0;
-	return (len_u64 >> (poss * 8))& 0xff
+	return (len_u64 >> ((7 - pos) * 8))& 0xff;
 }
 
 static void get_chunk(const uint8_t *str, size_t chunk_num, size_t len, uint8_t chunk[64]) {
@@ -111,15 +111,12 @@ char *sha256(char *str) {
 	if (!res)
 		return NULL;
 	size_t len = strlen(str);
-	size_t total_len = len;
-	while (total_len % (512 / 8) != (448 / 8))
-		total_len++;
-	total_len += 8;
-
 	uint32_t hash[8] = {0};
+	size_t total_bits = 8 * len + 1 + 64;
+	size_t total_chunks = (total_bits + 511) / 512;
 	memcpy(hash, H, sizeof(uint32_t) * 8);
 	
-	for (size_t i = 0; i < (len + 1 + 8 + 63) / 64; i++) {
+	for (size_t i = 0; i < total_chunks; i++) {
 		uint8_t chunk[64];
 		get_chunk((uint8_t *)str, i, len, chunk);
 		process_chunk(chunk, hash);
