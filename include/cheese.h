@@ -73,6 +73,7 @@ int		play(board_t *board);
 void	free_board(board_t *board, int free_char);
 void	init_board(char *filepath, board_t *board);
 int		update_possible_moves(board_t *board, int y, int x);
+int		promo_menu(int y, int color);
 void	move_piece(board_t *board, int y, int x);
 
 //simulations
@@ -81,6 +82,7 @@ void	sync_boards(board_t *cpy, board_t *src);
 int		king_in_check(board_t *board, int color);
 
 //utils
+void	highlight_board(board_t *board, int y, int x);
 char	*get_tile_pieces(board_t *board, int x, int y);
 char	*strjoin(char *s1, char *s2, int free_s1);
 void	get_cursor_position(int *x, int *y);

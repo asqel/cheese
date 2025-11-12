@@ -121,7 +121,7 @@ void	move_piece(board_t *board, int y, int x)
 	target_tile->pieces[target_tile->nb_piece++] = selected_piece;
 	reset_possible_moves(board);
 	if (board->copy_board && selected_piece.type == PAWN &&
-		(y == (!selected_piece.color * board->height - 1))) {
+		(y == (!selected_piece.color * (board->height - 1)))) {
 		board->promo_tile = target_tile;
 	}
 }
