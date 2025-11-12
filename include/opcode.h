@@ -6,4 +6,7 @@
 #define OPC_CREATE_ACC 1
 #define OPC_AUTH_ACC 2
 
+#define OPC_ERR_NAME_LEN 1
+#define OPC_ERR_NAME_TAKEN 2
+
 #endif
