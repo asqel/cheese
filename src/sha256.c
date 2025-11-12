@@ -58,12 +58,92 @@ static void get_chunk(const uint8_t *str, size_t chunk_num, size_t len, uint8_t 
 		chunk[i] = get_byte(str, chunk_pos++, len); 
 }
 
+#define ROTR(X, N) (((X) >> (N)) | ((X) << (32 - (N))))
+#define SHR(X, N)  ((X) >> (N))
+
+#define EP0(X) (ROTR(X,2) ^ ROTR(X,13) ^ ROTR(X,22))
+#define EP1(X) (ROTR(X,6) ^ ROTR(X,11) ^ ROTR(X,25))
+
+#define SIG0(X) (ROTR(X,7) ^ ROTR(X,18) ^ SHR(X,3))
+#define SIG1(X) (ROTR(X,17) ^ ROTR(X,19) ^ SHR(X,10))
+
+#define CH(X,Y,Z)  (((X) & (Y)) ^ (~(X) & (Z)))
+#define MAJ(X,Y,Z) (((X) & (Y)) ^ ((X) & (Z)) ^ ((Y) & (Z)))
+
+
+static void process_chunk(uint8_t chunk[64], uint32_t hash[8]) {
+	uint32_t words[64] = {0};
+
+	for (int i = 0; i < 16; i++) {
+		words[i] = ((uint32_t)chunk[4 * i] << 24) | ((uint32_t)chunk[4 * i + 1] << 16)
+				| ((uint32_t)chunk[4 * i + 2] << 8) | chunk[4 * i + 3];
+	}
+	for (int i = 16; i < 64; i++)
+		words[i] = SIG1(words[i - 2]) + words[i - 7] + SIG0(words[i - 15]) + words[i - 16];
+	
+	uint32_t a = hash[0];
+	uint32_t b = hash[1];
+	uint32_t c = hash[2];
+	uint32_t d = hash[3];
+	uint32_t e = hash[4];
+	uint32_t f = hash[5];
+	uint32_t g = hash[6];
+	uint32_t h = hash[7];
+	for (int i = 0; i < 64; i++) {
+		uint32_t t1 = h + EP1(e) + CH(e, f, g) + K[i] + words[i];
+		uint32_t t2 = EP0(a) + MAJ(a, b, c);
+		h = g;
+		g = f;
+		f = e;
+		e = d + t1;
+		d = c;
+		c = b;
+		b = a;
+		a = t1 + t2;
+	}
+	hash[0] += a;
+	hash[1] += b;
+	hash[2] += c;
+	hash[3] += d;
+	hash[4] += e;
+	hash[5] += f;
+	hash[6] += g;
+	hash[7] += h;
+}
+
+
 char *sha256(char *str) {
-	char *res = malloc(256 + 1);
+	char *res = malloc(65);
 	if (!res)
 		return NULL;
+	size_t len = strlen(str);
+	size_t total_len = len;
+	while (total_len % (512 / 8) != (448 / 8))
+		total_len++;
+	total_len += 8;
 
-	ress[256] = '\0';
+	uint32_t hash[8] = {0};
+	memcpy(hash, H, sizeof(uint32_t) * 8);
+	
+	for (size_t i = 0; i < (len + 1 + 8 + 63) / 64; i++) {
+		uint8_t chunk[64];
+		get_chunk((uint8_t *)str, i, len, chunk);
+		process_chunk(chunk, hash);
+	}
+	uint8_t big_hash[32];
+	for (int i = 0; i < 8; i++) {
+		big_hash[4 * i] = (hash[i] >> 24 ) & 0xff;
+		big_hash[4 * i + 1] = (hash[i] >> 16) & 0xff;
+		big_hash[4 * i + 2] = (hash[i] >> 8) & 0xff;
+		big_hash[4 * i + 3] = hash[i] & 0xff;
+	}
+	for (int i = 0; i < 32; i++) {
+		char *base = "0123456789abcdef";
+		char high = base[big_hash[i] >> 4];
+		char low = base[big_hash[i] & 0x0f];
+		sprintf(&res[i * 2], "%c%c", high, low);
+	}
+	res[64] = '\0';
 
 	return res;
 }
