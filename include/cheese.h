@@ -9,6 +9,8 @@
 #include <string.h>
 #include <stdint.h>
 
+#define PROMO_OFFSET	5
+
 #define CURSOR_UP "\033[A"
 #define CURSOR_DOWN "\033[B"
 #define CURSOR_RIGHT "\033[C"
@@ -23,12 +25,12 @@
 #define BLACK	1
 
 enum pieces {
-	PAWN,
-	ROOK,
-	KNIGHT,
-	BISHOP,
+	KING,
 	QUEEN,
-	KING
+	ROOK,
+	BISHOP,
+	KNIGHT,
+	PAWN
 };
 
 typedef struct {
@@ -65,6 +67,7 @@ typedef struct board_s
 	char		**occupied_map;
 	char		**possible_moves;
 	selector_t	selector;
+	tile_t		*promo_tile;
 	struct board_s	*copy_board;
 }	board_t;
 
@@ -72,6 +75,7 @@ int		play(board_t *board);
 void	free_board(board_t *board, int free_char);
 void	init_board(char *filepath, board_t *board);
 int		update_possible_moves(board_t *board, int y, int x);
+int		promo_menu(int y, int color, board_t *board);
 void	move_piece(board_t *board, int y, int x);
 
 //simulations
@@ -80,6 +84,7 @@ void	sync_boards(board_t *cpy, board_t *src);
 int		king_in_check(board_t *board, int color);
 
 //utils
+void	highlight_board(board_t *board, int y, int x);
 char	*get_tile_pieces(board_t *board, int x, int y);
 char	*strjoin(char *s1, char *s2, int free_s1);
 void	get_cursor_position(int *x, int *y);

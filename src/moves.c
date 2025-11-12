@@ -10,6 +10,86 @@ void	remove_piece(tile_t *target, int id, int free_pieces)
 	}
 }
 
+int	choose_promo_piece(const int limit_x, const int limit_y)
+{
+	int		x = 0;
+	int		y = 0;
+
+	while (1) {
+		char key = read_char();
+		if (key >= 'A' && key <= 'Z')
+			key += 32;
+		switch (key) {
+			case 'w':
+				if (y != 0) {
+					for (int i = 0; i < 2; i++)
+						printf("%s", CURSOR_UP);
+					y--;
+				}
+				break ;
+			case 's':
+				if (y != (limit_y - 1)) {
+					for (int i = 0; i < 2; i++)
+						printf("%s", CURSOR_DOWN);
+					y++;
+				}
+				break ;
+			case 'a':
+				if (x != 0) {
+					for (int i = 0; i < 4; i++)
+						printf("%s", CURSOR_LEFT);
+					x--;
+				}
+				break ;
+			case 'd':
+				if (x != (limit_x - 1)) {
+					for (int i = 0; i < 4; i++)
+						printf("%s", CURSOR_RIGHT);
+					x++;
+				}
+				break ;
+			case 10:
+				return ((y * limit_x) + x);
+		}
+		fflush(stdout);
+	}
+}
+
+int	promo_menu(int y, int color, board_t *board)
+{
+	int		nb_pieces = 4;
+	int		nb_spaces = PROMO_OFFSET + board->width / nb_pieces * 4;
+	char	cur_piece[5];
+	int 	board_cursor_y, board_cursor_x;
+
+ 	strcpy(cur_piece, "♕");
+	cur_piece[2] += (color * 6);
+	get_cursor_position(&board_cursor_x, &board_cursor_y);
+	printf("\033[%d;%dH\033[?25h", 1 + (y * 2), 0);
+	write(1, "\e[?25l", 6);
+	printf("%*s┌──", nb_spaces, "");
+	for (int i = 0; i < 3; i++)
+		printf("─┬──");
+	printf("─┐\n%*s│", nb_spaces, "");
+
+	for (int i = 0; i < 4; i++) {
+		printf(" %s │", cur_piece);
+		cur_piece[2]++;
+	}
+	printf("\n%*s└──", nb_spaces, "");
+	for (int i = 0; i < 3; i++)
+		printf("─┴──");
+	printf("─┘%s\r", CURSOR_UP);
+	for (int i = 0; i < nb_spaces + 2; i++)
+		printf("%s", CURSOR_RIGHT);
+	printf("\033[?25h");
+	fflush(stdout);
+	int	requested_piece = choose_promo_piece(nb_pieces, 1);
+	printf("\033[%d;%dH\033[?25h", board_cursor_y, board_cursor_x);
+	fflush(stdout);
+	return (requested_piece);
+}
+
 void	move_piece(board_t *board, int y, int x)
 {
 	board->selector.target_y = y;
@@ -42,6 +122,10 @@ void	move_piece(board_t *board, int y, int x)
 		exit(1);
 	target_tile->pieces[target_tile->nb_piece++] = selected_piece;
 	reset_possible_moves(board);
+	if (board->copy_board && selected_piece.type == PAWN &&
+		(y == (!selected_piece.color * (board->height - 1)))) {
+		board->promo_tile = target_tile;
+	}
 }
 
 void	highlight_board(board_t *board, int y, int x)
@@ -58,7 +142,7 @@ void	highlight_board(board_t *board, int y, int x)
 		for (int k = 0; k < 4; k++)
 			printf("%s", CURSOR_LEFT);
 	for (int j = 0; j < board->height; j++) {
-		printf("\r%s%s", CURSOR_RIGHT, CURSOR_RIGHT);
+		printf("\r%*s%s%s", PROMO_OFFSET, "", CURSOR_RIGHT, CURSOR_RIGHT);
 		for (int i = 0; i < board->width; i++) {
 			printf("%s%s%s", board->possible_moves[j][i] ? BLUE_BG : BLACK_BG,
 					get_tile_pieces(board, i, j), BLACK_BG);
