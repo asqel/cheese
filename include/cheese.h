@@ -23,12 +23,12 @@
 #define BLACK	1
 
 enum pieces {
-	PAWN,
-	ROOK,
-	KNIGHT,
-	BISHOP,
+	KING,
 	QUEEN,
-	KING
+	ROOK,
+	BISHOP,
+	KNIGHT,
+	PAWN
 };
 
 typedef struct {
@@ -65,6 +65,7 @@ typedef struct board_s
 	char		**occupied_map;
 	char		**possible_moves;
 	selector_t	selector;
+	tile_t		*promo_tile;
 	struct board_s	*copy_board;
 }	board_t;
 

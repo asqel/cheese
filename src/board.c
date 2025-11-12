@@ -2,7 +2,8 @@
 
 void	print_board(board_t	*board)
 {
-	write(1, "\e[0;0m\e[?25l", 12);
+	printf("\033[2J\033[0;0m\033[?25l\033[0;0H");
+	fflush(stdout);
 	printf("┌──");
 	for (int i = 0; i < board->width - 1; i++)
 		printf("─┬──");
@@ -56,6 +57,16 @@ int	play(board_t *board)
 	int	confirm = 0;
 
 	print_board(board);
+	if (board->promo_tile) {
+		piece_t *ref = &board->promo_tile->pieces[board->promo_tile->nb_piece - 1];
+		int new_piece_type = promo_menu(board->height + 1, ref->color) + 1;
+
+		ref->type = new_piece_type;
+		strcpy(ref->character, "♔");
+		ref->character[2] += new_piece_type + (ref->color * 6);
+		board->promo_tile = NULL;
+		print_board(board);
+	}
 	for (int i = 0; i < (x * 4); i++)
 		printf("%s", CURSOR_RIGHT);
 	for (int i = 0; i < ((board->height - y + 1) * 2); i++)
