@@ -144,6 +144,5 @@ char *sha256(char *str) {
 		sprintf(&res[i * 2], "%c%c", high, low);
 	}
 	res[64] = '\0';
-
 	return res;
 }
