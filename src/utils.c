@@ -40,9 +40,9 @@ void	get_cursor_position(int *x, int *y)
 {
 	char	buffer[16];
 
+	enable_raw_mode();
 	tcflush(0, TCIFLUSH);
 	write(1, "\033[6n", 4);
-	enable_raw_mode();
 	int readd = read(0, buffer, sizeof(buffer));
 	disable_raw_mode();
 	if (readd <= 3 || readd >= (int)sizeof(buffer)) {
@@ -72,3 +72,20 @@ void	reset_possible_moves(board_t *board)
 			board->possible_moves[j][i] = 0;
 }
 
+void	free_board(board_t *board, int free_char)
+{
+	for (int j = 0; j < board->height; j++) {
+		free(board->occupied_map[j]);
+		free(board->possible_moves[j]);
+		if (free_char) {
+			for (int i = 0; i < board->width; i++) {
+				if (board->tiles[j][i].nb_piece)
+					free(board->tiles[j][i].pieces);
+			}
+		}
+		free(board->tiles[j]);
+	}
+	free(board->occupied_map);
+	free(board->possible_moves);
+	free(board->tiles);
+}
