@@ -41,15 +41,9 @@ static inline uint8_t get_byte(const uint8_t *str, size_t pos, size_t len) {
 
 	uint64_t len_u64 = 8 * (uint64_t)len;
 
-	uint8_t len_arr[8];
-	memcpy(len_arr, &len_u64, 8);
 	if (pos > 7)
 		return 0;
-	#ifdef BIG_ENDIAN
-		return len_arr[pos];
-	#else
-		return len_arr[7 - pos];
-	#endif
+	return (len_u64 >> (poss * 8))& 0xff
 }
 
 static void get_chunk(const uint8_t *str, size_t chunk_num, size_t len, uint8_t chunk[64]) {
