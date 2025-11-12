@@ -1,11 +1,19 @@
 #include "server.h"
 
-void srv_handle_msg(client_info_t *clt, uint32_t opcode, void *data, uint16_t len, server_t *srv) {
-	
-
+int srv_handle_msg(client_info_t *clt, uint32_t opcode, void *data, uint16_t len, server_t *srv) {	
+	 switch (ocpode) {
+	 	case OPC_CREATE_ACC:
+			return srv_create_account(clt, data, len, srv);
+		case OPC_AUTH_ACC:
+			return srv_auth_account(clt, data, len, srv);
+	 	default:
+			srv_send(clt, OPC_UNKNOW_OP, &opcode, sizeof(uint32_t), srv);
+			break;
+	 }
+	 return 0;
 }
 
-void srv_on_read(server_t *srv, char *name, void *data, int len) {
+int srv_on_read(server_t *srv, char *name, void *data, int len) {
 	client_info_t *clt = oe_hashmap_get(&srv->clients, name);
 	if (!clt)
 		return ;

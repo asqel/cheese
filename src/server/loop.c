@@ -42,6 +42,8 @@ int srv_loop(server_t *srv) {
 		}
 		int need_rebuild = 0;
 		for (int i = 0; i < fds_len && ret; i++) {
+			if (need_rebuild)
+				break;
 			if (!(fds[i].revents & POLLIN))
 				continue;
 			ret--;
@@ -57,7 +59,7 @@ int srv_loop(server_t *srv) {
 				srv_disconnect(srv, keys[i - 1]);
 				break;
 			}
-			srv_on_read(srv, keys[i - 1], buffer, ret);
+			need_rebuild |= srv_on_read(srv, keys[i - 1], buffer, ret);
 		}
 		if (need_rebuild) {
 			free(fds);
