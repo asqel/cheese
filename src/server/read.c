@@ -7,6 +7,9 @@ int srv_handle_msg(client_t *clt, uint32_t opcode, void *data, uint16_t len, ser
 			return srv_create_account(clt, data, len, srv);
 		case OPC_AUTH_ACC:
 			return srv_auth_account(clt, data, len, srv);
+		case OPC_PING:
+			srv_send(clt, OPC_PING, data, len);
+			return 0;
 	 	default:
 			srv_send(clt, OPC_UNKNOW_OP, &opcode, sizeof(uint32_t));
 			break;

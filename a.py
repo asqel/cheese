@@ -1,8 +1,16 @@
 #! /usr/bin/python
-# a simple tcp client
-import socket  
+import socket 
+import time
+
+def send_packet(opcode: int, data: bytes, sock) -> None:
+	sock.send(opcode.to_bytes(4, "little"))	
+	sock.send(len(data).to_bytes(2, "little"))
+	sock.send(data)
+
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
 sock.connect(('localhost', 42124))  
 #sock.send('Test\n')  
-sock.send(b'\x01gkarbouc\x00' + b'\x42'*64)  
+send_packet(1, "AABBCC".encode("ascii") + b'\0' + 64 * b'\x40', sock)
+time.sleep(0.5)
+print(sock.recv(1024))
 sock.close()
