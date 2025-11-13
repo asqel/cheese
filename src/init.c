@@ -57,12 +57,13 @@ void	init_tiles(char *board_str, board_t *board)
 
 			if (cur_piece == ' ')
 				continue ;
-			if (cur_piece >= 'a')
-				board->black_pieces++;
-			else
-				board->white_pieces++;
 			cur_tile->pieces = realloc(cur_tile->pieces,
 					(cur_tile->nb_piece + 1) * sizeof(piece_t));
+			piece_t	new_piece = create_piece(cur_piece);
+			if (cur_piece >= 'a' && new_piece.type == KING)
+				board->black_kings++;
+			else if (new_piece.type == KING)
+				board->white_kings++;
 			cur_tile->pieces[cur_tile->nb_piece++] = create_piece(cur_piece);
 		}
 		board_str++;
