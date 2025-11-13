@@ -8,37 +8,37 @@ int srv_account_exists(char *name) {
 	return 1;
 }
 
-int srv_auth_account(client_t *clt, void *data, uint16_t len, server_t *srv) {
-	(void)clt;
-	(void)data;
-	(void)len;
-	(void)srv;
-	//TODO
-	return 0;
-}
-
-int srv_create_account(client_t *clt, void *data, uint16_t len, server_t *srv) {
-	(void)srv;
+static int get_infos(void *data, uint16_t len, char **name, char **hash) {
 	size_t name_len = 0;
 	while (name_len < len && ((char *)data)[name_len])
 		name_len++;
 	if (name_len == 0 || name_len > CLIENT_NAME_LEN) {
 		uint32_t err = OPC_ERR_NAME_LEN;
 		srv_send(clt, OPC_ERROR, &err, sizeof(uint32_t));
-		return 0;
-	}
-	if (srv_account_exists((char *)data)) {
-		uint32_t err = OPC_ERR_NAME_TAKEN;
-		srv_send(clt, OPC_ERROR, &err, sizeof(uint32_t));
-		return 0;
+		return 1;
 	}
 	if (len - (name_len + 1) != 64) {
 		uint32_t err = OPC_ERR_INVALID_DATA;
 		srv_send(clt, OPC_ERROR, &err, sizeof(uint32_t));
-		return 0;
+		return 1;
 	}
-	char *name = (char *)data;
-	char *hash = (char *)data + name_len + 1;
+	*name = (char *)data;
+	*hash = (char *)data + name_len + 1;
+
+	return 0;
+}
+
+int srv_auth_account(client_t *clt, void *data, uint16_t len, server_t *srv) {
+}
+
+int srv_create_account(client_t *clt, void *data, uint16_t len, server_t *srv) {
+	(void)srv;
+
+	char *name = NULL;
+	char *hash = NULL;
+	if (get_infos(data, len, &name, &hash))
+		return 0;
+	
 
 	FILE *f = fopen(name, "wb");
 	if (!f) {
