@@ -27,10 +27,8 @@ int	move_pawn(board_t *board, piece_t *target, int y, int x)
 {
 	tile_t	*tile;
 	int		valid_move = 0;
-	int		vert_goal = 1;
+	int		vert_goal = target->color == WHITE ? 1 : -1;
 
-	if (target->color == BLACK)
-		vert_goal = -1;
 	if ((vert_goal == -1 && y == 0) || (vert_goal == 1 && y == (board->height - 1)))
 		return (0);
 	for (int i = -1; i < 2; i++) {
@@ -46,8 +44,21 @@ int	move_pawn(board_t *board, piece_t *target, int y, int x)
 			if (!board->tiles[y + vert_goal * 2][x].nb_piece)
 				evaluate_move(board, target, y + vert_goal * 2, x, &valid_move);
 		}
-		else if (i && (tile->nb_piece && tile->pieces[0].color != target->color))
+		else if (i && tile->nb_piece && (tile->pieces[0].color != target->color))
 			evaluate_move(board, target, y + vert_goal, x + i, &valid_move);
+		else if (i && !tile->nb_piece) {
+			tile_t	*passant_tile = &board->tiles[y][x + i];
+			if (!passant_tile->nb_piece)
+				continue ;
+
+			piece_t	*passant_piece = &passant_tile->pieces[0];
+			if (passant_piece->color != target->color && passant_piece->type == PAWN)
+			{
+				y += 0;
+				if (passant_piece->distance_moved != 1 && passant_piece->move_counter == 1)
+					evaluate_move(board, target, y + vert_goal, x + i, &valid_move);
+			}
+		}
 	}
 	return (valid_move);
 }
@@ -173,11 +184,5 @@ int	update_possible_moves(board_t *board, int y, int x)
 		return (move_rook(board, target, y, x) + move_bishop(board, target, y, x));
 	else if (target->type == KING)
 		return (move_king(board, target, y, x));
-	else {
-		if (y > 1) {
-			board->possible_moves[y - 1][x] = 1;
-			board->possible_moves[y - 2][x] = 1;
-		}
-	}
 	return (1);
 }

@@ -1,10 +1,17 @@
 #include "cheese.h"
 
-void	remove_piece(tile_t *target, int id, int free_pieces)
+void	remove_piece(tile_t *target, int id, board_t *board)
 {
-	for (int i = (id + 1); i < target->nb_piece; i++)
+	if (target->pieces[id].type == KING && board->copy_board) {
+		if (target->pieces[id].color == WHITE)
+			board->white_kings--;
+		else
+			board->black_kings--;
+	}
+	for (int i = (id + 1); i < target->nb_piece; i++) {
 		target->pieces[i - 1] = target->pieces[i];
-	if (!--target->nb_piece && free_pieces) {
+	}
+	if (!--target->nb_piece && board->copy_board) {
 		free(target->pieces);
 		target->pieces = NULL;
 	}
@@ -90,6 +97,31 @@ int	promo_menu(int y, int color, board_t *board)
 	return (requested_piece);
 }
 
+void	update_move_counter(selector_t *selector, piece_t *piece) {
+	switch (piece->type) {
+		case KING:
+		case KNIGHT:
+			piece->distance_moved++;
+			break ;
+		case ROOK:
+			piece->distance_moved +=
+				abs(selector->origin_x - selector->target_x) +
+				abs(selector->origin_y - selector->target_y);
+			break ;
+		case PAWN:
+		case BISHOP:
+			piece->distance_moved +=
+				abs(selector->origin_y - selector->target_y);
+			break ;
+		case QUEEN:
+			piece->distance_moved += abs(selector->origin_y - selector->target_y);
+			if ((selector->origin_y == selector->target_y) ||
+				(selector->origin_x == selector->target_x))
+				piece->distance_moved += abs(selector->origin_x - selector->target_x);
+			break ;
+	}
+}
+
 void	move_piece(board_t *board, int y, int x)
 {
 	board->selector.target_y = y;
@@ -105,7 +137,13 @@ void	move_piece(board_t *board, int y, int x)
 		origin_tile->pieces = NULL;
 	}
 	if (target_tile->nb_piece) {
-		remove_piece(target_tile, 0, board->copy_board != NULL);
+		remove_piece(target_tile, 0, board);
+		selected_piece.kill_count++;
+	}
+	else if (selected_piece.type == PAWN && !target_tile->nb_piece &&
+		(board->selector.target_x != board->selector.origin_x)) {
+		int y_pos = selected_piece.color == WHITE ? -1 : 1;
+		remove_piece(&board->tiles[y + y_pos][x], 0, board);
 		selected_piece.kill_count++;
 	}
 	selected_piece.move_counter++;
@@ -126,6 +164,8 @@ void	move_piece(board_t *board, int y, int x)
 		(y == (!selected_piece.color * (board->height - 1)))) {
 		board->promo_tile = target_tile;
 	}
+	if (board->copy_board)
+		update_move_counter(&board->selector, &selected_piece);
 }
 
 void	highlight_board(board_t *board, int y, int x)

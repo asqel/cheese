@@ -46,6 +46,7 @@ typedef struct {
 	int			color;
 	int			kill_count;
 	int			move_counter;
+	int			distance_moved;
 	char		character[5];
 }	piece_t;
 
@@ -59,10 +60,8 @@ typedef struct board_s
 {
 	int			width;
 	int			height;
-	int			white_pieces;
-	int			black_pieces;
-	int			white_checked;
-	int			black_checked;
+	int			white_kings;
+	int			black_kings;
 	tile_t		**tiles;
 	char		**occupied_map;
 	char		**possible_moves;

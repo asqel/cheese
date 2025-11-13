@@ -57,6 +57,26 @@ int	play(board_t *board)
 	int	confirm = 0;
 
 	print_board(board);
+	if (!board->white_kings || !board->black_kings) {
+		char *msg;
+		if (board->white_kings)
+			msg = "White wins!";
+		else if (board->black_kings)
+			msg = "Black wins!";
+		else
+			msg = "Draw!";
+		printf("\033[?25l");
+		printf("%*s%s\n", (int)((board->width * 4 + 1) - strlen(msg)) / 2, "", msg);
+		printf("%*s", PROMO_OFFSET, "");
+		msg = "Press Enter to continue";
+		printf("%*s%s", (int)((board->width * 4 + 1) - strlen(msg)) / 2, "", msg);
+		fflush(stdout);
+		while (1)
+			if (read_char() == 10)
+				break ;
+		printf("\033[?25h");
+		return (1);
+	}
 	if (board->promo_tile) {
 		piece_t *ref = &board->promo_tile->pieces[board->promo_tile->nb_piece - 1];
 		int new_piece_type = promo_menu(!ref->color * (board->height + 3), ref->color, board) + 1;
