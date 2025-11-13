@@ -1,8 +1,9 @@
 #include "server.h"
 
 int srv_handle_msg(client_t *clt, uint32_t opcode, void *data, uint16_t len, server_t *srv) {	
-	 switch (opcode) {
-	 	case OPC_CREATE_ACC:
+	printf("opcode %x\n", opcode);
+	switch (opcode) {
+		case OPC_CREATE_ACC:
 			return srv_create_account(clt, data, len, srv);
 		case OPC_AUTH_ACC:
 			return srv_auth_account(clt, data, len, srv);
@@ -29,5 +30,7 @@ int srv_on_read(server_t *srv, char *name, void *data, int len) {
 		return 0;
 
 	void *packet = clt->buffer.data + sizeof(uint32_t) + sizeof(uint16_t);
-	return srv_handle_msg(clt, opcode, packet, pack_len, srv);
+	int ret = srv_handle_msg(clt, opcode, packet, pack_len, srv);
+	buffer_remove(&clt->buffer, 0, sizeof(uint32_t) + sizeof(uint16_t) + pack_len);
+	return ret;
 }
