@@ -44,6 +44,7 @@ int srv_auth_account(client_t *clt, void *data, uint16_t len, server_t *srv) {
 	char *name = NULL;
 	char *hash = NULL;
 	if (clt->name[0] != '=') {
+		printf("AAAAAAAAAAAAAAAAAAAAAA\n");
 		uint32_t err = OPC_ERR_ALREADY_AUTH;
 		srv_send(clt, OPC_ERROR, &err, sizeof(uint32_t));
 		return 0;
