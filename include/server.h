@@ -22,7 +22,6 @@ server args:
 
 typedef struct {
 	int fd;
-	int is_registered;
 	char name[CLIENT_NAME_LEN + 1];
 	buffer_t buffer;
 	char room_name[ROOM_NAME_LEN + 1];
