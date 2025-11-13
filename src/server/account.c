@@ -13,7 +13,7 @@ int srv_account_check_hash(char *name, char *hash) {
 	if (!f)
 		return 0;
 	char file_hash[64];
-	if (fread(file_hash, 64, 1, f) < 64) {
+	if (fread(file_hash, 1, 64, f) < 64) {
 		fclose(f);
 		return 0;
 	}
@@ -43,13 +43,23 @@ static int get_infos(void *data, uint16_t len, char **name, char **hash, client_
 int srv_auth_account(client_t *clt, void *data, uint16_t len, server_t *srv) {
 	char *name = NULL;
 	char *hash = NULL;
+	if (clt->name[0] != '=') {
+		uint32_t err = OPC_ERR_ALREADY_AUTH;
+		srv_send(clt, OPC_ERROR, &err, sizeof(uint32_t));
+		return 0;
+	}
 	if (get_infos(data, len, &name, &hash, clt))
 		return 0;
 	if (!srv_account_check_hash(name, hash)) {
 		uint32_t err = OPC_ERR_WRONG_PASSW;
-		srv_send(clt, &OPC_ERROR, &err, sizeof(uint32_t));
+		srv_send(clt, OPC_ERROR, &err, sizeof(uint32_t));
 		return 0;
 	}
+	srv_disconnect(srv, name);
+	oe_hashmap_remove(&srv->clients, clt->name, NULL);
+	oe_hashmap_set(&srv->clients, name, clt);
+	strcpy(clt->name, name);
+
 	return 1;
 }
 
