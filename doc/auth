@@ -1,4 +1,12 @@
 create account:
 	send:
-		OPC_MKACC
+		OPC_CREATE_ACC
+		name_len + 1 + 64
+		name
+		\0
+		hash
+	response:
+		OPC_SUCCESS
+		4
+		OPC_CREATE_ACC
 
