@@ -3,7 +3,7 @@
 void srv_connect(server_t *srv) {
 	static uint64_t last = 0;
 
-	client_info_t *clt = calloc(1, sizeof(client_info_t));
+	client_t *clt = calloc(1, sizeof(client_t));
 	clt->fd = accept(srv->fd, NULL, NULL);
 
 	int tries = 30;

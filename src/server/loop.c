@@ -5,7 +5,7 @@ static struct pollfd *build_pollfd(server_t *srv, int len) {
 	if (!res)
 		return NULL;
 	res[0].fd = srv->fd;
-	client_info_t **clients = (client_info_t **)oe_hashmap_get_values(&srv->clients);
+	client_t **clients = (client_t **)oe_hashmap_get_values(&srv->clients);
 	for (int i = 0; i < len; i++)
 		res[i + 1].fd = clients[i]->fd;
 	free(clients);

@@ -1,6 +1,6 @@
 #include "server.h"
 
-void srv_free_client(char *name, client_info_t *clt) {
+void srv_free_client(char *name, client_t *clt) {
 	// TODO
 	(void)name;
 	close(clt->fd);
