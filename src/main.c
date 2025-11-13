@@ -19,6 +19,7 @@ int	main(int argc, char **argv) {
 		char *hash = sha256(argv[1]);
 		printf("%s\n", hash);
 		free(hash);
+		srv_start(NULL, 0);
 		return 0;
 	}
 	printf("\e[?1049h");

@@ -26,7 +26,7 @@ typedef struct {
 	char name[CLIENT_NAME_LEN + 1];
 	buffer_t buffer;
 	char room_name[ROOM_NAME_LEN + 1];
-} client_info_t;
+} client_t;
 
 typedef struct room_info_t {
 	char name[ROOM_NAME_LEN];
@@ -65,12 +65,16 @@ int srv_start(int argc, char **argv);
 void srv_end(server_t *srv);
 int srv_loop(server_t *srv);
 
-void srv_free_client(char *, client_info_t *clt);
+void srv_free_client(char *, client_t *clt);
 void srv_free_room(char *, room_info_t *clt);
 
 void srv_connect(server_t *srv);
 void srv_disconnect(server_t *srv, char *name);
 int srv_on_read(server_t *srv, char *name, void *buffer, int len);
-void srv_handle_msg(client_info_t *clt, uint32_t opcode, void *data, uint16_t len, server_t *srv);
+int srv_handle_msg(client_t *clt, uint32_t opcode, void *data, uint16_t len, server_t *srv);
+void srv_send(client_t *clt, uint32_t opcode, void *data, uint16_t len);
+int srv_create_account(client_t *clt, void *data, uint16_t len, server_t *srv);
+int srv_auth_account(client_t *clt, void *data, uint16_t len, server_t *srv);
+
 
 #endif
