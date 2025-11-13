@@ -22,18 +22,21 @@ int srv_on_read(server_t *srv, char *name, void *data, int len) {
 	if (!clt)
 		return 0;
 	buffer_append(&clt->buffer, data, len);
-	if (clt->buffer.len < sizeof(uint32_t) + sizeof(uint16_t))
-		return 0;
-	uint32_t opcode = 0;
-	uint16_t pack_len = 0;
-	memcpy(&opcode, clt->buffer.data, sizeof(uint32_t));
-	memcpy(&pack_len, clt->buffer.data + sizeof(uint32_t), sizeof(uint16_t));
+	int ret = 0;
+	while (1) {
+		if (clt->buffer.len < sizeof(uint32_t) + sizeof(uint16_t))
+			break;
+		uint32_t opcode = 0;
+		uint16_t pack_len = 0;
+		memcpy(&opcode, clt->buffer.data, sizeof(uint32_t));
+		memcpy(&pack_len, clt->buffer.data + sizeof(uint32_t), sizeof(uint16_t));
 
-	if (clt->buffer.len < sizeof(uint32_t) + sizeof(uint16_t) + pack_len)
-		return 0;
+		if (clt->buffer.len < sizeof(uint32_t) + sizeof(uint16_t) + pack_len)
+			break;
 
-	void *packet = clt->buffer.data + sizeof(uint32_t) + sizeof(uint16_t);
-	int ret = srv_handle_msg(clt, opcode, packet, pack_len, srv);
-	buffer_remove(&clt->buffer, 0, sizeof(uint32_t) + sizeof(uint16_t) + pack_len);
+		void *packet = clt->buffer.data + sizeof(uint32_t) + sizeof(uint16_t);
+		ret |= srv_handle_msg(clt, opcode, packet, pack_len, srv);
+		buffer_remove(&clt->buffer, 0, sizeof(uint32_t) + sizeof(uint16_t) + pack_len);
+	}
 	return ret;
 }
