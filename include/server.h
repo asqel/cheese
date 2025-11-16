@@ -31,8 +31,10 @@ typedef struct room_info_t {
 	char name[ROOM_NAME_LEN];
 	char **players;
 	size_t players_len;
+	char host[CLIENT_NAME_LEN + 1];
 	uint8_t type;
 	void *data;
+	char passwd_hash[65];
 	int (*on_recv)( // returns 1 to be destroyed
 		struct room_info_t *self,
 		char *src_name,
@@ -46,8 +48,7 @@ typedef struct room_info_t {
 	);
 	int (*on_join)( // returns 1 to deny entry
 		struct room_info_t *self,
-		char *src_name,
-		char *passwd_hash
+		char *src_name
 	);
 } room_info_t;
 
