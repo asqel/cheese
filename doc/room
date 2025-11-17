@@ -1,0 +1,9 @@
+create room:
+	OPC_CREATE_ROOM
+	len:
+	64 bytes (passwd hash) (or 64 \0 to none)
+	
+	response:
+		opc = OPC_SUCCESS
+		len = 4
+		data = OPC_CREATE_ROOM

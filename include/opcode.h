@@ -5,8 +5,8 @@
 #define OPC_ERROR 0
 #define OPC_CREATE_ACC 1
 #define OPC_AUTH_ACC 2
-#define OPC_SERVER_FAIL 3
-#define OPC_SUCCESS 4
+#define OPC_SUCCESS 3
+#define OPC_JOIN 4
 #define OPC_PING 0xFFABBAFF
 
 #define OPC_ERR_NAME_LEN 1
@@ -14,5 +14,6 @@
 #define OPC_ERR_INVALID_DATA 3
 #define OPC_ERR_ALREADY_AUTH 4 
 #define OPC_ERR_WRONG_PASSW 5
+#define OPC_ERR_FAIL 6
 
 #endif

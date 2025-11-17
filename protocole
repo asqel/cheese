@@ -1,15 +1,59 @@
-connect to server:
-	send  connect(name, sha256(sha256(passwd) + time), time)
-	server reponse
-	if (fail)
-		socket is closed
-	
-create account:
-	send create(name, sha256(passwd))
-	server response
-	if (fail)
-		socket is closed
-	else
-		connected
-		
 
+server response fail:
+	opcode = OPC_ERROR
+	len = 4
+	data:
+		reason (4 bytes)
+
+server response success:
+	opcode = OPC_SCCESS
+	len = 4
+	data:
+		reason (4 bytes)
+
+create account:
+	send:
+		opcode = OPC_CREATE_ACC
+		len = name_len + 1 + 64
+		data:
+			name
+			\0
+			passwd_hash (64 bytes)
+	response:
+		fail/success
+
+auth account:
+	send:
+		opcode = OPC_AUTH_ACC
+		len = name_len + 1 + 64
+		data:
+			name
+			\0
+			passwd_hash (64 bytes)
+	response:
+		fail/success
+
+ping:
+	send:
+		opcode = OPC_PING
+		len = ignored
+		data:
+			ignored
+
+	response:
+		ocpode = OPC_PING
+		len = ignored
+		data:
+			ignored
+
+join room:
+	send:
+		opcode = OPC_JOIN
+		len = room_name_len + 1 + 64
+		data:
+			room_name
+			\0
+			room_passw_hash (64 bytes)
+	response:
+		fail/success
+			
