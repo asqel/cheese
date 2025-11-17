@@ -73,6 +73,7 @@ void srv_disconnect(server_t *srv, char *name);
 int srv_on_read(server_t *srv, char *name, void *buffer, int len);
 int srv_handle_msg(client_t *clt, uint32_t opcode, void *data, uint16_t len, server_t *srv);
 void srv_send(client_t *clt, uint32_t opcode, void *data, uint16_t len);
+void srv_send_err(client_t *clt, uint32_t err);
 int srv_create_account(client_t *clt, void *data, uint16_t len, server_t *srv);
 int srv_auth_account(client_t *clt, void *data, uint16_t len, server_t *srv);
 
