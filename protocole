@@ -9,7 +9,7 @@ server response success:
 	opcode = OPC_SCCESS
 	len = 4
 	data:
-		reason (4 bytes)
+		same opcode as the operation (4 bytes)
 
 create account:
 	send:
@@ -46,6 +46,17 @@ ping:
 		data:
 			ignored
 
+create room:
+	send:
+		opcode = OPC_CREATE_ROOM
+		len = room_name_len + 1 + 64
+		data:
+			room_name
+			\0
+			room_passw_hash (64 bytes)
+	response:
+		fail/success
+
 join room:
 	send:
 		opcode = OPC_JOIN
@@ -55,5 +66,5 @@ join room:
 			\0
 			room_passw_hash (64 bytes)
 	response:
-		fail/success
-			
+		fail/success	
+

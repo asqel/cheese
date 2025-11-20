@@ -16,7 +16,7 @@ server args:
 
 
 #define CLIENT_NAME_LEN 20
-#define ROOM_NAME_LEN 20
+#define ROOM_NAME_LEN 40
 
 #define PRINT_ERR(...) fprintf(stderr, __VA_ARGS__)
 

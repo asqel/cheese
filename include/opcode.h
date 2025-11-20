@@ -15,5 +15,6 @@
 #define OPC_ERR_ALREADY_AUTH 4 
 #define OPC_ERR_WRONG_PASSW 5
 #define OPC_ERR_FAIL 6
+#define OPC_ERR_NAME_INVALID 7
 
 #endif
