@@ -17,86 +17,6 @@ void	remove_piece(tile_t *target, int id, board_t *board)
 	}
 }
 
-int	choose_promo_piece(const int limit_x, const int limit_y)
-{
-	int		x = 0;
-	int		y = 0;
-
-	while (1) {
-		char key = read_char();
-		if (key >= 'A' && key <= 'Z')
-			key += 32;
-		switch (key) {
-			case 'w':
-				if (y != 0) {
-					for (int i = 0; i < 2; i++)
-						printf("%s", CURSOR_UP);
-					y--;
-				}
-				break ;
-			case 's':
-				if (y != (limit_y - 1)) {
-					for (int i = 0; i < 2; i++)
-						printf("%s", CURSOR_DOWN);
-					y++;
-				}
-				break ;
-			case 'a':
-				if (x != 0) {
-					for (int i = 0; i < 4; i++)
-						printf("%s", CURSOR_LEFT);
-					x--;
-				}
-				break ;
-			case 'd':
-				if (x != (limit_x - 1)) {
-					for (int i = 0; i < 4; i++)
-						printf("%s", CURSOR_RIGHT);
-					x++;
-				}
-				break ;
-			case 10:
-				return ((y * limit_x) + x);
-		}
-		fflush(stdout);
-	}
-}
-
-int	promo_menu(int y, int color, board_t *board)
-{
-	int		nb_pieces = 4;
-	int		nb_spaces = PROMO_OFFSET + board->width / nb_pieces * 4;
-	char	cur_piece[5];
-	int 	board_cursor_y, board_cursor_x;
-
- 	strcpy(cur_piece, "♕");
-	cur_piece[2] += (color * 6);
-	get_cursor_position(&board_cursor_x, &board_cursor_y);
-	printf("\033[%d;%dH\033[?25h", 1 + (y * 2), 0);
-	write(1, "\e[?25l", 6);
-	printf("%*s┌──", nb_spaces, "");
-	for (int i = 0; i < 3; i++)
-		printf("─┬──");
-	printf("─┐\n%*s│", nb_spaces, "");
-
-	for (int i = 0; i < 4; i++) {
-		printf(" %s │", cur_piece);
-		cur_piece[2]++;
-	}
-	printf("\n%*s└──", nb_spaces, "");
-	for (int i = 0; i < 3; i++)
-		printf("─┴──");
-	printf("─┘%s\r", CURSOR_UP);
-	for (int i = 0; i < nb_spaces + 2; i++)
-		printf("%s", CURSOR_RIGHT);
-	printf("\033[?25h");
-	fflush(stdout);
-	int	requested_piece = choose_promo_piece(nb_pieces, 1);
-	printf("\033[%d;%dH\033[?25h", board_cursor_y, board_cursor_x);
-	fflush(stdout);
-	return (requested_piece);
-}
-
 void	update_move_counter(selector_t *selector, piece_t *piece) {
 	switch (piece->type) {
 		case KING:
@@ -128,15 +48,15 @@ void	move_piece(board_t *board, int y, int x)
 	board->selector.target_x = x;
 	tile_t	*origin_tile = &board->tiles[board->selector.origin_y][board->selector.origin_x];
 	tile_t	*target_tile = &board->tiles[board->selector.target_y][board->selector.target_x];
-	piece_t selected_piece = origin_tile->pieces[0];//board->selector.origin_id];
+	piece_t selected_piece = origin_tile->pieces[board->selector.origin_id];
 
-	for (int i = (board->selector.origin_id + 1); i < origin_tile->nb_piece; i++)
-		origin_tile->pieces[i - 1] = origin_tile->pieces[i];
 	if (!--origin_tile->nb_piece && board->copy_board) {
+		for (int i = (board->selector.origin_id + 1); i < origin_tile->nb_piece; i++)
+			origin_tile->pieces[i - 1] = origin_tile->pieces[i];
 		free(origin_tile->pieces);
 		origin_tile->pieces = NULL;
 	}
-	if (target_tile->nb_piece) {
+	if (target_tile->nb_piece && selected_piece.color != target_tile->pieces[0].color) {
 		remove_piece(target_tile, 0, board);
 		selected_piece.kill_count++;
 	}

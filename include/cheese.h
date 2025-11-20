@@ -68,6 +68,7 @@ typedef struct board_s
 	selector_t	selector;
 	tile_t		*promo_tile;
 	struct board_s	*copy_board;
+	int				debug;
 }	board_t;
 
 int		play(board_t *board);
@@ -75,6 +76,7 @@ void	free_board(board_t *board, int free_char);
 void	init_board(char *filepath, board_t *board);
 int		update_possible_moves(board_t *board, int y, int x);
 int		promo_menu(int y, int color, board_t *board);
+int		choose_tile_piece_menu(board_t *board, tile_t *tile);
 void	move_piece(board_t *board, int y, int x);
 
 //simulations
