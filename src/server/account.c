@@ -33,6 +33,10 @@ static int get_infos(void *data, uint16_t len, char **name, char **hash, client_
 		srv_send_err(clt, OPC_ERR_INVALID_DATA);
 		return 1;
 	}
+	if (!srv_is_name_valid(data)) {
+		srv_send_err(clt, OPC_ERR_NAME_INVALID);
+		return 1;
+	}
 	*name = (char *)data;
 	*hash = (char *)data + name_len + 1;
 	return 0;
