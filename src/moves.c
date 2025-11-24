@@ -51,8 +51,6 @@ void	move_piece(board_t *board, int y, int x)
 	piece_t selected_piece = origin_tile->pieces[board->selector.origin_id];
 
 	if (!--origin_tile->nb_piece && board->copy_board) {
-		for (int i = (board->selector.origin_id + 1); i < origin_tile->nb_piece; i++)
-			origin_tile->pieces[i - 1] = origin_tile->pieces[i];
 		free(origin_tile->pieces);
 		origin_tile->pieces = NULL;
 	}

@@ -52,9 +52,11 @@ int	choose_tile_piece_menu(board_t *board, tile_t *tile)
 	int		menu_x, menu_y;
 
 	menu_x = (board->width + 3) * 4;
-	menu_y = ((board->height - nb_pieces) / 2) * 4 - 1;
+	menu_y = PROMO_OFFSET + ((board->height - nb_pieces) / 2) * 2;
+	if ((board->height - nb_pieces) % 2)
+		menu_y++;
 	get_cursor_position(&board_cursor_x, &board_cursor_y);
-	printf("\033[?25h]\033[?25h");
+	printf("\033[?25h\033[?25h");
 	fflush(stdout);
 	printf("\033[%d;%dH┌───┐", menu_y++, menu_x);
 	for (int i = 0; i < nb_pieces; i++) {
@@ -63,13 +65,20 @@ int	choose_tile_piece_menu(board_t *board, tile_t *tile)
 			printf("\033[%d;%dH├───┤", menu_y++, menu_x);
 	}
 	printf("\033[%d;%dH└───┘", menu_y, menu_x);
-	menu_y = ((board->height - nb_pieces) / 2) * 4;
+	menu_y = PROMO_OFFSET + ((board->height - nb_pieces) / 2) * 2 + 1;
+	if ((board->height - nb_pieces) % 2)
+		menu_y++;
 	printf("\033[%d;%dH", menu_y, menu_x + 2);
 	fflush(stdout);
-	int	requested_piece = choose_tile_piece(1, nb_pieces);
+	int	requested_piece = choose_tile_piece(1, nb_pieces--);
+	if (requested_piece != nb_pieces) {
+		piece_t	save = tile->pieces[requested_piece];
+		tile->pieces[requested_piece] = tile->pieces[nb_pieces];
+		tile->pieces[nb_pieces] = save;
+	}
 	printf("\033[%d;%dH\033[?25h", board_cursor_y, board_cursor_x);
 	fflush(stdout);
-	return (requested_piece);
+	return (nb_pieces);
 }
 
 int	choose_promo_piece(const int limit_x, const int limit_y)

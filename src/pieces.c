@@ -81,7 +81,9 @@ int	move_rook(board_t *board, piece_t *target, int y, int x)
 				target_y >= board->height || target_x >= board->width)
 				break ;
 			tile = &board->tiles[target_y][target_x];
-			if (tile->nb_piece) {
+			if (board->debug)
+				evaluate_move(board, target, target_y, target_x, &valid_move);
+			if (!board->debug && tile->nb_piece) {
 				if (tile->pieces[0].color != target->color)
 					evaluate_move(board, target, target_y, target_x, &valid_move);
 				break ;
@@ -107,7 +109,7 @@ int	move_knight(board_t *board, piece_t *target, int y, int x)
 			target_y >= board->height || target_x >= board->width)
 			continue ;
 		tile = &board->tiles[target_y][target_x];
-		if (!tile->nb_piece || tile->pieces[0].color != target->color)
+		if (board->debug || !tile->nb_piece || tile->pieces[0].color != target->color)
 			evaluate_move(board, target, target_y, target_x, &valid_move);
 	}
 	return (valid_move);
@@ -131,7 +133,9 @@ int	move_bishop(board_t *board, piece_t *target, int y, int x)
 				target_y >= board->height || target_x >= board->width)
 				break ;
 			tile = &board->tiles[target_y][target_x];
-			if (tile->nb_piece) {
+			if (board->debug)
+				evaluate_move(board, target, target_y, target_x, &valid_move);
+			if (!board->debug && tile->nb_piece) {
 				if (tile->pieces[0].color != target->color)
 					evaluate_move(board, target, target_y, target_x, &valid_move);
 				break ;
