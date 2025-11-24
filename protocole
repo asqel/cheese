@@ -54,6 +54,7 @@ create room:
 			room_name
 			\0
 			room_passw_hash (64 bytes)
+			room_type (1 byte)
 	response:
 		fail/success
 

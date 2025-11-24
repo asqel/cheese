@@ -28,9 +28,8 @@ typedef struct {
 } client_t;
 
 typedef struct room_info_t {
-	char name[ROOM_NAME_LEN];
+	char name[ROOM_NAME_LEN + 1];	
 	char **players;
-	size_t players_len;
 	char host[CLIENT_NAME_LEN + 1];
 	uint8_t type;
 	void *data;
