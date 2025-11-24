@@ -26,16 +26,25 @@ int srv_create_room(client_t *clt, void *data, uint16_t len, server_t *srv) {
 	char *hash = NULL;
 	if (get_infos(data, len, &name, &hash, clt, 1))
 		return 0;
-	// TODO check if already in room
+	if (!clt->room_name[0]) {
+		srv_send_err(clt, OPC_ERR_ALREADY_IN_ROOM);
+		return 0;
+	}
 	uint8_t room_type = *((uint8_t *)data + len - 1);
-	// TODO check room type
+	if (room_type >= ROOM_TYPE_MAX) {
+		srv_send_err(clt, OPC_ERR_ROOM_TYPE);
+		return 0;
+	}
 	room_info_t *room = malloc(sizeof(room_info_t));
 	memset(room, 0, sizeof(room_info_t));
 	strcpy(room->name, name);
-	oe_strarr_append(&room->players, clt->name, NULL, 0);
+	room->players = oe_strarr_append(room->players, clt->name, NULL, 0);
 	strcpy(room->host, clt->name);
 	memcpy(room->passwd_hash, hash, 64);
+	strcpy(clt->room_name, name);
+	srv_init_room(room);
 
+	
 	
 	// TODO send success
 	return 0;

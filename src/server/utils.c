@@ -2,10 +2,10 @@
 
 int srv_is_name_valid(char *name) {
 	size_t len = strlen(name);
-	for (size_t i = 0; i < name; i++) {
+	for (size_t i = 0; i < len; i++) {
 		if (strchr("\\/<>:\"|?*", name[i]))
 			return 0;
-		if (name[i] < ' ' && nanme[i] >= 0)
+		if (name[i] < ' ' && name[i] >= 0)
 			return 0;
 		if (name[i] >> 5 == 0b110) {
 			i++;

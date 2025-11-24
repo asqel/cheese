@@ -7,6 +7,7 @@
 #include <oeuf.h>
 #include "cheese.h"
 #include "opcode.h"
+#include "room.h"
 
 /*
 server args:
@@ -76,5 +77,6 @@ void srv_send_err(client_t *clt, uint32_t err);
 int srv_create_account(client_t *clt, void *data, uint16_t len, server_t *srv);
 int srv_auth_account(client_t *clt, void *data, uint16_t len, server_t *srv);
 int srv_is_name_valid(char *name);
+void srv_send_success(client_t *clt, uint32_t opc);
 
 #endif

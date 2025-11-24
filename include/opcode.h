@@ -17,5 +17,6 @@
 #define OPC_ERR_FAIL 6
 #define OPC_ERR_NAME_INVALID 7
 #define OPC_ERR_ROOM_TYPE 8
+#define OPC_ERR_ALREADY_IN_ROOM 9
 
 #endif

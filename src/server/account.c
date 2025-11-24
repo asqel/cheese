@@ -59,7 +59,7 @@ int srv_auth_account(client_t *clt, void *data, uint16_t len, server_t *srv) {
 	oe_hashmap_remove(&srv->clients, clt->name, NULL);
 	oe_hashmap_set(&srv->clients, name, clt);
 	strcpy(clt->name, name);
-
+	srv_send_success(clt, OPC_AUTH_ACC);
 	return 1;
 }
 
@@ -84,5 +84,6 @@ int srv_create_account(client_t *clt, void *data, uint16_t len, server_t *srv) {
 	fwrite(hash, 1, 64, f);
 	fflush(f);
 	fclose(f);
+	srv_send_success(clt, OPC_CREATE_ACC);
 	return 0;
 }
