@@ -43,9 +43,6 @@ int srv_create_room(client_t *clt, void *data, uint16_t len, server_t *srv) {
 	memcpy(room->passwd_hash, hash, 64);
 	strcpy(clt->room_name, name);
 	srv_init_room(room);
-
-	
-	
-	// TODO send success
+	srv_send_success(clt, OPC_CREATE_ROOM);
 	return 0;
 }
