@@ -54,12 +54,22 @@ typedef struct room_info_t {
 } room_info_t;
 
 typedef struct {
+	void *handler;
+	int (*init)(room_info_t *self. uint8_t type);
+	void (*free)(room_info_t *self);
+	int (*join)(room_info_t *self, client_t *clt);
+	int (*leave)(room_info_t *self, client_t *clt);
+	void (*leave)(room_info_t *self, client_t *clt, uint32_t pos1[2], uint32_t pos2[2]);
+	void (*recv_custom)(room_info_t *self, client_t *clt, uint32_t opcode, void *data, uint16_t len);
+} room_lib_t;
+
+typedef struct {
 	int fd;
 	int port;
 	char *path;
 	oe_hashmap_t clients;
 	oe_hashmap_t rooms;
-	void *room_funcs[256][7]; // init, free, join, leave, move, recv_custom, dlopen_handler
+	room_lib_t room_libs[256];
 } server_t;
 
 int srv_parse_args(int argc, char **argv, server_t *srv);
