@@ -3,6 +3,7 @@
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <dlfnc.h>
 #include <poll.h>
 #include <oeuf.h>
 #include "cheese.h"
@@ -79,5 +80,6 @@ int srv_create_account(client_t *clt, void *data, uint16_t len, server_t *srv);
 int srv_auth_account(client_t *clt, void *data, uint16_t len, server_t *srv);
 int srv_is_name_valid(char *name);
 void srv_send_success(client_t *clt, uint32_t opc);
+char *srv_build_path(server_t *srv, char *path, char *suffix);
 
 #endif

@@ -8,8 +8,10 @@ int srv_account_exists(char *name) {
 	return 1;
 }
 
-int srv_account_check_hash(char *name, char *hash) {
-	FILE *f = fopen(name, "r");
+int srv_account_check_hash(char *name, char *hash, server_t *srv) {
+	char *path = srv_build_path(srv, name, ".acc");
+	FILE *f = fopen(path, "r");
+	free(path);
 	if (!f)
 		return 0;
 	char file_hash[64];
@@ -52,7 +54,7 @@ int srv_auth_account(client_t *clt, void *data, uint16_t len, server_t *srv) {
 	}
 	if (get_infos(data, len, &name, &hash, clt))
 		return 0;
-	if (!srv_account_check_hash(name, hash)) {
+	if (!srv_account_check_hash(name, hash, srv)) {
 		srv_send_err(clt, OPC_ERR_WRONG_PASSW);
 		sleep(1);
 		return 0;
@@ -77,8 +79,9 @@ int srv_create_account(client_t *clt, void *data, uint16_t len, server_t *srv) {
 		srv_send_err(clt, OPC_ERR_NAME_TAKEN);
 		return 1;
 	}
-
-	FILE *f = fopen(name, "wb");
+	char *path = srv_build_path(srv, name, ".acc");
+	FILE *f = fopen(path, "wb");
+	free(path);
 	if (!f) {
 		srv_send_err(clt, OPC_ERR_FAIL);
 		return 0;

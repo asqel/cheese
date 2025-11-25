@@ -4,7 +4,7 @@
 
 static void default_init(server_t *srv) {
 	srv->port = 42124;
-	srv->path = NULL;
+	srv->path = ".";
 	srv->fd = -1;
 }
 
@@ -58,8 +58,6 @@ int srv_start(int argc, char **argv) {
 		return 1;
 	if (init_srv(&srv))
 		return 1;
-	if (srv.path)
-		chdir(srv.path);
 	signal(SIGPIPE, SIG_IGN);
 	int ret = srv_loop(&srv);
 	srv_end(&srv);
