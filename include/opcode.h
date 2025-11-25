@@ -7,6 +7,7 @@
 #define OPC_AUTH_ACC 2
 #define OPC_SUCCESS 3
 #define OPC_JOIN 4
+#define OPC_CREATE_ROOM 5
 #define OPC_PING 0xFFABBAFF
 
 #define OPC_ERR_NAME_LEN 1

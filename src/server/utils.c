@@ -2,7 +2,10 @@
 
 int srv_is_name_valid(char *name) {
 	size_t len = strlen(name);
-	for (size_t i = 0; i < len; i++) {
+	size_t i = 0;
+	for (i = 0; i < len; i++) {
+		if (name[i] == ' ' && name[i + 1] == ' ')
+			return 0;
 		if (strchr("\\/<>:\"|?*", name[i]))
 			return 0;
 		if (name[i] < ' ' && name[i] >= 0)
@@ -22,5 +25,5 @@ int srv_is_name_valid(char *name) {
 		if (name[i] >= 0x7f)
 			return 0;
 	}
-	return 1;
+	return (i == len);
 }
