@@ -1,6 +1,8 @@
 #include "server.h"
 
 int srv_is_name_valid(char *name) {
+	if (name[0] == '=')
+		return 0;
 	size_t len = strlen(name);
 	size_t i = 0;
 	for (i = 0; i < len; i++) {

@@ -58,6 +58,7 @@ typedef struct {
 	char *path;
 	oe_hashmap_t clients;
 	oe_hashmap_t rooms;
+	void *room_funcs[256][7]; // init, free, join, leave, move, recv_custom, dlopen_handler
 } server_t;
 
 int srv_parse_args(int argc, char **argv, server_t *srv);

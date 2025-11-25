@@ -47,15 +47,18 @@ int srv_auth_account(client_t *clt, void *data, uint16_t len, server_t *srv) {
 	char *hash = NULL;
 	if (clt->name[0] != '=') {
 		srv_send_err(clt, OPC_ERR_ALREADY_AUTH);
+		sleep(1);
 		return 0;
 	}
 	if (get_infos(data, len, &name, &hash, clt))
 		return 0;
 	if (!srv_account_check_hash(name, hash)) {
 		srv_send_err(clt, OPC_ERR_WRONG_PASSW);
+		sleep(1);
 		return 0;
 	}
-	srv_disconnect(srv, name);
+	if (oe_hashmap_get(&srv->clients, name))
+		srv_disconnect(srv, name);
 	oe_hashmap_remove(&srv->clients, clt->name, NULL);
 	oe_hashmap_set(&srv->clients, name, clt);
 	strcpy(clt->name, name);

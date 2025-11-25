@@ -1,6 +1,7 @@
 #include "server.h"
 
 int srv_handle_msg(client_t *clt, uint32_t opcode, void *data, uint16_t len, server_t *srv) {	
+	printf("client `%s': opcode %u, len %hu\n", clt->name, opcode, len);
 	switch (opcode) {
 		case OPC_CREATE_ACC:
 			return srv_create_account(clt, data, len, srv);

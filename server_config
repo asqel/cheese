@@ -1,0 +1,8 @@
+#dir: path
+#port: NUM
+#room type NUM: path
+# example
+
+dir: ./server_dir
+port: 42124
+room type 0: ./room/std_game.so
