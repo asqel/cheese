@@ -3,7 +3,7 @@
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <dlfnc.h>
+#include <dlfcn.h>
 #include <poll.h>
 #include <oeuf.h>
 #include "cheese.h"
@@ -36,30 +36,15 @@ typedef struct room_info_t {
 	uint8_t type;
 	void *data;
 	char passwd_hash[65];
-	int (*on_recv)( // returns 1 to be destroyed
-		struct room_info_t *self,
-		char *src_name,
-		uint16_t op,
-		uint16_t len,
-		void *data
-	);
-	int (*on_disconect)( // returns 1 to be destroyed
-		struct room_info_t *self,
-		char *src_name
-	);
-	int (*on_join)( // returns 1 to deny entry
-		struct room_info_t *self,
-		char *src_name
-	);
 } room_info_t;
 
 typedef struct {
 	void *handler;
-	int (*init)(room_info_t *self. uint8_t type);
+	int (*init)(room_info_t *self);
 	void (*free)(room_info_t *self);
 	int (*join)(room_info_t *self, client_t *clt);
 	int (*leave)(room_info_t *self, client_t *clt);
-	void (*leave)(room_info_t *self, client_t *clt, uint32_t pos1[2], uint32_t pos2[2]);
+	void (*mov)(room_info_t *self, client_t *clt, uint32_t pos1[2], uint32_t pos2[2]);
 	void (*recv_custom)(room_info_t *self, client_t *clt, uint32_t opcode, void *data, uint16_t len);
 } room_lib_t;
 
