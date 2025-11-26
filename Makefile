@@ -6,8 +6,8 @@ OBJ := $(addprefix obj/, $(OBJ))
 CC = gcc
 LD = gcc
 
-LIBS_INCLUDE = -Ioeuf/
-LIBS = liboeuf.a
+LIBS_INCLUDE = -Ioeuf/ -Ionion/include
+LIBS = liboeuf.a libonion.a
 CFLAGS = -Wall -Wextra -Iinclude $(LIBS_INCLUDE) -g 
 LDFLAGS =
 
@@ -33,6 +33,10 @@ fclean: clean
 liboeuf.a:
 	make -C oeuf
 	cp oeuf/$@ ./
+
+libonion.a:
+	make -C onion
+	cp onion/$@ ./
 
 re: fclean all
 
