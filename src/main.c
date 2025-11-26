@@ -47,6 +47,10 @@ int	main(int argc, char **argv) {
 	else if (!strcmp(argv[1], "-s")) {
 		return srv_start(argc - 2, argv + 2);
 	}
+	else if (!strcmp(argv[1], "-g")) {
+		fprintf(stderr, "AH lol\n");
+		return 1;
+	}
 	fprintf(stderr, "Error: expected `-s' or `-c' as first argument\n");
 	return 1;
 }

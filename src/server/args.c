@@ -2,48 +2,28 @@
 #include <limits.h>
 #include <errno.h>
 
-static int parse_int(int *res, char *str) {
-	char *end = NULL;
-	long int val = strtol(str, &end, 10);
-	if (val > INT_MAX || val < INT_MIN)
-		return 1;
-	if (errno == ERANGE && (val == LONG_MAX || val == LONG_MIN))
-		return 1;
-	if (errno != 0 && val == 0)
-		return 1;
-	if (end == str)
-		return 1;
-	*res = (int)val;
-	return *end == '\0';
+int read_json(json_value_t *json, server_t *srv) {
+	(void)json;
+	(void)srv;
+	return 0;
 }
 
 int srv_parse_args(int argc, char **argv, server_t *srv) {
-	int i = 0;
-	while (i < argc) {
-		if (!strcmp(argv[i], "-p")) {
-			i++;
-			if (i >= argc) {
-				PRINT_ERR("cheese: missing port parameter after `-p'\n");
-				return 1;
-			}
-			if (parse_int(&srv->port, argv[i])) {
-				PRINT_ERR(
-					"cheese: `%s' parameter after -p is not an interger", argv[i]);
-				return 1;
-			}
-			i++;
-		}
-		if (!strcmp(argv[i], "--path"))  {
-			i++;
-			if (i >= argc) {
-				PRINT_ERR("cheese: missing path parameter after `--path'\n");
-				return 1;
-			}
-			srv->path = argv[i];
-			i++;
-		}
-		PRINT_ERR("cheese: unkown parameter `%s'\n", argv[i]);
+	if (argc > 1) {
+		PRINT_ERR("cheese: server accept at most 1 argument\n");
 		return 1;
 	}
+	if (argc == 0)
+		return 0;
+	json_value_t json;
+	if (json_from_file(argv[0], &json)) { 
+		PRINT_ERR("cheese: %s: error while reading json\n", argv[0]);
+		return 1;
+	}
+	if (read_json(&json, srv)) {
+		json_destroy(&json);
+		return 1;
+	}
+	json_destroy(&json);
 	return 0;
 }

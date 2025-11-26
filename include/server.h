@@ -9,6 +9,7 @@
 #include "cheese.h"
 #include "opcode.h"
 #include "room.h"
+#include "onion.h"
 
 /*
 server args:
