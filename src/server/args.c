@@ -3,8 +3,7 @@
 #include <errno.h>
 
 int read_json(json_value_t *json, server_t *srv) {
-	(void)json;
-	(void)srv;
+		
 	return 0;
 }
 
