@@ -24,7 +24,7 @@ int srv_loop(server_t *srv) {
 	struct pollfd *fds = NULL;
 	int fds_len = 0;
 
-	while (1) {
+	while (!srv->end) {
 		if (!fds) {
 			keys = oe_hashmap_get_keys(&srv->clients);
 			fds_len = oe_hashmap_len(&srv->clients);

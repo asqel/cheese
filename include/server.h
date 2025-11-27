@@ -45,11 +45,12 @@ typedef struct {
 	void (*free)(room_info_t *self);
 	int (*join)(room_info_t *self, client_t *clt);
 	int (*leave)(room_info_t *self, client_t *clt);
-	void (*mov)(room_info_t *self, client_t *clt, uint32_t pos1[2], uint32_t pos2[2]);
-	void (*recv_custom)(room_info_t *self, client_t *clt, uint32_t opcode, void *data, uint16_t len);
+	void (*move)(room_info_t *self, client_t *clt, uint32_t pos1[2], uint32_t pos2[2]);
+	void (*recv)(room_info_t *self, client_t *clt, uint32_t opcode, void *data, uint16_t len);
 } room_lib_t;
 
 typedef struct {
+	int end;
 	int fd;
 	int port;
 	char *path;

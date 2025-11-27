@@ -3,9 +3,40 @@
 #include <errno.h>
 
 static void open_dll_room(uint8_t room_type, char *path, server_t *srv) {
-	(void)room_type;
-	(void)path;
-	(void)srv;
+	if (srv->room_libs[room_type].handler) {
+		PRINT_ERR("room type %d redefined, skipping...\n", room_type);
+		return ;
+	}
+	room_lib_t *room = &srv->room_libs[room_type];
+	room->handler = dlopen(path, RTLD_NOW);
+	if (!room->handler) {
+		PRINT_ERR("%s, skipping...\n", dlerror());
+		return ;
+	}
+	room->init = dlsym(room->handler, "init_func");
+	room->free = dlsym(room->handler, "free_func");
+	room->join = dlsym(room->handler, "join_func");
+	room->leave = dlsym(room->handler, "leave_func");
+	room->move = dlsym(room->handler, "move_func");
+	room->recv = dlsym(room->handler, "recv_func");
+	if (!room->init)
+		PRINT_ERR("%s: missing init_func\n", path);
+	if (!room->free)
+		PRINT_ERR("%s: missing free_func\n", path);
+	if (!room->join)
+		PRINT_ERR("%s: missing join_func\n", path);
+	if (!room->leave)
+		PRINT_ERR("%s: missing leave_func\n", path);
+	if (!room->move)
+		PRINT_ERR("%s: missing move_func\n", path);
+	if (!room->recv)
+		PRINT_ERR("%s: missing recv_func\n", path);
+	if (room->init && room->free && room->join && room->leave && room->move && room->recv) {
+		printf("adding %s as room type %d\n", path, room_type);
+		return ;
+	}
+	dlclose(room->handler);
+	room->handler = NULL;
 
 }
 
@@ -25,7 +56,7 @@ static int read_rooms(json_value_t *json, server_t *srv) {
 			|| json_array_get(val, 0)->val.num >= 256
 			|| json_array_get(val, 0)->val.num < 0
 		) {
-			PRINT_ERR("cheese: config: element %d of rooms invalid skipping", i);
+			PRINT_ERR("cheese: config: element %d of rooms invalid, skipping...\n", i);
 			continue;
 		}
 		int room_type = json_array_get(val, 0)->val.num;
@@ -42,11 +73,11 @@ static int read_json(json_value_t *json, server_t *srv) {
 	}
 	json_value_t *val = json_object_get(json, "port");
 	if (val && val->type != JSON_NUMBER) {
-		PRINT_ERR("cheese: config: value 'port' must be an integer");
+		PRINT_ERR("cheese: config: value 'port' must be an integer\n");
 		return 1;
 	}
 	if ((int)val->val.num != val->val.num) {
-		PRINT_ERR("cheese: config: value 'port' must be an integer");
+		PRINT_ERR("cheese: config: value 'port' must be an integer\n");
 		return 1;
 	}
 	if (val)
@@ -57,7 +88,7 @@ static int read_json(json_value_t *json, server_t *srv) {
 	
 	val = json_object_get(json, "path");
 	if (val && val->type != JSON_STRING) {
-		PRINT_ERR("cheese: config: value 'path' must be a string");
+		PRINT_ERR("cheese: config: value 'path' must be a string\n");
 		return 1;
 	}
 	if (val)
