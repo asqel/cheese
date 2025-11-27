@@ -49,6 +49,11 @@ int init_srv(server_t *srv) {
 	return 0;
 }
 
+void sigint_ignore(int sig) {
+	(void)sig;
+	putc('\n', stdout);
+}
+
 int srv_start(int argc, char **argv) {
 	server_t srv = (server_t){0};
 	default_init(&srv);
@@ -59,6 +64,7 @@ int srv_start(int argc, char **argv) {
 	if (init_srv(&srv))
 		return 1;
 	signal(SIGPIPE, SIG_IGN);
+	signal(SIGINT, sigint_ignore);
 	int ret = srv_loop(&srv);
 	srv_end(&srv);
 	return ret;
