@@ -14,6 +14,7 @@ LDFLAGS =
 NAME = cheese
 
 all: $(NAME)
+	make -C rooms
 
 $(NAME): $(OBJ) $(LIBS)
 	$(LD) $(LDFLAGS) $^ $(LIBS) -o $@
@@ -24,7 +25,9 @@ obj/%.o: src/%.c
 
 clean:
 	rm -rf $(OBJ)
+	make -C onion clean
 	make -C oeuf clean
+	make -C rooms fclean
 
 fclean: clean
 	rm -rf $(NAME)

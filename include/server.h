@@ -44,7 +44,7 @@ typedef struct {
 	int (*init)(room_info_t *self);
 	void (*free)(room_info_t *self);
 	int (*join)(room_info_t *self, client_t *clt);
-	int (*leave)(room_info_t *self, client_t *clt);
+	void (*leave)(room_info_t *self, client_t *clt);
 	void (*move)(room_info_t *self, client_t *clt, uint32_t pos1[2], uint32_t pos2[2]);
 	void (*recv)(room_info_t *self, client_t *clt, uint32_t opcode, void *data, uint16_t len);
 } room_lib_t;
@@ -78,5 +78,8 @@ int srv_auth_account(client_t *clt, void *data, uint16_t len, server_t *srv);
 int srv_is_name_valid(char *name);
 void srv_send_success(client_t *clt, uint32_t opc);
 char *srv_build_path(server_t *srv, char *path, char *suffix);
+int srv_handle_move(client_t *clt, uint8_t *data, uint16_t len, server_t *srv);
+int srv_handle_custom_opc(client_t *clt, uint8_t *data, uint16_t len, server_t *srv);
+int srv_create_room(client_t *clt, void *data, uint16_t len, server_t *srv);
 
 #endif

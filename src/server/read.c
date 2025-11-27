@@ -2,6 +2,10 @@
 
 int srv_handle_msg(client_t *clt, uint32_t opcode, void *data, uint16_t len, server_t *srv) {	
 	printf("client `%s': opcode %u, len %hu\n", clt->name, opcode, len);
+	if (clt->name[0] == '=' && opcode != OPC_CREATE_ACC && opcode != OPC_AUTH_ACC && opcode != OPC_PING) {
+		srv_send_err(clt, OPC_ERR_FORBIDDEN);
+		return 0;	
+	}
 	switch (opcode) {
 		case OPC_CREATE_ACC:
 			return srv_create_account(clt, data, len, srv);
@@ -10,6 +14,12 @@ int srv_handle_msg(client_t *clt, uint32_t opcode, void *data, uint16_t len, ser
 		case OPC_PING:
 			srv_send(clt, OPC_PING, data, len);
 			return 0;
+		case OPC_MOVE:
+			return srv_handle_move(clt, data, len, srv);
+		case OPC_CUSTOM:
+			return srv_handle_custom_opc(clt, data, len, srv);
+		case OPC_CREATE_ROOM:
+			return srv_create_room(clt, data, len, srv);
 	 	default:
 			srv_send(clt, OPC_UNKNOW_OP, &opcode, sizeof(uint32_t));
 			break;

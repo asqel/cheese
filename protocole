@@ -67,5 +67,29 @@ join room:
 			\0
 			room_passw_hash (64 bytes)
 	response:
-		fail/success	
+		fail/custom
+		custom:
+			opcode = OPC_SUCCESS
+			len = 5
+			data:
+				OPC_JOIN
+				room type (1 byte)
+move:
+	send:
+		opcode = OPC_MOVE
+		len = 16
+		data:
+			x1 (u32)
+			y1 (u32)
+			x2 (u32)
+			y2 (u32)
+	response:
+		fail/success
 
+custom opcode:
+	send:
+		opcode = OPC_CUSTOM
+		len = 4 + custom_data_len
+		data:
+			custom_opcode (u32)
+			custom_data

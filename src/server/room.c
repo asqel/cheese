@@ -26,12 +26,17 @@ int srv_create_room(client_t *clt, void *data, uint16_t len, server_t *srv) {
 	char *hash = NULL;
 	if (get_infos(data, len, &name, &hash, clt, 1))
 		return 0;
-	if (!clt->room_name[0]) {
+	if (clt->room_name[0]) {
 		srv_send_err(clt, OPC_ERR_ALREADY_IN_ROOM);
 		return 0;
 	}
+	if (oe_hashmap_get(&srv->rooms, name)) {
+		srv_send_err(clt, OPC_ERR_NAME_TAKEN);
+		return 0;
+	}
+
 	uint8_t room_type = *((uint8_t *)data + len - 1);
-	if (room_type >= ROOM_TYPE_MAX) {
+	if (!srv->room_libs[room_type].handler) {
 		srv_send_err(clt, OPC_ERR_ROOM_TYPE);
 		return 0;
 	}
@@ -42,7 +47,35 @@ int srv_create_room(client_t *clt, void *data, uint16_t len, server_t *srv) {
 	strcpy(room->host, clt->name);
 	memcpy(room->passwd_hash, hash, 64);
 	strcpy(clt->room_name, name);
-	//srv_init_room(room);
+	room->type = room_type;
+	
+	room_lib_t *room_lib = &srv->room_libs[room_type];
+	if (room_lib->init(room)) {
+		free(room);
+		clt->room_name[0] = '\0';
+		return 0;
+	}
 	srv_send_success(clt, OPC_CREATE_ROOM);
+	return 0;
+}
+
+int srv_join_room(client_t *clt, void *data, uint16_t len, server_t *srv) {
+	char *name = NULL;
+	char *hash = NULL;
+	if (get_infos(data, len, &name, &hash, clt, 0))
+		return 0;
+	if (clt->room_name[0]) {
+		srv_send_err(clt, OPC_ERR_ALREADY_IN_ROOM);
+		return 0;
+	}	
+	room_info_t *room = oe_hashmap_get(&srv->rooms, name);
+	if (!room || strcmp(room->passwd_hash, hash)) {
+		srv_send_err(clt, OPC_ERR_WRONG_PASSW);
+	}
+	room_lib_t *room_lib = &srv->room_libs[room->type];
+	if (room_lib->join(room, clt))
+		return 0;
+	room->players = oe_strarr_append(room->players, clt->name, NULL, 0);
+	strcpy(clt->room_name, name);
 	return 0;
 }

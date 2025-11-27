@@ -1,8 +1,7 @@
 {
-	"port": 42124,
+	"port": 42125,
 	"rooms": [
-		3,
-		[2, "./libs/chess_std.so"]
+		[2, "./rooms/test.so"]
 	],
 	"path": "./server_data/"
 }

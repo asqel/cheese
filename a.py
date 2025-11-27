@@ -30,7 +30,9 @@ error_str = [
 	"Server failure",
 	"Invalid name",
 	"Invalid room type",
-	"Already in room"
+	"Already in room",
+	"Not in room",
+	"Forbidden"
 ]
 
 def send_packet(opcode: int, data: bytes, sock) -> None:
@@ -73,7 +75,7 @@ def print_response(sock) -> None:
 
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
-sock.connect(('localhost', 42124))  
+sock.connect(('localhost', 42125))  
 while 1:
 	cmd = input(">").replace('\n', '')
 	if cmd.startswith("auth "):
@@ -88,6 +90,14 @@ while 1:
 		send_packet(OPC_CREATE_ACC, name + b'\0' + passwd, sock)
 	if cmd.startswith("ping"):
 		send_packet(OPC_PING, b'', sock)
+
+	if cmd.startswith("croom "):
+		name = cmd[len("croom "):].encode("utf-8")
+		passwd = input(">").replace('\n', '').encode("utf-8")
+		passwd = sha256(passwd).hexdigest().encode("utf-8")
+		type = int(input(">")).to_bytes(1, "little")
+		send_packet(OPC_CREATE_ROOM, name + b'\0' + passwd + type, sock)
+		
 	print_response(sock)
 	
 

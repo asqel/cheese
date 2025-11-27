@@ -8,6 +8,8 @@
 #define OPC_SUCCESS 3
 #define OPC_JOIN 4
 #define OPC_CREATE_ROOM 5
+#define OPC_MOVE 6
+#define OPC_CUSTOM 7
 #define OPC_PING 0xFFABBAFF
 
 #define OPC_ERR_NAME_LEN 1
@@ -19,5 +21,7 @@
 #define OPC_ERR_NAME_INVALID 7
 #define OPC_ERR_ROOM_TYPE 8
 #define OPC_ERR_ALREADY_IN_ROOM 9
+#define OPC_ERR_NOT_IN_ROOM 10
+#define OPC_ERR_FORBIDDEN 11
 
 #endif
