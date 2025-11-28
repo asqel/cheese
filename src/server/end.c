@@ -1,8 +1,21 @@
 #include "server.h"
 
+static server_t *g_srv = NULL;
+
+static void free_clt(char *name, void *data) {
+	(void)name;
+	srv_free_client(data, g_srv);
+	free(data);
+}
+
 void srv_end(server_t *srv) {
-	oe_hashmap_free(&srv->clients, (void (*)(char *, void *))srv_free_client);
-	oe_hashmap_free(&srv->clients, (void (*)(char *, void *))srv_free_room);
+	g_srv = srv;
+	oe_hashmap_free(&srv->clients, free_clt);
+	g_srv = NULL;
+	oe_hashmap_free(&srv->rooms, NULL);
 	close(srv->fd);
 	srv->fd = -1;
+	for (int i = 0; i < 256; i++)
+		if (srv->room_libs[i].handler)
+			dlclose(srv->room_libs[i].handler);
 }

@@ -1,0 +1,28 @@
+#ifndef OPCODE_H
+#define OPCODE_H
+
+#define OPC_UNKNOW_OP 0xFFFFFFFF
+#define OPC_ERROR 0
+#define OPC_CREATE_ACC 1
+#define OPC_AUTH_ACC 2
+#define OPC_SUCCESS 3
+#define OPC_JOIN 4
+#define OPC_CREATE_ROOM 5
+#define OPC_MOVE 6
+#define OPC_CUSTOM 7
+#define OPC_EXIT_ROOM 8
+#define OPC_PING 0xFFABBAFF
+
+#define OPC_ERR_NAME_LEN 1
+#define OPC_ERR_NAME_TAKEN 2
+#define OPC_ERR_INVALID_DATA 3
+#define OPC_ERR_ALREADY_AUTH 4 
+#define OPC_ERR_WRONG_PASSW 5
+#define OPC_ERR_FAIL 6
+#define OPC_ERR_NAME_INVALID 7
+#define OPC_ERR_ROOM_TYPE 8
+#define OPC_ERR_ALREADY_IN_ROOM 9
+#define OPC_ERR_NOT_IN_ROOM 10
+#define OPC_ERR_FORBIDDEN 11
+
+#endif

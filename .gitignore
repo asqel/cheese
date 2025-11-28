@@ -4,3 +4,5 @@
 cheese
 *.swp
 *.exe
+*vgcore*
+*.acc

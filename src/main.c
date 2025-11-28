@@ -12,19 +12,16 @@ void on_sigint(int _) {
 	exit(1);
 }
 
-int	main(int argc, char **argv) {
-	board_t		board = {0};
-	
-	if (argc > 1) {
-		char *hash = sha256(argv[1]);
-		printf("%s\n", hash);
-		free(hash);
-	}
-	printf("\e[?1049h");
-	fflush(stdout);
+void launch_client(int argc, char **argv) {
+	(void)argc;
+	(void)argv;
 	atexit(lexit);
 	signal(SIGINT, on_sigint);
-	//srv_start(0, NULL);
+	printf("\e[?1049h");
+	fflush(stdout);
+
+	// do your stuff
+	board_t		board = {0};
 	init_board("base", &board);
 	while (1) {
 		write(1, "\033[2J\033[H", 7);
@@ -35,6 +32,25 @@ int	main(int argc, char **argv) {
 	free_board(&board, 1);
 	free(board.copy_board);
 	
-	//getc(stdin);
-	return (0);
+}
+
+
+int	main(int argc, char **argv) {
+	if (argc == 1) {
+		launch_client(argc - 2, argv - 2);
+		return 0;
+	}
+	if (!strcmp(argv[1], "-c")) {
+		launch_client(argc - 2, argv - 2);
+		return 0;
+	}
+	else if (!strcmp(argv[1], "-s")) {
+		return srv_start(argc - 2, argv + 2);
+	}
+	else if (!strcmp(argv[1], "-g")) {
+		fprintf(stderr, "AH lol\n");
+		return 1;
+	}
+	fprintf(stderr, "Error: expected `-s' or `-c' as first argument\n");
+	return 1;
 }

@@ -6,14 +6,15 @@ OBJ := $(addprefix obj/, $(OBJ))
 CC = gcc
 LD = gcc
 
-LIBS_INCLUDE = -Ioeuf/
-LIBS = liboeuf.a
+LIBS_INCLUDE = -Ioeuf/ -Ionion/include
+LIBS = liboeuf.a libonion.a
 CFLAGS = -Wall -Wextra -Iinclude $(LIBS_INCLUDE) -g 
 LDFLAGS =
 
 NAME = cheese
 
 all: $(NAME)
+	make -C rooms
 
 $(NAME): $(OBJ) $(LIBS)
 	$(LD) $(LDFLAGS) $^ $(LIBS) -o $@
@@ -24,7 +25,9 @@ obj/%.o: src/%.c
 
 clean:
 	rm -rf $(OBJ)
+	make -C onion clean
 	make -C oeuf clean
+	make -C rooms fclean
 
 fclean: clean
 	rm -rf $(NAME)
@@ -33,6 +36,10 @@ fclean: clean
 liboeuf.a:
 	make -C oeuf
 	cp oeuf/$@ ./
+
+libonion.a:
+	make -C onion
+	cp onion/$@ ./
 
 re: fclean all
 
