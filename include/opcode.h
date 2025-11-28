@@ -10,6 +10,7 @@
 #define OPC_CREATE_ROOM 5
 #define OPC_MOVE 6
 #define OPC_CUSTOM 7
+#define OPC_EXIT_ROOM 8
 #define OPC_PING 0xFFABBAFF
 
 #define OPC_ERR_NAME_LEN 1

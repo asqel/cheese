@@ -1,13 +1,31 @@
 #include "server.h"
 
-void srv_free_client(char *name, client_t *clt) {
-	// TODO
-	(void)name;
+void srv_free_client(client_t *clt, server_t *srv) {
 	close(clt->fd);
+	buffer_free(&clt->buffer);
+	if (!clt->room_name[0])
+		return ;
+	room_info_t *room = oe_hashmap_get(&srv->rooms, clt->room_name);
+	for (int i = 0; room->players[i]; i++) {
+		if (!strcmp(room->players[i], clt->name)) {
+			free(room->players[i]);
+			for (int k = i; room->players[k]; k++)
+				room->players[k] = room->players[k + 1];
+			room->players = realloc(room->players, sizeof(char *) * (1 + oe_strarr_len(room->players)));
+			break;
+		}
+	}
+	srv->room_libs[room->type].leave(room, clt);
+	if (!room->players[0]) {
+		srv_free_room(room, srv);
+		oe_hashmap_remove(&srv->rooms, room->name, NULL);
+		free(room);
+	}
 }
 
-void srv_free_room(char *name, room_info_t *room) {
-	(void)name;
-	(void)room;
-	// TODO
+void srv_free_room(room_info_t *room, server_t *srv) {
+	for (int i = 0; room->players && room->players[i]; i++)
+		free(room->players[i]);
+	free(room->players);
+	srv->room_libs[room->type].free(room);
 }

@@ -33,7 +33,6 @@ typedef struct {
 typedef struct room_info_t {
 	char name[ROOM_NAME_LEN + 1];	
 	char **players;
-	char host[CLIENT_NAME_LEN + 1];
 	uint8_t type;
 	void *data;
 	char passwd_hash[65];
@@ -64,8 +63,8 @@ int srv_start(int argc, char **argv);
 void srv_end(server_t *srv);
 int srv_loop(server_t *srv);
 
-void srv_free_client(char *, client_t *clt);
-void srv_free_room(char *, room_info_t *clt);
+void srv_free_client(client_t *clt, server_t *srv);
+void srv_free_room(room_info_t *room, server_t *srv);
 
 void srv_connect(server_t *srv);
 void srv_disconnect(server_t *srv, char *name);
@@ -81,5 +80,6 @@ char *srv_build_path(server_t *srv, char *path, char *suffix);
 int srv_handle_move(client_t *clt, uint8_t *data, uint16_t len, server_t *srv);
 int srv_handle_custom_opc(client_t *clt, uint8_t *data, uint16_t len, server_t *srv);
 int srv_create_room(client_t *clt, void *data, uint16_t len, server_t *srv);
+int srv_join_room(client_t *clt, void *data, uint16_t len, server_t *srv);
 
 #endif

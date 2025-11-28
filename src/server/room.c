@@ -44,7 +44,6 @@ int srv_create_room(client_t *clt, void *data, uint16_t len, server_t *srv) {
 	memset(room, 0, sizeof(room_info_t));
 	strcpy(room->name, name);
 	room->players = oe_strarr_append(room->players, clt->name, NULL, 0);
-	strcpy(room->host, clt->name);
 	memcpy(room->passwd_hash, hash, 64);
 	strcpy(clt->room_name, name);
 	room->type = room_type;
@@ -77,5 +76,25 @@ int srv_join_room(client_t *clt, void *data, uint16_t len, server_t *srv) {
 		return 0;
 	room->players = oe_strarr_append(room->players, clt->name, NULL, 0);
 	strcpy(clt->room_name, name);
+
+	uint8_t data_success[sizeof(uint32_t) + 1];
+	*(uint32_t *)data_success = OPC_JOIN;
+	data_success[sizeof(uint32_t)] = room->type;
+	srv_send(clt, OPC_SUCCESS, data_success, sizeof(uint32_t) + 1);
+	return 0;
+}
+
+int srv_exit_room(client_t *clt, void *data, uint16_t len, server_t *srv) {
+	if (len) {
+		srv_send_err(clt, OPC_ERR_INVALID_DATA);
+		return 0;
+	}
+	if (!clt->room_name[0]) {
+		srv_send_err(clt, OPC_ERR_NOT_IN_ROOM);
+		return 0;
+	}
+	room_info_t *room = oe_hashmap_get(&srv->rooms, clt->room_name);
+	// TODO
+	srv_send_success(clt, OPC_EXIT_ROOM);
 	return 0;
 }

@@ -20,6 +20,10 @@ int srv_handle_msg(client_t *clt, uint32_t opcode, void *data, uint16_t len, ser
 			return srv_handle_custom_opc(clt, data, len, srv);
 		case OPC_CREATE_ROOM:
 			return srv_create_room(clt, data, len, srv);
+		case OPC_JOIN:
+			return srv_join_room(clt, data, len, srv);
+		case OPC_EXIT_ROOM:
+			return srv_exit_room(clt, data, len, srv);
 	 	default:
 			srv_send(clt, OPC_UNKNOW_OP, &opcode, sizeof(uint32_t));
 			break;
