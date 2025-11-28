@@ -6,6 +6,8 @@ void srv_free_client(client_t *clt, server_t *srv) {
 	if (!clt->room_name[0])
 		return ;
 	room_info_t *room = oe_hashmap_get(&srv->rooms, clt->room_name);
+	if (!room)
+		return ;
 	for (int i = 0; room->players[i]; i++) {
 		if (!strcmp(room->players[i], clt->name)) {
 			free(room->players[i]);
@@ -15,6 +17,7 @@ void srv_free_client(client_t *clt, server_t *srv) {
 			break;
 		}
 	}
+	printf("players %s\n", room->players[0]);
 	srv->room_libs[room->type].leave(room, clt);
 	if (!room->players[0]) {
 		srv_free_room(room, srv);

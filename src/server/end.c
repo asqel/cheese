@@ -15,4 +15,7 @@ void srv_end(server_t *srv) {
 	oe_hashmap_free(&srv->rooms, NULL);
 	close(srv->fd);
 	srv->fd = -1;
+	for (int i = 0; i < 256; i++)
+		if (srv->room_libs[i].handler)
+			dlclose(srv->room_libs[i].handler);
 }

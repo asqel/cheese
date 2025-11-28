@@ -43,7 +43,7 @@ int srv_create_room(client_t *clt, void *data, uint16_t len, server_t *srv) {
 	room_info_t *room = malloc(sizeof(room_info_t));
 	memset(room, 0, sizeof(room_info_t));
 	strcpy(room->name, name);
-	room->players = oe_strarr_append(room->players, clt->name, NULL, 0);
+	room->players = oe_strarr_append(room->players, strdup(clt->name), NULL, 0);
 	memcpy(room->passwd_hash, hash, 64);
 	strcpy(clt->room_name, name);
 	room->type = room_type;
@@ -54,6 +54,7 @@ int srv_create_room(client_t *clt, void *data, uint16_t len, server_t *srv) {
 		clt->room_name[0] = '\0';
 		return 0;
 	}
+	oe_hashmap_set(&srv->rooms, name, room);
 	srv_send_success(clt, OPC_CREATE_ROOM);
 	return 0;
 }
@@ -74,7 +75,7 @@ int srv_join_room(client_t *clt, void *data, uint16_t len, server_t *srv) {
 	room_lib_t *room_lib = &srv->room_libs[room->type];
 	if (room_lib->join(room, clt))
 		return 0;
-	room->players = oe_strarr_append(room->players, clt->name, NULL, 0);
+	room->players = oe_strarr_append(room->players, strdup(clt->name), NULL, 0);
 	strcpy(clt->room_name, name);
 
 	uint8_t data_success[sizeof(uint32_t) + 1];
@@ -85,6 +86,7 @@ int srv_join_room(client_t *clt, void *data, uint16_t len, server_t *srv) {
 }
 
 int srv_exit_room(client_t *clt, void *data, uint16_t len, server_t *srv) {
+	(void)data;
 	if (len) {
 		srv_send_err(clt, OPC_ERR_INVALID_DATA);
 		return 0;
@@ -94,15 +96,23 @@ int srv_exit_room(client_t *clt, void *data, uint16_t len, server_t *srv) {
 		return 0;
 	}
 	room_info_t *room = oe_hashmap_get(&srv->rooms, clt->room_name);
-	// TODO
+	for (int i = 0; room->players[i]; i++) {
+		if (!strcmp(room->players[i], clt->name)) {
+			free(room->players[i]);
+			for (int k = i; room->players[k]; k++)
+				room->players[k] = room->players[k + 1];
+			room->players = realloc(room->players, sizeof(char *) * (1 + oe_strarr_len(room->players)));
+			break;
+		}
+	}
+	srv->room_libs[room->type].leave(room, clt);
+	clt->room_name[0] = '\0';
+	if (!room->players[0]) {
+		srv_free_room(room, srv);
+		oe_hashmap_remove(&srv->rooms, room->name, NULL);
+		free(room);
+	}
+
 	srv_send_success(clt, OPC_EXIT_ROOM);
 	return 0;
-}
-
-void srv_notify_exit_room(client_t *clt, server_t *srv) {
-	
-}
-
-void srv_notify_join_room(client *clt, server_t *srv) {
-
 }
