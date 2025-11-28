@@ -98,3 +98,11 @@ int srv_exit_room(client_t *clt, void *data, uint16_t len, server_t *srv) {
 	srv_send_success(clt, OPC_EXIT_ROOM);
 	return 0;
 }
+
+void srv_notify_exit_room(client_t *clt, server_t *srv) {
+	
+}
+
+void srv_notify_join_room(client *clt, server_t *srv) {
+
+}
