@@ -81,5 +81,8 @@ int srv_handle_move(client_t *clt, uint8_t *data, uint16_t len, server_t *srv);
 int srv_handle_custom_opc(client_t *clt, uint8_t *data, uint16_t len, server_t *srv);
 int srv_create_room(client_t *clt, void *data, uint16_t len, server_t *srv);
 int srv_join_room(client_t *clt, void *data, uint16_t len, server_t *srv);
+int srv_on_room_join(room_info_t *room, client_t *clt, server_t *srv);
+void srv_on_room_exit(room_info_t *room, client_t *clt, server_t *srv);
+int srv_exit_room(client_t *clt, void *data, uint16_t len, server_t *srv);
 
 #endif
