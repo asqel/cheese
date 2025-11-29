@@ -6,4 +6,4 @@ cheese
 *.exe
 __pycache__/
 *vgcore*
-.acc
+*.acc
