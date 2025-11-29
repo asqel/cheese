@@ -1,0 +1,7 @@
+{
+	"port": 42125,
+	"rooms": [
+		[2, "./rooms/test.so"]
+	],
+	"path": "./server_data/"
+}

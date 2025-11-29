@@ -1,3 +1,6 @@
 [submodule "oeuf"]
 	path = oeuf
-	url = git@github.com:asqel/oeuf.git
+	url = https://github.com/asqel/oeuf.git
+[submodule "onion"]
+	path = onion
+	url = https://github.com/asqel/onion

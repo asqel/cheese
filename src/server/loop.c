@@ -5,7 +5,7 @@ static struct pollfd *build_pollfd(server_t *srv, int len) {
 	if (!res)
 		return NULL;
 	res[0].fd = srv->fd;
-	client_info_t **clients = (client_info_t **)oe_hashmap_get_values(&srv->clients);
+	client_t **clients = (client_t **)oe_hashmap_get_values(&srv->clients);
 	for (int i = 0; i < len; i++)
 		res[i + 1].fd = clients[i]->fd;
 	free(clients);
@@ -24,7 +24,7 @@ int srv_loop(server_t *srv) {
 	struct pollfd *fds = NULL;
 	int fds_len = 0;
 
-	while (1) {
+	while (!srv->end) {
 		if (!fds) {
 			keys = oe_hashmap_get_keys(&srv->clients);
 			fds_len = oe_hashmap_len(&srv->clients);
@@ -42,6 +42,8 @@ int srv_loop(server_t *srv) {
 		}
 		int need_rebuild = 0;
 		for (int i = 0; i < fds_len && ret; i++) {
+			if (need_rebuild)
+				break;
 			if (!(fds[i].revents & POLLIN))
 				continue;
 			ret--;
@@ -57,7 +59,7 @@ int srv_loop(server_t *srv) {
 				srv_disconnect(srv, keys[i - 1]);
 				break;
 			}
-			srv_on_read(srv, keys[i - 1], buffer, ret);
+			need_rebuild |= srv_on_read(srv, keys[i - 1], buffer, ret);
 		}
 		if (need_rebuild) {
 			free(fds);

@@ -17,7 +17,7 @@ int	buffer_append(buffer_t *buffer, void *data, size_t len) {
 		buffer->data = new_data;
 		buffer->alloc_len = alloc_len;
 	}
-	memcpy(&buffer[buffer->len], data, len);
+	memcpy(&((char *)buffer->data)[buffer->len], data, len);
 	buffer->len += len;
 	return 0;
 }
@@ -26,16 +26,14 @@ void buffer_remove(buffer_t *buffer, size_t start, size_t len) {
 	if (!buffer)
 		return ;
 
-	int end = start + len;
+	size_t end = start + len;
 	uint8_t *data = buffer->data;
 	for (size_t i = end; i < buffer->len; i++)
 		data[i - end] = data[i];
 	
 	buffer->len -= len;
-	size_t alloc_len = buffer->len;
-	if (alloc_len % BUFFER_INC)
-		alloc_len = (alloc_len / BUFFER_INC + 1) * BUFFER_INC;
-	if (alloc_len < buffer->alloc_len) {
+	if (buffer->alloc_len > buffer->len + 10 * BUFFER_INC) {
+		size_t alloc_len = buffer->len;
 		void *data = realloc(buffer->data, alloc_len);
 		if (!data)
 			return ;

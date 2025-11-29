@@ -1,8 +1,10 @@
 #include "server.h"
+#include <signal.h>
+#include <unistd.h>
 
 static void default_init(server_t *srv) {
 	srv->port = 42124;
-	srv->path = NULL;
+	srv->path = ".";
 	srv->fd = -1;
 }
 
@@ -47,6 +49,16 @@ int init_srv(server_t *srv) {
 	return 0;
 }
 
+static server_t *g_srv = NULL;
+
+void sigint_ignore(int sig) {
+	(void)sig;
+	putc('\n', stdout);
+	puts("sopping server");
+	if (g_srv)
+		g_srv->end = 1;
+}
+
 int srv_start(int argc, char **argv) {
 	server_t srv = (server_t){0};
 	default_init(&srv);
@@ -56,7 +68,11 @@ int srv_start(int argc, char **argv) {
 		return 1;
 	if (init_srv(&srv))
 		return 1;
+	g_srv = &srv;
+	signal(SIGPIPE, SIG_IGN);
+	signal(SIGINT, sigint_ignore);
 	int ret = srv_loop(&srv);
+	g_srv = NULL;
 	srv_end(&srv);
 	return ret;
 }
