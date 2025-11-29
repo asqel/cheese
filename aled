@@ -1,0 +1,46 @@
+==373195== Memcheck, a memory error detector
+==373195== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==373195== Using Valgrind-3.22.0 and LibVEX; rerun with -h for copyright info
+==373195== Command: ./cheese
+==373195== 
+==373195== Invalid read of size 4
+==373195==    at 0x10C385: move_piece (moves.c:69)
+==373195==    by 0x10B211: play (board.c:145)
+==373195==    by 0x10BEA4: main (main.c:31)
+==373195==  Address 0x4a81784 is 12 bytes after a block of size 40 alloc'd
+==373195==    at 0x484DB80: realloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==373195==    by 0x10B8C3: init_tiles (init.c:63)
+==373195==    by 0x10BD2D: init_board (init.c:111)
+==373195==    by 0x10BE7F: main (main.c:28)
+==373195== 
+==373195== Invalid read of size 4
+==373195==    at 0x10BF2C: remove_piece (moves.c:5)
+==373195==    by 0x10C3A4: move_piece (moves.c:70)
+==373195==    by 0x10B211: play (board.c:145)
+==373195==    by 0x10BEA4: main (main.c:31)
+==373195==  Address 0x4a81780 is 8 bytes after a block of size 40 alloc'd
+==373195==    at 0x484DB80: realloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==373195==    by 0x10B8C3: init_tiles (init.c:63)
+==373195==    by 0x10BD2D: init_board (init.c:111)
+==373195==    by 0x10BE7F: main (main.c:28)
+==373195== 
+==373195== Invalid read of size 4
+==373195==    at 0x10BF5F: remove_piece (moves.c:6)
+==373195==    by 0x10C3A4: move_piece (moves.c:70)
+==373195==    by 0x10B211: play (board.c:145)
+==373195==    by 0x10BEA4: main (main.c:31)
+==373195==  Address 0x4a81784 is 12 bytes after a block of size 40 alloc'd
+==373195==    at 0x484DB80: realloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==373195==    by 0x10B8C3: init_tiles (init.c:63)
+==373195==    by 0x10BD2D: init_board (init.c:111)
+==373195==    by 0x10BE7F: main (main.c:28)
+==373195== 
+==373195== 
+==373195== HEAP SUMMARY:
+==373195==     in use at exit: 0 bytes in 0 blocks
+==373195==   total heap usage: 172 allocs, 172 frees, 13,921 bytes allocated
+==373195== 
+==373195== All heap blocks were freed -- no leaks are possible
+==373195== 
+==373195== For lists of detected and suppressed errors, rerun with: -s
+==373195== ERROR SUMMARY: 3 errors from 3 contexts (suppressed: 0 from 0)

@@ -134,7 +134,7 @@ int	play(board_t *board)
 					board->selector.origin_id = 0;
 					if (board->tiles[y][x].nb_piece > 1)
 						board->selector.origin_id =
-							choose_tile_piece_menu(board, &board->tiles[y][x]);
+							choose_tile_piece_menu(board, &board->tiles[y][x], -1);
 					reset_possible_moves(board);
 					if (update_possible_moves(board, y, x)) {
 						highlight_board(board, y, x);
@@ -149,7 +149,7 @@ int	play(board_t *board)
 					board->selector.origin_id = 0;
 					if (board->tiles[y][x].nb_piece > 1)
 						board->selector.origin_id =
-							choose_tile_piece_menu(board, &board->tiles[y][x]);
+							choose_tile_piece_menu(board, &board->tiles[y][x], -1);
 					reset_possible_moves(board);
 					update_possible_moves(board, y, x);
 					highlight_board(board, y, x);

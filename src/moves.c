@@ -8,8 +8,10 @@ void	remove_piece(tile_t *target, int id, board_t *board)
 		else
 			board->black_kings--;
 	}
-	for (int i = (id + 1); i < target->nb_piece; i++) {
-		target->pieces[i - 1] = target->pieces[i];
+	if (board->copy_board) {
+		for (int i = (id + 1); i < target->nb_piece; i++) {
+			target->pieces[i - 1] = target->pieces[i];
+		}
 	}
 	if (!--target->nb_piece && board->copy_board) {
 		free(target->pieces);
@@ -49,19 +51,25 @@ void	move_piece(board_t *board, int y, int x)
 	tile_t	*origin_tile = &board->tiles[board->selector.origin_y][board->selector.origin_x];
 	tile_t	*target_tile = &board->tiles[board->selector.target_y][board->selector.target_x];
 	piece_t selected_piece = origin_tile->pieces[board->selector.origin_id];
+	board->selector.target_id = 0;
+
+	if (board->copy_board && (target_tile->nb_piece > 1) &&
+		get_nb_pieces_on_tile(target_tile, !selected_piece.color))
+		board->selector.target_id = choose_tile_piece_menu(board, target_tile,
+				!selected_piece.color);
 
 	if (!--origin_tile->nb_piece && board->copy_board) {
 		free(origin_tile->pieces);
 		origin_tile->pieces = NULL;
 	}
-	if (target_tile->nb_piece && selected_piece.color != target_tile->pieces[0].color) {
-		remove_piece(target_tile, 0, board);
+	if (target_tile->nb_piece && selected_piece.color != target_tile->pieces[board->selector.target_id].color) {
+		remove_piece(target_tile, board->selector.target_id, board);
 		selected_piece.kill_count++;
 	}
 	else if (selected_piece.type == PAWN && !target_tile->nb_piece &&
 		(board->selector.target_x != board->selector.origin_x)) {
 		int y_pos = selected_piece.color == WHITE ? -1 : 1;
-		remove_piece(&board->tiles[y + y_pos][x], 0, board);
+		remove_piece(&board->tiles[y + y_pos][x], board->selector.target_id, board);
 		selected_piece.kill_count++;
 	}
 	selected_piece.move_counter++;
