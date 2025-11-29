@@ -126,8 +126,15 @@ int	play(board_t *board)
 					x++;
 				}
 				break ;
+			case 'g':
+				board->debug = !board->debug;
+				break ;
 			case 10:
 				if (!confirm && board->occupied_map[y][x]) {
+					board->selector.origin_id = 0;
+					if (board->tiles[y][x].nb_piece > 1)
+						board->selector.origin_id =
+							choose_tile_piece_menu(board, &board->tiles[y][x], -1);
 					reset_possible_moves(board);
 					if (update_possible_moves(board, y, x)) {
 						highlight_board(board, y, x);
@@ -139,6 +146,10 @@ int	play(board_t *board)
 					confirm = 2;
 				}
 				else if (confirm && board->occupied_map[y][x]) {
+					board->selector.origin_id = 0;
+					if (board->tiles[y][x].nb_piece > 1)
+						board->selector.origin_id =
+							choose_tile_piece_menu(board, &board->tiles[y][x], -1);
 					reset_possible_moves(board);
 					update_possible_moves(board, y, x);
 					highlight_board(board, y, x);

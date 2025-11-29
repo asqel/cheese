@@ -4,5 +4,6 @@
 cheese
 *.swp
 *.exe
+__pycache__/
 *vgcore*
 *.acc

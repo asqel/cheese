@@ -39,9 +39,11 @@ typedef struct {
 	int			origin_id;
 	int			target_x;
 	int			target_y;
+	int			target_id;
 }	selector_t;
 
 typedef struct {
+	uint64_t	piece_id;
 	int			type;
 	int			color;
 	int			kill_count;
@@ -68,6 +70,7 @@ typedef struct board_s
 	selector_t	selector;
 	tile_t		*promo_tile;
 	struct board_s	*copy_board;
+	int				debug;
 }	board_t;
 
 int		play(board_t *board);
@@ -75,6 +78,7 @@ void	free_board(board_t *board, int free_char);
 void	init_board(char *filepath, board_t *board);
 int		update_possible_moves(board_t *board, int y, int x);
 int		promo_menu(int y, int color, board_t *board);
+int		choose_tile_piece_menu(board_t *board, tile_t *tile, int color);
 void	move_piece(board_t *board, int y, int x);
 
 //simulations
@@ -85,6 +89,7 @@ int		king_in_check(board_t *board, int color);
 //utils
 void	highlight_board(board_t *board, int y, int x);
 char	*get_tile_pieces(board_t *board, int x, int y);
+int		get_nb_pieces_on_tile(tile_t *tile, int color);
 char	*strjoin(char *s1, char *s2, int free_s1);
 void	get_cursor_position(int *x, int *y);
 void	reset_possible_moves(board_t *board);

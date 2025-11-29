@@ -2,8 +2,11 @@
 
 piece_t	create_piece(char piece)
 {
+	static uint64_t	id = 0;
+
 	piece_t	dest = {0};
 
+	dest.piece_id = id++;
 	dest.color = WHITE;
 	if (piece >= 'a') {
 		dest.color = BLACK;

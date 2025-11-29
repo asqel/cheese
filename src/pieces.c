@@ -12,7 +12,7 @@ void	evaluate_move(board_t *board, piece_t *target, int y, int x, int *valid_mov
 		board->copy_board->selector.origin_y = selec->origin_y;
 		board->copy_board->selector.origin_id = selec->origin_id;
 		move_piece(board->copy_board, y, x);
-		if (!king_in_check(board, target->color)) {
+		if (board->debug || !king_in_check(board, target->color)) {
 			*valid_move = 1;
 			board->possible_moves[y][x] = 1;
 		}
@@ -81,7 +81,9 @@ int	move_rook(board_t *board, piece_t *target, int y, int x)
 				target_y >= board->height || target_x >= board->width)
 				break ;
 			tile = &board->tiles[target_y][target_x];
-			if (tile->nb_piece) {
+			if (board->debug)
+				evaluate_move(board, target, target_y, target_x, &valid_move);
+			if (!board->debug && tile->nb_piece) {
 				if (tile->pieces[0].color != target->color)
 					evaluate_move(board, target, target_y, target_x, &valid_move);
 				break ;
@@ -107,7 +109,7 @@ int	move_knight(board_t *board, piece_t *target, int y, int x)
 			target_y >= board->height || target_x >= board->width)
 			continue ;
 		tile = &board->tiles[target_y][target_x];
-		if (!tile->nb_piece || tile->pieces[0].color != target->color)
+		if (board->debug || !tile->nb_piece || tile->pieces[0].color != target->color)
 			evaluate_move(board, target, target_y, target_x, &valid_move);
 	}
 	return (valid_move);
@@ -131,7 +133,9 @@ int	move_bishop(board_t *board, piece_t *target, int y, int x)
 				target_y >= board->height || target_x >= board->width)
 				break ;
 			tile = &board->tiles[target_y][target_x];
-			if (tile->nb_piece) {
+			if (board->debug)
+				evaluate_move(board, target, target_y, target_x, &valid_move);
+			if (!board->debug && tile->nb_piece) {
 				if (tile->pieces[0].color != target->color)
 					evaluate_move(board, target, target_y, target_x, &valid_move);
 				break ;
@@ -156,7 +160,7 @@ int	move_king(board_t *board, piece_t *target, int y, int x)
 			if (target_x == x && target_y == y)
 				continue ;
 			tile = &board->tiles[target_y][target_x];
-			if (!tile->nb_piece || (tile->pieces[0].color != target->color))
+			if (board->debug || !tile->nb_piece || (tile->pieces[0].color != target->color))
 				evaluate_move(board, target, target_y, target_x, &valid_move);
 		}
 	}
@@ -167,7 +171,6 @@ int	update_possible_moves(board_t *board, int y, int x)
 {
 	board->selector.origin_x = x;
 	board->selector.origin_y = y;
-	board->selector.origin_id = 0;
 	if (board->copy_board)
 		sync_boards(board->copy_board, board);
 	piece_t	*target = &board->tiles[y][x].pieces[board->selector.origin_id];
