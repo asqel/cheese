@@ -4,3 +4,4 @@
 cheese
 *.swp
 *.exe
+__pycache__/
