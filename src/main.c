@@ -45,7 +45,9 @@ int	main(int argc, char **argv) {
 		return 0;
 	}
 	else if (!strcmp(argv[1], "-s")) {
-		return srv_start(argc - 2, argv + 2);
+		int ret = srv_start(argc - 2, argv + 2);
+		free(srv);
+		return ret;
 	}
 	else if (!strcmp(argv[1], "-g")) {
 		fprintf(stderr, "AH lol\n");

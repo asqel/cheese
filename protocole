@@ -93,3 +93,18 @@ custom opcode:
 		data:
 			custom_opcode (u32)
 			custom_data
+
+game_loop:
+	0: 
+	1: send(start)
+	2: wait(recv(start) || recv(exit)) // exit == someone else has exited
+	3: wait(recv(your_turn) || recv(exit))
+	4: if (recv_exit)
+		goto 2
+	5: send(move) || send(custom)
+	6: wait(recv(win) || recv(exit) || recv(your_turn) // exit == same
+	7: if (recv_exit || recv_win)
+		goto 0
+	8: goto 5
+
+
