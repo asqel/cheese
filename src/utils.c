@@ -88,6 +88,8 @@ void	free_board(board_t *board, int free_char)
 	free(board->occupied_map);
 	free(board->possible_moves);
 	free(board->tiles);
+	if (board->copy_board)
+		free(board->logs);
 }
 
 int	get_nb_pieces_on_tile(tile_t *tile, int color)

@@ -52,12 +52,13 @@ int	move_pawn(board_t *board, piece_t *target, int y, int x)
 				continue ;
 
 			piece_t	*passant_piece = &passant_tile->pieces[0];
-			if (passant_piece->color != target->color && passant_piece->type == PAWN)
-			{
-				y += 0;
-				if (passant_piece->distance_moved != 1 && passant_piece->move_counter == 1)
-					evaluate_move(board, target, y + vert_goal, x + i, &valid_move);
-			}
+			if (passant_piece->color == target->color || passant_piece->type != PAWN ||
+				passant_piece->move_counter != 1 || passant_piece->distance_moved != 2)
+				continue ;
+
+			move_infos_t	*log = board->logs->last_move;
+			if (log->piece->piece_id == passant_piece->piece_id)
+				evaluate_move(board, target, y + vert_goal, x + i, &valid_move);
 		}
 	}
 	return (valid_move);

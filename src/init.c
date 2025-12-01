@@ -45,6 +45,9 @@ piece_t	create_piece(char piece)
 
 void	init_tiles(char *board_str, board_t *board)
 {
+	board->logs = calloc(1, sizeof(move_logs_t));
+	if (!board->logs)
+		exit(1);
 	board->tiles = malloc((board->height + 1) * sizeof(tile_t *));
 	if (!board->tiles)
 		exit(1);
