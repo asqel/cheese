@@ -32,7 +32,7 @@ static int init_socket() {
 	return 0;
 	err:
 		perror("cheese");
-		srv_end(srv);
+		srv_end();
 		return 1;
 }
 

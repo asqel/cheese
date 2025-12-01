@@ -7,7 +7,7 @@ static void free_clt(char *name, void *data) {
 	free(data);
 }
 
-void srv_end(server_t *srv) {
+void srv_end() {
 	oe_hashmap_free(&srv->clients, free_clt);
 	oe_hashmap_free(&srv->rooms, NULL);
 	close(srv->fd);

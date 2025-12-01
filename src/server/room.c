@@ -50,9 +50,9 @@ int srv_create_room(client_t *clt, void *data, uint16_t len) {
 	
 	room_lib_t *room_lib = &srv->room_libs[room_type];
 	if (room_lib->init(room)) {
-		free(room);
 		free(room->players[0]);
 		free(room->players);
+		free(room);
 		clt->room_name[0] = '\0';
 		return 0;
 	}
