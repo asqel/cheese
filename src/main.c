@@ -30,6 +30,7 @@ void launch_client(int argc, char **argv) {
 	}
 	free_board(board.copy_board, 0);
 	free_board(&board, 1);
+	free(board.logs);
 	free(board.copy_board);
 	
 }
