@@ -69,7 +69,7 @@ typedef struct {
 	int			color;
 }	move_infos_t;
 
-#define MAX_LOG	1
+#define MAX_LOG	1024
 #define MAX_PLAYER 16
 typedef struct {
 	int				last_color_played;
