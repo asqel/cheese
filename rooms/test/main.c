@@ -39,3 +39,13 @@ void recv_func(room_info_t *self, client_t *clt, uint32_t opcode, void *data, ui
 	(void)data;
 	(void)len;
 }
+
+int start_func(room_info_t *self) {
+	(void)self;
+	return 0;
+}
+
+void reset_func(room_info_t *self) {
+	(void)self;
+	return 0;
+}
