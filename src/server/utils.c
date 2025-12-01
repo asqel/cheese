@@ -30,7 +30,7 @@ int srv_is_name_valid(char *name) {
 	return (i == len);
 }
 
-char *srv_build_path(server_t *srv, char *path, char *suffix) {
+char *srv_build_path(char *path, char *suffix) {
 	char *res = malloc(strlen(path) + 2 + strlen(srv->path) + strlen(suffix));
 	sprintf(res, "%s/%s%s", srv->path, path, suffix);
 	return res;

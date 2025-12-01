@@ -8,8 +8,8 @@ int srv_account_exists(char *name) {
 	return 1;
 }
 
-int srv_account_check_hash(char *name, char *hash, server_t *srv) {
-	char *path = srv_build_path(srv, name, ".acc");
+int srv_account_check_hash(char *name, char *hash) {
+	char *path = srv_build_path(name, ".acc");
 	FILE *f = fopen(path, "r");
 	free(path);
 	if (!f)
@@ -44,7 +44,7 @@ static int get_infos(void *data, uint16_t len, char **name, char **hash, client_
 	return 0;
 }
 
-int srv_auth_account(client_t *clt, void *data, uint16_t len, server_t *srv) {
+int srv_auth_account(client_t *clt, void *data, uint16_t len) {
 	char *name = NULL;
 	char *hash = NULL;
 	if (clt->name[0] != '=') {
@@ -54,13 +54,13 @@ int srv_auth_account(client_t *clt, void *data, uint16_t len, server_t *srv) {
 	}
 	if (get_infos(data, len, &name, &hash, clt))
 		return 0;
-	if (!srv_account_check_hash(name, hash, srv)) {
+	if (!srv_account_check_hash(name, hash)) {
 		srv_send_err(clt, OPC_ERR_WRONG_PASSW);
 		sleep(1);
 		return 0;
 	}
 	if (oe_hashmap_get(&srv->clients, name))
-		srv_disconnect(srv, name);
+		srv_disconnect(name);
 	oe_hashmap_remove(&srv->clients, clt->name, NULL);
 	oe_hashmap_set(&srv->clients, name, clt);
 	strcpy(clt->name, name);
@@ -68,8 +68,7 @@ int srv_auth_account(client_t *clt, void *data, uint16_t len, server_t *srv) {
 	return 1;
 }
 
-int srv_create_account(client_t *clt, void *data, uint16_t len, server_t *srv) {
-	(void)srv;
+int srv_create_account(client_t *clt, void *data, uint16_t len) {
 	char *name = NULL;
 	char *hash = NULL;
 	if (get_infos(data, len, &name, &hash, clt))
@@ -79,7 +78,7 @@ int srv_create_account(client_t *clt, void *data, uint16_t len, server_t *srv) {
 		srv_send_err(clt, OPC_ERR_NAME_TAKEN);
 		return 1;
 	}
-	char *path = srv_build_path(srv, name, ".acc");
+	char *path = srv_build_path(name, ".acc");
 	FILE *f = fopen(path, "wb");
 	free(path);
 	if (!f) {

@@ -46,6 +46,8 @@ typedef struct {
 	void (*leave)(room_info_t *self, client_t *clt);
 	void (*move)(room_info_t *self, client_t *clt, uint32_t pos1[2], uint32_t pos2[2]);
 	void (*recv)(room_info_t *self, client_t *clt, uint32_t opcode, void *data, uint16_t len);
+	void (*reset)(room_info_t *self);
+	int (*start)(room_info_t *self);
 } room_lib_t;
 
 typedef struct {
@@ -58,31 +60,36 @@ typedef struct {
 	room_lib_t room_libs[256];
 } server_t;
 
-int srv_parse_args(int argc, char **argv, server_t *srv);
+extern server_t *srv;
+
+int srv_parse_args(int argc, char **argv);
 int srv_start(int argc, char **argv);
-void srv_end(server_t *srv);
-int srv_loop(server_t *srv);
+void srv_end();
+int srv_loop();
 
-void srv_free_client(client_t *clt, server_t *srv);
-void srv_free_room(room_info_t *room, server_t *srv);
+void srv_free_client(client_t *clt);
+void srv_free_room(room_info_t *room);
 
-void srv_connect(server_t *srv);
-void srv_disconnect(server_t *srv, char *name);
-int srv_on_read(server_t *srv, char *name, void *buffer, int len);
-int srv_handle_msg(client_t *clt, uint32_t opcode, void *data, uint16_t len, server_t *srv);
+void srv_connect();
+void srv_disconnect(char *name);
+int srv_on_read(char *name, void *buffer, int len);
+int srv_handle_msg(client_t *clt, uint32_t opcode, void *data, uint16_t len);
 void srv_send(client_t *clt, uint32_t opcode, void *data, uint16_t len);
 void srv_send_err(client_t *clt, uint32_t err);
-int srv_create_account(client_t *clt, void *data, uint16_t len, server_t *srv);
-int srv_auth_account(client_t *clt, void *data, uint16_t len, server_t *srv);
+int srv_create_account(client_t *clt, void *data, uint16_t len);
+int srv_auth_account(client_t *clt, void *data, uint16_t len);
 int srv_is_name_valid(char *name);
 void srv_send_success(client_t *clt, uint32_t opc);
-char *srv_build_path(server_t *srv, char *path, char *suffix);
-int srv_handle_move(client_t *clt, uint8_t *data, uint16_t len, server_t *srv);
-int srv_handle_custom_opc(client_t *clt, uint8_t *data, uint16_t len, server_t *srv);
-int srv_create_room(client_t *clt, void *data, uint16_t len, server_t *srv);
-int srv_join_room(client_t *clt, void *data, uint16_t len, server_t *srv);
-int srv_on_room_join(room_info_t *room, client_t *clt, server_t *srv);
-void srv_on_room_exit(room_info_t *room, client_t *clt, server_t *srv);
-int srv_exit_room(client_t *clt, void *data, uint16_t len, server_t *srv);
+char *srv_build_path(char *path, char *suffix);
+int srv_handle_move(client_t *clt, uint8_t *data, uint16_t len);
+int srv_handle_custom_opc(client_t *clt, uint8_t *data, uint16_t len);
+int srv_create_room(client_t *clt, void *data, uint16_t len);
+int srv_join_room(client_t *clt, void *data, uint16_t len);
+int srv_on_room_join(room_info_t *room, client_t *clt);
+void srv_on_room_exit(room_info_t *room, client_t *clt);
+int srv_exit_room(client_t *clt, void *data, uint16_t len);
+void srv_room_send_all(room_info_t *room, uint32_t opcode, void *data, uint16_t len);
+void srv_on_room_reset(room_info_t *room); 
+int srv_on_room_start(room_info_t *room);
 
 #endif

@@ -2,7 +2,7 @@
 #include <limits.h>
 #include <errno.h>
 
-static void open_dll_room(uint8_t room_type, char *path, server_t *srv) {
+static void open_dll_room(uint8_t room_type, char *path) {
 	if (srv->room_libs[room_type].handler) {
 		PRINT_ERR("room type %d redefined, skipping...\n", room_type);
 		return ;
@@ -19,6 +19,8 @@ static void open_dll_room(uint8_t room_type, char *path, server_t *srv) {
 	room->leave = dlsym(room->handler, "leave_func");
 	room->move = dlsym(room->handler, "move_func");
 	room->recv = dlsym(room->handler, "recv_func");
+	room->reset = dlsym(room->handler, "reset_func");
+	room->start = dlsym(room->handler, "start_func");
 	if (!room->init)
 		PRINT_ERR("%s: missing init_func\n", path);
 	if (!room->free)
@@ -31,7 +33,12 @@ static void open_dll_room(uint8_t room_type, char *path, server_t *srv) {
 		PRINT_ERR("%s: missing move_func\n", path);
 	if (!room->recv)
 		PRINT_ERR("%s: missing recv_func\n", path);
-	if (room->init && room->free && room->join && room->leave && room->move && room->recv) {
+	if (!room->reset)
+		PRINT_ERR("%s: missing reset_func\n", path);
+	if (!room->start)
+		PRINT_ERR("%s: missing start_func\n", path);
+	if (room->init && room->free && room->join && room->leave
+		&& room->move && room->recv && room->reset && room->start) {
 		printf("adding %s as room type %d\n", path, room_type);
 		return ;
 	}
@@ -40,7 +47,7 @@ static void open_dll_room(uint8_t room_type, char *path, server_t *srv) {
 
 }
 
-static int read_rooms(json_value_t *json, server_t *srv) {
+static int read_rooms(json_value_t *json) {
 	json_value_t *lst = json_object_get(json, "rooms");
 	if (!lst)
 		return 0;
@@ -61,12 +68,12 @@ static int read_rooms(json_value_t *json, server_t *srv) {
 		}
 		int room_type = json_array_get(val, 0)->val.num;
 		char *path = json_array_get(val, 1)->val.str;
-		open_dll_room((uint8_t)room_type, path, srv);
+		open_dll_room((uint8_t)room_type, path);
 	}
 	return 0;
 }
 
-static int read_json(json_value_t *json, server_t *srv) {
+static int read_json(json_value_t *json) {
 	if (!JSON_CHECK_TYPE(json, JSON_OBJECT)) {
 		PRINT_ERR("cheese: config: json must be an object\n");
 		return 1;
@@ -83,7 +90,7 @@ static int read_json(json_value_t *json, server_t *srv) {
 	if (val)
 		srv->port = val->val.num;
 
-	if (read_rooms(json, srv))
+	if (read_rooms(json))
 		return 1;
 	
 	val = json_object_get(json, "path");
@@ -96,7 +103,7 @@ static int read_json(json_value_t *json, server_t *srv) {
 	return 0;
 }
 
-int srv_parse_args(int argc, char **argv, server_t *srv) {
+int srv_parse_args(int argc, char **argv) {
 	if (argc > 1) {
 		PRINT_ERR("cheese: server accept at most 1 argument\n");
 		return 1;
@@ -108,7 +115,7 @@ int srv_parse_args(int argc, char **argv, server_t *srv) {
 		PRINT_ERR("cheese: %s: error while reading json\n", argv[0]);
 		return 1;
 	}
-	if (read_json(&json, srv)) {
+	if (read_json(&json)) {
 		json_destroy(&json);
 		return 1;
 	}

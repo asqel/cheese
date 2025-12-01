@@ -75,7 +75,7 @@ def print_response(sock) -> None:
 
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
-sock.connect(('localhost', 42125))  
+sock.connect(('asqel.ddns.net', 42420))  
 while 1:
 	cmd = input(">").replace('\n', '')
 	if cmd.startswith("auth "):
