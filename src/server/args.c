@@ -44,7 +44,7 @@ static void open_dll_room(uint8_t room_type, char *path) {
 	}
 	dlclose(room->handler);
 	room->handler = NULL;
-
+	PRINT_ERR("\tskipping...\n");
 }
 
 static int read_rooms(json_value_t *json) {
