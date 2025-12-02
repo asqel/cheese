@@ -38,7 +38,7 @@ void	print_board(board_t	*board)
 			printf("%s", CURSOR_RIGHT);
 			for (int k = 0; k < (i * 4); k++)
 				printf("%s", CURSOR_RIGHT);
-			printf("%s", board->tiles[j][i].pieces[0].character);
+			printf("%s", board->tiles[j][i].pieces[0]->character);
 		}
 		for (int i = 0; i < (j * 2); i++)
 			printf("%s", CURSOR_UP);
@@ -78,7 +78,7 @@ int	play(board_t *board)
 		return (1);
 	}
 	if (board->promo_tile) {
-		piece_t *ref = &board->promo_tile->pieces[board->promo_tile->nb_piece - 1];
+		piece_t *ref = board->promo_tile->pieces[board->promo_tile->nb_piece - 1];
 		int new_piece_type = promo_menu(!ref->color * (board->height + 3), ref->color, board) + 1;
 
 		ref->type = new_piece_type;

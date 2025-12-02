@@ -52,7 +52,7 @@ int	choose_tile_piece_menu(board_t *board, tile_t *tile, int color)
 	int		menu_x, menu_y;
 
 	for (int i = 0; i < tile->nb_piece; i++)
-		if (tile->pieces[i].color != color && color != -1)
+		if (tile->pieces[i]->color != color && color != -1)
 			nb_pieces--;
 
 	menu_x = (board->width + 3) * 4;
@@ -65,9 +65,9 @@ int	choose_tile_piece_menu(board_t *board, tile_t *tile, int color)
 	printf("\033[%d;%dH┌───┐", menu_y++, menu_x);
 	int k = 0;
 	for (int i = 0; i < tile->nb_piece; i++) {
-		if (!(tile->pieces[i].color == color || color == -1))
+		if (!(tile->pieces[i]->color == color || color == -1))
 			continue ;
-		printf("\033[%d;%dH│ %s │", menu_y++, menu_x, tile->pieces[i].character);
+		printf("\033[%d;%dH│ %s │", menu_y++, menu_x, tile->pieces[i]->character);
 		if (k++ != (nb_pieces - 1))
 			printf("\033[%d;%dH├───┤", menu_y++, menu_x);
 	}
@@ -81,7 +81,7 @@ int	choose_tile_piece_menu(board_t *board, tile_t *tile, int color)
 	int	requested_piece = requested_piece_base;
 	int	good_piece_saw = 0;
 	for (int i = 0; i < tile->nb_piece; i++) {
-		if (tile->pieces[i].color == color || color == -1)
+		if (tile->pieces[i]->color == color || color == -1)
 			good_piece_saw++;
 		else
 			requested_piece++;
@@ -90,7 +90,7 @@ int	choose_tile_piece_menu(board_t *board, tile_t *tile, int color)
 	}
 	nb_pieces = tile->nb_piece - 1;
 	if (requested_piece != nb_pieces) {
-		piece_t	save = tile->pieces[requested_piece];
+		piece_t	*save = tile->pieces[requested_piece];
 		tile->pieces[requested_piece] = tile->pieces[nb_pieces];
 		tile->pieces[nb_pieces] = save;
 	}

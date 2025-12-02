@@ -44,6 +44,8 @@ typedef struct {
 
 typedef struct {
 	uint64_t	piece_id;
+	int			x; //TODO add support
+	int			y;
 	int			type;
 	int			color;
 	int			kill_count;
@@ -55,8 +57,30 @@ typedef struct {
 typedef struct {
 	int			color;
 	int			nb_piece;
-	piece_t		*pieces;
+	piece_t		**pieces;
 }	tile_t;
+
+typedef struct {
+	piece_t		*piece;
+	piece_t		*target_piece;
+	int			extra_info;
+	int			origin_x;
+	int			origin_y;
+	int			target_x;
+	int			target_y;
+	int			color;
+}	move_infos_t;
+
+#define MAX_LOG	1024
+#define MAX_PLAYER 16
+typedef struct {
+	int				last_color_played;
+	uint64_t		nb_move;
+	uint64_t		color_moves[MAX_PLAYER];
+	move_infos_t	color_logs[MAX_PLAYER][MAX_LOG];
+	move_infos_t	*global_log[MAX_LOG];
+	move_infos_t	*last_move;
+}	move_logs_t;
 
 typedef struct board_s
 {
@@ -68,10 +92,14 @@ typedef struct board_s
 	char		**occupied_map;
 	char		**possible_moves;
 	selector_t	selector;
+	move_logs_t	*logs;
 	tile_t		*promo_tile;
 	struct board_s	*copy_board;
 	int				debug;
 }	board_t;
+
+piece_t	*get_piece(int index);
+piece_t	*set_piece(int c);
 
 int		play(board_t *board);
 void	free_board(board_t *board, int free_char);
@@ -79,6 +107,7 @@ void	init_board(char *filepath, board_t *board);
 int		update_possible_moves(board_t *board, int y, int x);
 int		promo_menu(int y, int color, board_t *board);
 int		choose_tile_piece_menu(board_t *board, tile_t *tile, int color);
+void	update_logs(board_t *board, piece_t *piece, piece_t *target);
 void	move_piece(board_t *board, int y, int x);
 
 //simulations

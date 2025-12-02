@@ -53,7 +53,7 @@ int	king_in_check(board_t *board_base, int color)
 		for (int i = 0; i < board->width; i++) {
 			tile = &board->tiles[j][i];
 			if (tile->nb_piece &&
-				tile->pieces[0].color != color)
+				tile->pieces[0]->color != color)
 				update_possible_moves(board, j, i);
 		}
 	}
@@ -62,8 +62,8 @@ int	king_in_check(board_t *board_base, int color)
 			tile = &board->tiles[j][i];
 			if (!board->possible_moves[j][i] || !tile->nb_piece)
 				continue ;
-			if (tile->pieces[0].type == KING &&
-				tile->pieces[0].color == color)
+			if (tile->pieces[0]->type == KING &&
+				tile->pieces[0]->color == color)
 				check = 1;
 		}
 	}

@@ -1,5 +1,77 @@
 #include "cheese.h"
 
+piece_t	*create_piece(char piece, int index) {
+	piece_t	*dest = malloc(sizeof(piece_t));
+	if (!dest)
+		exit(1);
+
+	dest->piece_id = index;
+	dest->color = WHITE;
+	dest->kill_count = 0;
+	dest->move_counter = 0;
+	dest->distance_moved = 0;
+	if (piece >= 'a') {
+		dest->color = BLACK;
+		piece -= 32;
+	}
+	switch (piece) {
+		case 'P':
+			dest->type = PAWN;
+			strcpy(dest->character, "♙");
+			break ;
+		case 'R':
+			dest->type = ROOK;
+			strcpy(dest->character, "♖");
+			break ;
+		case 'N':
+			dest->type = KNIGHT;
+			strcpy(dest->character, "♘");
+			break ;
+		case 'B':
+			dest->type = BISHOP;
+			strcpy(dest->character, "♗");
+			break ;
+		case 'Q':
+			dest->type = QUEEN;
+			strcpy(dest->character, "♕");
+			break ;
+		case 'K':
+			dest->type = KING;
+			strcpy(dest->character, "♔");
+			break ;
+	};
+	if (dest->color == BLACK)
+		dest->character[2] += "♚"[2] - "♔"[2];
+	return (dest);
+}
+
+piece_t	*set_piece(int c) {
+	static int	index = 0;
+	static piece_t	**pieces = NULL;
+
+	if (c < 0) {
+		pieces = realloc(pieces, sizeof(piece_t *) * (index + 2));
+		if (!pieces)
+			exit(1);
+		pieces[index] = create_piece(-c, index);
+		pieces[++index] = NULL;
+		return (pieces[index - 1]);
+	}
+	else if (c == 0) {
+		for (int i = 0; i < index; i++)
+			free(pieces[i]);
+		free(pieces);
+		return (NULL);
+	}
+	return (pieces[c]);
+}
+
+piece_t	*get_piece(int index) {
+	if (index == -1)
+		return (set_piece(0));
+	return (set_piece(index));
+}
+
 void	evaluate_move(board_t *board, piece_t *target, int y, int x, int *valid_move)
 {
 	if (board->copy_board == NULL) {
@@ -44,20 +116,21 @@ int	move_pawn(board_t *board, piece_t *target, int y, int x)
 			if (!board->tiles[y + vert_goal * 2][x].nb_piece)
 				evaluate_move(board, target, y + vert_goal * 2, x, &valid_move);
 		}
-		else if (i && tile->nb_piece && (tile->pieces[0].color != target->color))
+		else if (i && tile->nb_piece && (tile->pieces[0]->color != target->color))
 			evaluate_move(board, target, y + vert_goal, x + i, &valid_move);
 		else if (i && !tile->nb_piece) {
 			tile_t	*passant_tile = &board->tiles[y][x + i];
 			if (!passant_tile->nb_piece)
 				continue ;
 
-			piece_t	*passant_piece = &passant_tile->pieces[0];
-			if (passant_piece->color != target->color && passant_piece->type == PAWN)
-			{
-				y += 0;
-				if (passant_piece->distance_moved != 1 && passant_piece->move_counter == 1)
-					evaluate_move(board, target, y + vert_goal, x + i, &valid_move);
-			}
+			piece_t	*passant_piece = passant_tile->pieces[0];
+			if (passant_piece->color == target->color || passant_piece->type != PAWN ||
+				passant_piece->move_counter != 1 || passant_piece->distance_moved != 2)
+				continue ;
+
+			move_infos_t	*log = board->logs->last_move;
+			if (log->piece->piece_id == passant_piece->piece_id)
+				evaluate_move(board, target, y + vert_goal, x + i, &valid_move);
 		}
 	}
 	return (valid_move);
@@ -84,7 +157,7 @@ int	move_rook(board_t *board, piece_t *target, int y, int x)
 			if (board->debug)
 				evaluate_move(board, target, target_y, target_x, &valid_move);
 			if (!board->debug && tile->nb_piece) {
-				if (tile->pieces[0].color != target->color)
+				if (tile->pieces[0]->color != target->color)
 					evaluate_move(board, target, target_y, target_x, &valid_move);
 				break ;
 			}
@@ -109,7 +182,7 @@ int	move_knight(board_t *board, piece_t *target, int y, int x)
 			target_y >= board->height || target_x >= board->width)
 			continue ;
 		tile = &board->tiles[target_y][target_x];
-		if (board->debug || !tile->nb_piece || tile->pieces[0].color != target->color)
+		if (board->debug || !tile->nb_piece || tile->pieces[0]->color != target->color)
 			evaluate_move(board, target, target_y, target_x, &valid_move);
 	}
 	return (valid_move);
@@ -136,7 +209,7 @@ int	move_bishop(board_t *board, piece_t *target, int y, int x)
 			if (board->debug)
 				evaluate_move(board, target, target_y, target_x, &valid_move);
 			if (!board->debug && tile->nb_piece) {
-				if (tile->pieces[0].color != target->color)
+				if (tile->pieces[0]->color != target->color)
 					evaluate_move(board, target, target_y, target_x, &valid_move);
 				break ;
 			}
@@ -160,7 +233,7 @@ int	move_king(board_t *board, piece_t *target, int y, int x)
 			if (target_x == x && target_y == y)
 				continue ;
 			tile = &board->tiles[target_y][target_x];
-			if (board->debug || !tile->nb_piece || (tile->pieces[0].color != target->color))
+			if (board->debug || !tile->nb_piece || (tile->pieces[0]->color != target->color))
 				evaluate_move(board, target, target_y, target_x, &valid_move);
 		}
 	}
@@ -173,7 +246,7 @@ int	update_possible_moves(board_t *board, int y, int x)
 	board->selector.origin_y = y;
 	if (board->copy_board)
 		sync_boards(board->copy_board, board);
-	piece_t	*target = &board->tiles[y][x].pieces[board->selector.origin_id];
+	piece_t	*target = board->tiles[y][x].pieces[board->selector.origin_id];
 
 	if (target->type == PAWN)
 		return (move_pawn(board, target, y, x));
