@@ -44,6 +44,8 @@ typedef struct {
 
 typedef struct {
 	uint64_t	piece_id;
+	int			x; //TODO add support
+	int			y;
 	int			type;
 	int			color;
 	int			kill_count;
@@ -55,7 +57,7 @@ typedef struct {
 typedef struct {
 	int			color;
 	int			nb_piece;
-	piece_t		*pieces;
+	piece_t		**pieces;
 }	tile_t;
 
 typedef struct {
@@ -95,6 +97,9 @@ typedef struct board_s
 	struct board_s	*copy_board;
 	int				debug;
 }	board_t;
+
+piece_t	*get_piece(int index);
+piece_t	*set_piece(int c);
 
 int		play(board_t *board);
 void	free_board(board_t *board, int free_char);

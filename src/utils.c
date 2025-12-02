@@ -61,7 +61,7 @@ void	get_cursor_position(int *x, int *y)
 char	*get_tile_pieces(board_t *board, int x, int y)
 {
 	if (board->tiles[y][x].nb_piece)
-		return (board->tiles[y][x].pieces[0].character);
+		return (board->tiles[y][x].pieces[0]->character);
 	return (" ");
 }
 
@@ -95,7 +95,7 @@ int	get_nb_pieces_on_tile(tile_t *tile, int color)
 	int	res = 0;
 
 	for (int i = 0; i < tile->nb_piece; i++) {
-		if (tile->pieces[i].color == color)
+		if (tile->pieces[i]->color == color)
 			res++;
 	}
 	return (res);

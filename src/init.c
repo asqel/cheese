@@ -1,48 +1,5 @@
 #include "cheese.h"
 
-piece_t	create_piece(char piece)
-{
-	static uint64_t	id = 0;
-
-	piece_t	dest = {0};
-
-	dest.piece_id = id++;
-	dest.color = WHITE;
-	if (piece >= 'a') {
-		dest.color = BLACK;
-		piece -= 32;
-	}
-	switch (piece) {
-		case 'P':
-			dest.type = PAWN;
-			strcpy(dest.character, "♙");
-			break ;
-		case 'R':
-			dest.type = ROOK;
-			strcpy(dest.character, "♖");
-			break ;
-		case 'N':
-			dest.type = KNIGHT;
-			strcpy(dest.character, "♘");
-			break ;
-		case 'B':
-			dest.type = BISHOP;
-			strcpy(dest.character, "♗");
-			break ;
-		case 'Q':
-			dest.type = QUEEN;
-			strcpy(dest.character, "♕");
-			break ;
-		case 'K':
-			dest.type = KING;
-			strcpy(dest.character, "♔");
-			break ;
-	};
-	if (dest.color == BLACK)
-		dest.character[2] += "♚"[2] - "♔"[2];
-	return (dest);
-}
-
 void	init_tiles(char *board_str, board_t *board)
 {
 	board->logs = calloc(1, sizeof(move_logs_t));
@@ -63,14 +20,14 @@ void	init_tiles(char *board_str, board_t *board)
 
 			if (cur_piece == ' ')
 				continue ;
+			piece_t	*new_piece = set_piece(-cur_piece);
 			cur_tile->pieces = realloc(cur_tile->pieces,
-					(cur_tile->nb_piece + 1) * sizeof(piece_t));
-			piece_t	new_piece = create_piece(cur_piece);
-			if (cur_piece >= 'a' && new_piece.type == KING)
+					(cur_tile->nb_piece + 1) * sizeof(piece_t *));
+			if (cur_piece >= 'a' && new_piece->type == KING)
 				board->black_kings++;
-			else if (new_piece.type == KING)
+			else if (new_piece->type == KING)
 				board->white_kings++;
-			cur_tile->pieces[cur_tile->nb_piece++] = create_piece(cur_piece);
+			cur_tile->pieces[cur_tile->nb_piece++] = new_piece;
 		}
 		board_str++;
 		while (i < board->width) {
