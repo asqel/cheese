@@ -24,8 +24,6 @@ void launch_client(int argc, char **argv) {
 	board_t		board = {0};
 	init_board("base", &board);
 	while (1) {
-		for (size_t i = 0; i < board.logs->nb_move; i++)
-			printf("last played = %ld\n", board.logs->global_log[i]->piece->piece_id);
 		write(1, "\033[2J\033[H", 7);
 		if (play(&board))
 			break ;
