@@ -73,6 +73,7 @@ int srv_join_room(client_t *clt, void *data, uint16_t len) {
 	room_info_t *room = oe_hashmap_get(&srv->rooms, name);
 	if (!room || strcmp(room->passwd_hash, hash)) {
 		srv_send_err(clt, OPC_ERR_WRONG_PASSW);
+		return 0;
 	}
 	if (srv_on_room_join(oe_hashmap_get(&srv->rooms, name), clt))
 		return 0;
