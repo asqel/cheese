@@ -167,3 +167,7 @@ void srv_room_send_all(room_info_t *room, uint32_t opcode, void *data, uint16_t 
 int srv_on_room_start(room_info_t *room) {
 	return srv->room_libs[room->type].start(room);
 }
+
+void srv_on_room_win(room_info_t *room, char *name) {
+	srv_room_send_all(room, OPC_WIN, name, strlen(name)); 
+}

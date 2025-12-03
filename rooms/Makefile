@@ -2,7 +2,7 @@ SRC = $(wildcard */)
 OBJ = $(SRC:/=.so) 
 
 INC = -I../include/ -I../oeuf/ -I../onion/include
-CFLAGS = -Wall -Wextra $(INC)
+CFLAGS = -Wall -Wextra $(INC) -fPIC
 CC = gcc
 
 all: $(OBJ)

@@ -9,6 +9,12 @@ OPC_AUTH_ACC = 2
 OPC_SUCCESS = 3
 OPC_JOIN = 4
 OPC_CREATE_ROOM = 5
+OPC_MOVE = 6
+OPC_CUSTOM = 7
+OPC_EXIT_ROOM = 8
+OPC_ASK_START = 9
+OPC_STARTING = 10
+OPC_WIN = 11
 OPC_PING = 0xFFABBAFF
 
 opcodes_str = [
@@ -83,21 +89,34 @@ while 1:
 		passwd = input(">").replace('\n', '').encode("utf-8")
 		passwd = sha256(passwd).hexdigest().encode("utf-8")
 		send_packet(OPC_AUTH_ACC, name + b'\0' + passwd, sock)
-	if cmd.startswith("create "):
+	elif cmd.startswith("create "):
 		name = cmd[len("create "):].encode("utf-8")
 		passwd = input(">").replace('\n', '').encode("utf-8")
 		passwd = sha256(passwd).hexdigest().encode("utf-8")
 		send_packet(OPC_CREATE_ACC, name + b'\0' + passwd, sock)
-	if cmd.startswith("ping"):
+	elif cmd.startswith("ping"):
 		send_packet(OPC_PING, b'', sock)
 
-	if cmd.startswith("croom "):
+	elif cmd.startswith("croom "):
 		name = cmd[len("croom "):].encode("utf-8")
 		passwd = input(">").replace('\n', '').encode("utf-8")
 		passwd = sha256(passwd).hexdigest().encode("utf-8")
 		type = int(input(">")).to_bytes(1, "little")
 		send_packet(OPC_CREATE_ROOM, name + b'\0' + passwd + type, sock)
-		
+	elif cmd.startswith("move "):
+		split = cmd.split(" ")
+		if len(split) < 5:
+			continue
+		split = split[1:]
+		if any(not i.isdigit() for i in split):
+			continue
+		split = list(map(int, split))	
+		data = b''
+		for i in split:
+			data += i.to_bytes(4, "little")
+		send_packet(OPC_MOVE, data, sock)
+	else
+		print("error command not good")
 	print_response(sock)
 	
 
