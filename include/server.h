@@ -92,5 +92,6 @@ void srv_room_send_all(room_info_t *room, uint32_t opcode, void *data, uint16_t 
 void srv_on_room_reset(room_info_t *room); 
 int srv_on_room_start(room_info_t *room);
 int srv_start_room(client_t *clt, void *data, uint16_t len);
+void srv_on_room_win(room_info_t *room, char *name);
 
 #endif
