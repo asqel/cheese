@@ -42,7 +42,7 @@ void move_func(room_info_t *self, client_t *clt, uint32_t pos1[2], uint32_t pos2
 void recv_func(room_info_t *self, client_t *clt, uint32_t opcode, void *data, uint16_t len) {
 	(void)self;
 	(void)opcode;
-	if (((char *)data)[len] || strlen(data) > 120) {
+	if (((char *)data)[len - 1] || strlen(data) > 120) {
 		srv_send_err(clt, OPC_ERR_INVALID_DATA);
 		return ;
 	}
@@ -55,6 +55,7 @@ void recv_func(room_info_t *self, client_t *clt, uint32_t opcode, void *data, ui
 		srv_on_room_win(self, clt->name);
 	else if (!strcmp(data, "reset"))
 		srv_on_room_reset(self);
+	srv_send_success(clt, opcode);
 }
 
 int start_func(room_info_t *self) {
