@@ -1,6 +1,6 @@
 #ifndef ROOM_H
 #define ROOM_H
 
-#define ROOM_TYPE_STD 0
+#define ROOM_TYPE_TEST 2
 
 #endif
