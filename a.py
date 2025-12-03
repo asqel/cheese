@@ -103,6 +103,11 @@ while 1:
 		passwd = sha256(passwd).hexdigest().encode("utf-8")
 		type = int(input(">")).to_bytes(1, "little")
 		send_packet(OPC_CREATE_ROOM, name + b'\0' + passwd + type, sock)
+	elif cmd.startswith("join "):
+		name = cmd[len("join "):].encode("utf-8")
+		passwd = input(">").replace('\n', '').encode('utf-8')
+		passwd = sha256(passwd).hexdigest().encode("utf-8")
+		send_packet(OPC_JOIN, name + b'\0' + passwd, sock)
 	elif cmd.startswith("move "):
 		split = cmd.split(" ")
 		if len(split) < 5:
@@ -115,7 +120,7 @@ while 1:
 		for i in split:
 			data += i.to_bytes(4, "little")
 		send_packet(OPC_MOVE, data, sock)
-	else
+	else:
 		print("error command not good")
 	print_response(sock)
 	
