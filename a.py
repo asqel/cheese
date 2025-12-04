@@ -124,6 +124,8 @@ while 1:
 		opc = int(cmd[len("custom "):]).to_bytes(4, "little")
 		data = input(">").replace('\n', '').encode("utf-8")
 		send_packet(OPC_CUSTOM, opc + data + b'\0', sock)
+	elif cmd.startswith("start"):
+		send_packet(OPC_ASK_START, b'', sock);
 	else:
 		print("error command not good")
 	print_response(sock)

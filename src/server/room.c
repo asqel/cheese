@@ -46,7 +46,6 @@ int srv_create_room(client_t *clt, void *data, uint16_t len) {
 	room->players = oe_strarr_append(room->players, strdup(clt->name), NULL, 0);
 	memcpy(room->passwd_hash, hash, 64);
 	room->passwd_hash[64] = '\0';
-	PRINT_ERR("passwd %s", room->passwd_hash);
 	strcpy(clt->room_name, name);
 	room->type = room_type;
 	

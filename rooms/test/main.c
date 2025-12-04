@@ -13,6 +13,8 @@ int init_func(room_info_t *self) {
 		srv_room_send_all(self, OPC_ERROR, &err, sizeof(uint32_t));
 		return 1;
 	}
+	info->can_start = 0;
+	info->has_started = 0;
 	self->data = info;
 	return 0;
 }
@@ -59,6 +61,7 @@ void recv_func(room_info_t *self, client_t *clt, uint32_t opcode, void *data, ui
 }
 
 int start_func(room_info_t *self) {
+	printf("try to start\n");
 	if (((test_room_t *)self->data)->can_start == 0) {
 		srv_send_err(oe_hashmap_get(&srv->clients, self->players[0]), OPC_ERR_FORBIDDEN);	
 		return 1;

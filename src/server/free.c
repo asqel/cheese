@@ -17,7 +17,6 @@ void srv_free_client(client_t *clt) {
 			break;
 		}
 	}
-	printf("players %s\n", room->players[0]);
 	srv->room_libs[room->type].leave(room, clt);
 	if (!room->players[0]) {
 		srv_free_room(room);
