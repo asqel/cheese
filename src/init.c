@@ -1,13 +1,41 @@
 #include "cheese.h"
 
+void	prepare_tile(board_t *board, char piece, int j, int i) {
+	tile_t	*cur_tile = &board->tiles[j][i];
+	board->pieces = realloc(board->pieces, sizeof(piece_t *) * (board->nb_piece + 2));
+	if (!board->pieces)
+		exit(1);
+
+	cur_tile->pieces = realloc(cur_tile->pieces,
+			(cur_tile->nb_piece + 1) * sizeof(piece_t *));
+	if (!cur_tile->pieces)
+		exit(1);
+
+	piece_t	*new_piece = create_piece(piece, board->nb_piece);
+	new_piece->y = j;
+	new_piece->x = i;
+
+	board->pieces[board->nb_piece] = new_piece;
+	board->pieces[++board->nb_piece] = NULL;
+
+	if (piece >= 'a' && new_piece->type == KING)
+		board->black_kings++;
+	else if (new_piece->type == KING)
+		board->white_kings++;
+	cur_tile->pieces[cur_tile->nb_piece++] = new_piece;
+}
+
 void	init_tiles(char *board_str, board_t *board)
 {
 	board->logs = calloc(1, sizeof(move_logs_t));
 	if (!board->logs)
 		exit(1);
+	
 	board->tiles = malloc((board->height + 1) * sizeof(tile_t *));
 	if (!board->tiles)
 		exit(1);
+
+	board->nb_piece = 0;
 	for (int j = 0; j < board->height; j++) {
 		board->tiles[j] = calloc((board->width + 1), sizeof(tile_t));
 		if (!board->tiles[j])
@@ -15,19 +43,13 @@ void	init_tiles(char *board_str, board_t *board)
 
 		int i = 0;
 		while (*board_str && *board_str != '\n') {
-			tile_t	*cur_tile = &board->tiles[j][i++];
 			char	cur_piece = *board_str++;
 
-			if (cur_piece == ' ')
+			if (cur_piece == ' ') {
+				i++;
 				continue ;
-			piece_t	*new_piece = set_piece(-cur_piece);
-			cur_tile->pieces = realloc(cur_tile->pieces,
-					(cur_tile->nb_piece + 1) * sizeof(piece_t *));
-			if (cur_piece >= 'a' && new_piece->type == KING)
-				board->black_kings++;
-			else if (new_piece->type == KING)
-				board->white_kings++;
-			cur_tile->pieces[cur_tile->nb_piece++] = new_piece;
+			}
+			prepare_tile(board, cur_piece, j, i++);
 		}
 		board_str++;
 		while (i < board->width) {
@@ -37,6 +59,24 @@ void	init_tiles(char *board_str, board_t *board)
 		}
 	}
 	board->tiles[board->height] = NULL;
+}
+
+void	init_possible_boards(board_t *board)
+{
+	for (int j = 0; j < board->nb_piece; j++) {
+		char	**map = board->pieces[j]->possible_moves;
+
+		map = malloc((board->height + 1) * sizeof(char *));
+		if (!map)
+			exit(1);
+
+		for (int i = 0; i < board->width; i++) {
+			map[i] = calloc(board->width + 1, sizeof(char));
+			if (!map[i])
+				exit(1);
+		}
+		map[board->height] = NULL;
+	}
 }
 
 void	init_board(char *filepath, board_t *board)

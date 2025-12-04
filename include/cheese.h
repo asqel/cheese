@@ -51,6 +51,7 @@ typedef struct {
 	int			kill_count;
 	int			move_counter;
 	int			distance_moved;
+	char		**possible_moves;
 	char		character[5];
 }	piece_t;
 
@@ -84,18 +85,20 @@ typedef struct {
 
 typedef struct board_s
 {
-	int			width;
-	int			height;
-	int			white_kings;
-	int			black_kings;
-	tile_t		**tiles;
-	char		**occupied_map;
-	char		**possible_moves;
-	selector_t	selector;
-	move_logs_t	*logs;
-	tile_t		*promo_tile;
-	struct board_s	*copy_board;
+	int				width;
+	int				height;
+	int				white_kings;
+	int				black_kings;
+	piece_t			**pieces;
+	int				nb_piece;
+	tile_t			**tiles;
+	char			**occupied_map;
+	char			**possible_moves;
+	selector_t		selector;
+	move_logs_t		*logs;
+	tile_t			*promo_tile;
 	int				debug;
+	struct board_s	*copy_board;
 }	board_t;
 
 piece_t	*get_piece(int index);
@@ -141,5 +144,6 @@ void 	buffer_free(buffer_t *buffer);
 void	disable_raw_mode(void);
 void	enable_raw_mode(void);
 char	read_char(void);
+piece_t	*create_piece(char piece, int index);
 
 #endif
