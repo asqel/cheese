@@ -2,13 +2,13 @@
 #include <signal.h>
 #include <unistd.h>
 
-static void default_init(server_t *srv) {
+static void default_init() {
 	srv->port = 42124;
 	srv->path = ".";
 	srv->fd = -1;
 }
 
-static int init_socket(server_t *srv) {
+static int init_socket() {
 	srv->fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (srv->fd < 0)
 		goto err;
@@ -32,11 +32,11 @@ static int init_socket(server_t *srv) {
 	return 0;
 	err:
 		perror("cheese");
-		srv_end(srv);
+		srv_end();
 		return 1;
 }
 
-int init_srv(server_t *srv) {
+int init_srv() {
 	if (oe_hashmap_init(&srv->clients, 4096)) {
 		PRINT_ERR("cheese: allocation error for clients\n");
 		return 1;
@@ -49,30 +49,32 @@ int init_srv(server_t *srv) {
 	return 0;
 }
 
-static server_t *g_srv = NULL;
-
 void sigint_ignore(int sig) {
 	(void)sig;
 	putc('\n', stdout);
 	puts("sopping server");
-	if (g_srv)
-		g_srv->end = 1;
+	if (srv)
+		srv->end = 1;
 }
 
+server_t *srv = NULL;
+
 int srv_start(int argc, char **argv) {
-	server_t srv = (server_t){0};
-	default_init(&srv);
-	if (srv_parse_args(argc, argv, &srv))
+	srv = calloc(1, sizeof(server_t));
+	if (!srv) {
+		perror("calloc");
 		return 1;
-	if (init_socket(&srv))
+	}
+	default_init();
+	if (srv_parse_args(argc, argv))
 		return 1;
-	if (init_srv(&srv))
+	if (init_socket())
 		return 1;
-	g_srv = &srv;
+	if (init_srv())
+		return 1;
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGINT, sigint_ignore);
-	int ret = srv_loop(&srv);
-	g_srv = NULL;
-	srv_end(&srv);
+	int ret = srv_loop();
+	srv_end();
 	return ret;
 }

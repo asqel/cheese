@@ -1,6 +1,6 @@
 #include "server.h"
 
-static struct pollfd *build_pollfd(server_t *srv, int len) {
+static struct pollfd *build_pollfd(int len) {
 	struct pollfd *res = malloc(sizeof(struct pollfd) * (1 + len));	
 	if (!res)
 		return NULL;
@@ -19,7 +19,7 @@ static void reset_fds(struct pollfd *fds, int len) {
 	}
 }
 
-int srv_loop(server_t *srv) {
+int srv_loop() {
 	char **keys = NULL;
 	struct pollfd *fds = NULL;
 	int fds_len = 0;
@@ -28,7 +28,7 @@ int srv_loop(server_t *srv) {
 		if (!fds) {
 			keys = oe_hashmap_get_keys(&srv->clients);
 			fds_len = oe_hashmap_len(&srv->clients);
-			fds = build_pollfd(srv, fds_len);
+			fds = build_pollfd(fds_len);
 			fds_len++;
 		}
 		if (!fds)
@@ -48,7 +48,7 @@ int srv_loop(server_t *srv) {
 				continue;
 			ret--;
 			if (i == 0) {
-				srv_connect(srv);
+				srv_connect();
 				need_rebuild = 1;	
 				break;
 			}
@@ -56,10 +56,10 @@ int srv_loop(server_t *srv) {
 			int ret = recv(fds[i].fd, buffer, 1024, 0);
 			if (ret <= 0) {
 				need_rebuild = 1;
-				srv_disconnect(srv, keys[i - 1]);
+				srv_disconnect(keys[i - 1]);
 				break;
 			}
-			need_rebuild |= srv_on_read(srv, keys[i - 1], buffer, ret);
+			need_rebuild |= srv_on_read(keys[i - 1], buffer, ret);
 		}
 		if (need_rebuild) {
 			free(fds);

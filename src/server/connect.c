@@ -1,6 +1,6 @@
 #include "server.h"
 
-void srv_connect(server_t *srv) {
+void srv_connect() {
 	static uint64_t last = 0;
 
 	client_t *clt = calloc(1, sizeof(client_t));

@@ -1,6 +1,6 @@
 #include "server.h"
 
-int srv_handle_move(client_t *clt, uint8_t *data, uint16_t len, server_t *srv) {
+int srv_handle_move(client_t *clt, uint8_t *data, uint16_t len) {
 	if (len != sizeof(uint32_t) * 4) {
 		srv_send_err(clt, OPC_ERR_INVALID_DATA);
 		return 0;

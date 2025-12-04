@@ -2,13 +2,16 @@ SRC = $(wildcard */)
 OBJ = $(SRC:/=.so) 
 
 INC = -I../include/ -I../oeuf/ -I../onion/include
-CFLAGS = -Wall -Wextra $(INC)
+CFLAGS = -Wall -Wextra $(INC) -fPIC
 CC = gcc
 
 all: $(OBJ)
 
 %.so: %/
-	$(CC) -o $@ -shared $(CFLAGS) $</*.c
+	$(CC) -shared $(CFLAGS) -c $</*.c
+	@mkdir -p $</obj/
+	@mv *.o $</obj/ 
+	$(CC) -o $@ -shared $(CFLAGS) $</obj/*.o
 
 fclean:
-	rm -rf $(OBJ)
+	rm -rf $(wildcard */obj/)

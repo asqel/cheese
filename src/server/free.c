@@ -1,6 +1,6 @@
 #include "server.h"
 
-void srv_free_client(client_t *clt, server_t *srv) {
+void srv_free_client(client_t *clt) {
 	close(clt->fd);
 	buffer_free(&clt->buffer);
 	if (!clt->room_name[0])
@@ -17,16 +17,15 @@ void srv_free_client(client_t *clt, server_t *srv) {
 			break;
 		}
 	}
-	printf("players %s\n", room->players[0]);
 	srv->room_libs[room->type].leave(room, clt);
 	if (!room->players[0]) {
-		srv_free_room(room, srv);
+		srv_free_room(room);
 		oe_hashmap_remove(&srv->rooms, room->name, NULL);
 		free(room);
 	}
 }
 
-void srv_free_room(room_info_t *room, server_t *srv) {
+void srv_free_room(room_info_t *room) {
 	for (int i = 0; room->players && room->players[i]; i++)
 		free(room->players[i]);
 	free(room->players);

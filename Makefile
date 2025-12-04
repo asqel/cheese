@@ -8,8 +8,8 @@ LD = gcc
 
 LIBS_INCLUDE = -Ioeuf/ -Ionion/include
 LIBS = liboeuf.a libonion.a
-CFLAGS = -Wall -Wextra -Iinclude $(LIBS_INCLUDE) -g 
-LDFLAGS =
+CFLAGS = -Wall -Wextra -Iinclude $(LIBS_INCLUDE) -g -rdynamic
+LDFLAGS = -rdynamic
 
 NAME = cheese
 
