@@ -1,5 +1,18 @@
 #include "cheese.h"
 
+void	print_end_message(board_t *board, char *msg) {
+		printf("\033[?25l");
+		printf("%*s%s\n", (int)((board->width * 4 + 1) - strlen(msg)) / 2, "", msg);
+		printf("%*s", PROMO_OFFSET, "");
+		msg = "Press Enter to continue";
+		printf("%*s%s", (int)((board->width * 4 + 1) - strlen(msg)) / 2, "", msg);
+		fflush(stdout);
+		while (1)
+			if (read_char() == 10)
+				break ;
+		printf("\033[?25h");
+}
+
 void	print_board(board_t	*board)
 {
 	printf("\033[2J\033[0;0m\033[?25l\033[%d;0H", PROMO_OFFSET);
@@ -57,24 +70,17 @@ int	play(board_t *board)
 	int	confirm = 0;
 
 	print_board(board);
-	if (!board->white_kings || !board->black_kings) {
+	for (int i = 0; i < board->nb_player; i++) {
+		if (board->players[i].nb_kings)
+			continue ;
 		char *msg;
-		if (board->white_kings)
+		if (i == 0) //TODO change this horror
 			msg = "White wins!";
-		else if (board->black_kings)
+		else if (i == 1)
 			msg = "Black wins!";
 		else
 			msg = "Draw!";
-		printf("\033[?25l");
-		printf("%*s%s\n", (int)((board->width * 4 + 1) - strlen(msg)) / 2, "", msg);
-		printf("%*s", PROMO_OFFSET, "");
-		msg = "Press Enter to continue";
-		printf("%*s%s", (int)((board->width * 4 + 1) - strlen(msg)) / 2, "", msg);
-		fflush(stdout);
-		while (1)
-			if (read_char() == 10)
-				break ;
-		printf("\033[?25h");
+		print_end_message(board, msg);
 		return (1);
 	}
 	if (board->promo_tile) {
@@ -86,6 +92,23 @@ int	play(board_t *board)
 		ref->character[2] += new_piece_type + (ref->color * 6);
 		board->promo_tile = NULL;
 		print_board(board);
+	}
+	update_possible_moves(board, -1, -1);
+	for (int i = 0; i < board->nb_player; i++) {
+		int	color = board->players[i].color;
+		int	can_move = 0;
+		for (int p = 0; p < board->nb_piece; p++) {
+			piece_t	*cur = board->pieces[p];
+			if (cur->is_dead)
+				continue ;
+			if (cur->color == color)
+				if (cur->can_move)
+					can_move = 1;
+		}
+		if (!can_move) {
+			print_end_message(board, "Stalemate");
+			return (1);
+		}
 	}
 	for (int i = 0; i < (x * 4); i++)
 		printf("%s", CURSOR_RIGHT);

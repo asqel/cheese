@@ -2,16 +2,13 @@
 
 void	remove_piece(tile_t *target, int id, board_t *board)
 {
-	if (target->pieces[id]->type == KING && board->copy_board) {
-		if (target->pieces[id]->color == WHITE)
-			board->white_kings--;
-		else
-			board->black_kings--;
-	}
 	if (board->copy_board) {
+		if (target->pieces[id]->type == KING)
+			board->players[target->pieces[id]->color].nb_kings--;
 		for (int i = (id + 1); i < target->nb_piece; i++) {
 			target->pieces[i - 1] = target->pieces[i];
 		}
+		board->players[target->pieces[id]->color].nb_piece--;
 	}
 	if (!--target->nb_piece && board->copy_board) {
 		free(target->pieces);

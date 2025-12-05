@@ -1,4 +1,5 @@
 #include "cheese.h"
+#include "oeuf.h"
 
 int	max(int a, int b)
 {
@@ -68,15 +69,13 @@ char	*get_tile_pieces(board_t *board, int x, int y)
 void	reset_possible_moves(board_t *board)
 {
 	for (int j = 0; j < board->height; j++)
-		for (int i = 0; i < board->width; i++)
-			board->possible_moves[j][i] = 0;
+		memset(board->default_moves[j], 0, board->width);
+	board->possible_moves = board->default_moves;
 }
 
 void	free_board(board_t *board, int free_char)
 {
 	for (int j = 0; j < board->height; j++) {
-		free(board->occupied_map[j]);
-		free(board->possible_moves[j]);
 		if (free_char) {
 			for (int i = 0; i < board->width; i++) {
 				if (board->tiles[j][i].nb_piece)
@@ -85,8 +84,8 @@ void	free_board(board_t *board, int free_char)
 		}
 		free(board->tiles[j]);
 	}
-	free(board->occupied_map);
-	free(board->possible_moves);
+	if (board->copy_board)
+		oe_strarr_free(board->occupied_map, board->height);
 	free(board->tiles);
 }
 

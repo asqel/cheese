@@ -46,12 +46,14 @@ typedef struct {
 	uint64_t	piece_id;
 	int			x; //TODO add support
 	int			y;
+	int			is_dead;
 	int			type;
 	int			color;
 	int			kill_count;
 	int			move_counter;
 	int			distance_moved;
 	char		**possible_moves;
+	int			can_move;
 	char		character[5];
 }	piece_t;
 
@@ -83,16 +85,25 @@ typedef struct {
 	move_infos_t	*last_move;
 }	move_logs_t;
 
+typedef struct player_s
+{
+	int		nb_piece;
+	int		nb_kings;
+	int		king_in_check;
+	int		color;
+}	player_t;
+
 typedef struct board_s
 {
 	int				width;
 	int				height;
-	int				white_kings;
-	int				black_kings;
+	int				nb_player;
+	player_t		*players;
 	piece_t			**pieces;
 	int				nb_piece;
 	tile_t			**tiles;
 	char			**occupied_map;
+	char			**default_moves;
 	char			**possible_moves;
 	selector_t		selector;
 	move_logs_t		*logs;
