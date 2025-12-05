@@ -119,6 +119,7 @@ int		play(board_t *board);
 void	free_board(board_t *board, int free_char);
 void	init_board(char *filepath, board_t *board);
 int		update_possible_moves(board_t *board, int y, int x);
+int		simulate_piece(board_t *board, piece_t *target);
 int		promo_menu(int y, int color, board_t *board);
 int		choose_tile_piece_menu(board_t *board, tile_t *tile, int color);
 void	update_logs(board_t *board, piece_t *piece, piece_t *target);
@@ -127,6 +128,7 @@ void	move_piece(board_t *board, int y, int x);
 //simulations
 board_t	*clone_board(board_t *board);
 void	sync_boards(board_t *cpy, board_t *src);
+int		king_in_check_simu(board_t *board_base, int color);
 int		king_in_check(board_t *board, int color);
 
 //utils

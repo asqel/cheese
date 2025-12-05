@@ -95,6 +95,7 @@ int	play(board_t *board)
 	}
 	update_possible_moves(board, -1, -1);
 	for (int i = 0; i < board->nb_player; i++) {
+		board->players[i].king_in_check = king_in_check(board, board->players[i].color);
 		int	color = board->players[i].color;
 		int	can_move = 0;
 		for (int p = 0; p < board->nb_piece; p++) {
@@ -105,10 +106,13 @@ int	play(board_t *board)
 				if (cur->can_move)
 					can_move = 1;
 		}
-		if (!can_move) {
+		if (!can_move && !board->players[i].king_in_check) {
 			print_end_message(board, "Stalemate");
 			return (1);
 		}
+		else if (!can_move)
+			update_possible_moves(board, -1, color);
+		board->players[i].king_in_check = 0;
 	}
 	for (int i = 0; i < (x * 4); i++)
 		printf("%s", CURSOR_RIGHT);

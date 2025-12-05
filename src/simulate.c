@@ -30,7 +30,7 @@ void	sync_boards(board_t *cpy, board_t *src)
 	cpy->selector.origin_id = src->selector.origin_id;
 }
 
-int	king_in_check(board_t *board_base, int color)
+int	king_in_check_simu(board_t *board_base, int color)
 {
 	board_t	*board;
 	int		check = 0;
@@ -58,4 +58,27 @@ int	king_in_check(board_t *board_base, int color)
 		}
 	}
 	return (check);
+}
+
+int	king_in_check(board_t *board, int color) {
+	reset_possible_moves(board);
+	for (int p = 0; p < board->nb_piece; p++) {
+		piece_t	*piece = board->pieces[p];
+		if (piece->is_dead || piece->color == color)
+			continue ;
+		for (int j = 0; j < board->height; j++) {
+			for (int i = 0; i < board->width; i++) {
+				if (piece->possible_moves[j][i])
+					board->possible_moves[j][i] = 1;
+			}
+		}
+	}
+	for (int p = 0; p < board->nb_piece; p++) {
+		piece_t	*piece = board->pieces[p];
+		if (piece->is_dead || piece->type != KING || piece->color != color)
+			continue ;
+		if (board->possible_moves[piece->y][piece->x])
+			return (1);
+	}
+	return (0);
 }

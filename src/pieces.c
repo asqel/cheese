@@ -7,6 +7,7 @@ piece_t	*create_piece(char piece, int index) {
 
 	dest->piece_id = index;
 	dest->color = WHITE;
+	dest->is_dead = 0;
 	dest->kill_count = 0;
 	dest->move_counter = 0;
 	dest->distance_moved = 0;
@@ -52,12 +53,13 @@ void	evaluate_move(board_t *board, piece_t *target, int y, int x, int *valid_mov
 		board->possible_moves[y][x] = 1;
 	}
 	else {
+		int			in_check = board->players[target->color].king_in_check;
 		selector_t	*selec = &board->selector;
 		board->copy_board->selector.origin_x = selec->origin_x;
 		board->copy_board->selector.origin_y = selec->origin_y;
 		board->copy_board->selector.origin_id = selec->origin_id;
 		move_piece(board->copy_board, y, x);
-		if (board->debug || !king_in_check(board, target->color)) {
+		if (board->debug || in_check || !king_in_check_simu(board, target->color)) {
 			*valid_move = 1;
 			target->possible_moves[y][x] = 1;
 		}
@@ -213,6 +215,10 @@ int	move_king(board_t *board, piece_t *target, int y, int x)
 	return (valid_move);
 }
 
+/* y < 0 && x < 0 = all pieces
+   y < 0 && x >= 0 = only x color
+   y > 0 && x <= 0 = all but y color
+*/
 int	update_possible_moves(board_t *board, int y, int x)
 {
 	if (y >= 0 && x >= 0) {
@@ -227,9 +233,12 @@ int	update_possible_moves(board_t *board, int y, int x)
 		for (int i = 0; i < board->width; i++) {
 			for (int k = 0; k < board->tiles[j][i].nb_piece; k++) {
 				piece_t	*piece = board->tiles[j][i].pieces[k];
-				for (int l = 0; l < board->height; l++)
-					memset(piece->possible_moves[l], 0, board->width);
-				if (piece->is_dead)
+				if (x < 0 && y < 0)
+					for (int l = 0; l < board->height; l++)
+						memset(piece->possible_moves[l], 0, board->width);
+				if (piece->is_dead ||
+					(x >= 0 && piece->color != x) ||
+					(y >= 0 && piece->color == x))
 					continue ;
 				piece->can_move = simulate_piece(board, piece) != 0;
 			}
