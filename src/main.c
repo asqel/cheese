@@ -38,6 +38,7 @@ void launch_client(int argc, char **argv) {
 	free(board.logs);
 	free(board.copy_board);
 	free(board.pieces);
+	free(board.players);
 }
 
 
