@@ -110,9 +110,10 @@ int	play(board_t *board)
 			print_end_message(board, "Stalemate");
 			return (1);
 		}
-		else if (!can_move)
+		else if (!can_move || board->players[i].king_in_check) {
+			board->players[i].king_in_check += !can_move;
 			update_possible_moves(board, -1, color);
-		board->players[i].king_in_check = 0;
+		}
 	}
 	for (int i = 0; i < (x * 4); i++)
 		printf("%s", CURSOR_RIGHT);

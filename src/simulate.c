@@ -1,7 +1,6 @@
 #include "cheese.h"
 
-board_t	*clone_board(board_t *board)
-{
+board_t	*clone_board(board_t *board) {
 	board_t	*dest = malloc(sizeof(board_t));
 	
 	*dest = *board;
@@ -18,8 +17,7 @@ board_t	*clone_board(board_t *board)
 	return (dest);
 }
 
-void	sync_boards(board_t *cpy, board_t *src)
-{
+void	sync_boards(board_t *cpy, board_t *src) {
 	for (int j = 0; j < src->height; j++) {
 		for (int i = 0; i < src->width; i++)
 			cpy->tiles[j][i] = src->tiles[j][i];
@@ -30,8 +28,7 @@ void	sync_boards(board_t *cpy, board_t *src)
 	cpy->selector.origin_id = src->selector.origin_id;
 }
 
-int	king_in_check_simu(board_t *board_base, int color)
-{
+int	king_in_check_simu(board_t *board_base, int color) {
 	board_t	*board;
 	int		check = 0;
 	tile_t	*tile;
@@ -42,7 +39,7 @@ int	king_in_check_simu(board_t *board_base, int color)
 		for (int i = 0; i < board->width; i++) {
 			tile = &board->tiles[j][i];
 			for (int k = 0; k < tile->nb_piece; k++) {
-				if (tile->pieces[k]->color != color) 
+				if (tile->pieces[k]->color != color)
 					simulate_piece(board, tile->pieces[k]);
 			}
 		}
