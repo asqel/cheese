@@ -33,8 +33,10 @@ void	update_logs(board_t *board, piece_t *piece, piece_t *target) {
 	update_move_counter(&board->selector, piece);
 	logs->last_color_played = piece_color;
 	piece->move_counter++;
-	if (target)
+	if (target) {
 		piece->kill_count++;
+		target->is_dead = 1;
+	}
 	move->piece = piece;
 	move->color = piece_color;
 	move->target_piece = target;
@@ -44,6 +46,12 @@ void	update_logs(board_t *board, piece_t *piece, piece_t *target) {
 	move->target_y = board->selector.target_y;
 	logs->last_move = &logs->color_logs[piece_color][logs->color_moves[piece_color]++];
 	logs->global_log[logs->nb_move++] = logs->last_move;
+	if (piece->x != move->origin_x || piece->y != move->origin_y) {
+		fprintf(stderr, "\e[?1049lMismatched position\n");
+		exit(1);
+	}
+	piece->x = move->target_x;
+	piece->y = move->target_y;
 	if (logs->nb_move >= MAX_LOG) {
 		fprintf(stderr, "\e[?1049lYOUR TAKING TOO LONG\n");
 		exit(1);

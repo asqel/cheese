@@ -28,11 +28,17 @@ void launch_client(int argc, char **argv) {
 		if (play(&board))
 			break ;
 	}
+	for (int i = 0; i < board.nb_piece; i++) {
+		oe_strarr_free(board.pieces[i]->possible_moves, board.height);
+		free(board.pieces[i]);
+	}
+	oe_strarr_free(board.default_moves, board.height);
 	free_board(board.copy_board, 0);
 	free_board(&board, 1);
 	free(board.logs);
 	free(board.copy_board);
-	get_piece(-1);
+	free(board.pieces);
+	free(board.players);
 }
 
 

@@ -7,6 +7,7 @@ piece_t	*create_piece(char piece, int index) {
 
 	dest->piece_id = index;
 	dest->color = WHITE;
+	dest->is_dead = 0;
 	dest->kill_count = 0;
 	dest->move_counter = 0;
 	dest->distance_moved = 0;
@@ -45,33 +46,6 @@ piece_t	*create_piece(char piece, int index) {
 	return (dest);
 }
 
-piece_t	*set_piece(int c) {
-	static int	index = 0;
-	static piece_t	**pieces = NULL;
-
-	if (c < 0) {
-		pieces = realloc(pieces, sizeof(piece_t *) * (index + 2));
-		if (!pieces)
-			exit(1);
-		pieces[index] = create_piece(-c, index);
-		pieces[++index] = NULL;
-		return (pieces[index - 1]);
-	}
-	else if (c == 0) {
-		for (int i = 0; i < index; i++)
-			free(pieces[i]);
-		free(pieces);
-		return (NULL);
-	}
-	return (pieces[c]);
-}
-
-piece_t	*get_piece(int index) {
-	if (index == -1)
-		return (set_piece(0));
-	return (set_piece(index));
-}
-
 void	evaluate_move(board_t *board, piece_t *target, int y, int x, int *valid_move)
 {
 	if (board->copy_board == NULL) {
@@ -79,14 +53,15 @@ void	evaluate_move(board_t *board, piece_t *target, int y, int x, int *valid_mov
 		board->possible_moves[y][x] = 1;
 	}
 	else {
+		int			is_checkmate = board->players[target->color].king_in_check == 2;
 		selector_t	*selec = &board->selector;
 		board->copy_board->selector.origin_x = selec->origin_x;
 		board->copy_board->selector.origin_y = selec->origin_y;
 		board->copy_board->selector.origin_id = selec->origin_id;
 		move_piece(board->copy_board, y, x);
-		if (board->debug || !king_in_check(board, target->color)) {
+		if (board->debug || is_checkmate || !king_in_check_simu(board, target->color)) {
 			*valid_move = 1;
-			board->possible_moves[y][x] = 1;
+			target->possible_moves[y][x] = 1;
 		}
 		free(board->copy_board->tiles[y][x].pieces);
 		board->copy_board->tiles[y][x] = board->tiles[y][x];
@@ -240,25 +215,50 @@ int	move_king(board_t *board, piece_t *target, int y, int x)
 	return (valid_move);
 }
 
+/* y < 0 && x < 0 = all pieces
+   y < 0 && x >= 0 = only x color
+   y > 0 && x <= 0 = all but y color
+*/
 int	update_possible_moves(board_t *board, int y, int x)
 {
-	board->selector.origin_x = x;
-	board->selector.origin_y = y;
-	if (board->copy_board)
-		sync_boards(board->copy_board, board);
-	piece_t	*target = board->tiles[y][x].pieces[board->selector.origin_id];
+	if (y >= 0 && x >= 0) {
+		board->selector.origin_x = x;
+		board->selector.origin_y = y;
+		piece_t	*piece = board->tiles[y][x].pieces[board->selector.origin_id];
+		board->possible_moves = piece->possible_moves;
+		return (piece->can_move);
+	}
+	sync_boards(board->copy_board, board);
+	for (int p = 0; p < board->nb_piece; p++) {
+		piece_t	*piece = board->pieces[p];
+		if (piece->is_dead ||
+			(x >= 0 && piece->color != x) ||
+			(y >= 0 && piece->color == x))
+			continue ;
+		if (x < 0 && y < 0)
+			for (int l = 0; l < board->height; l++)
+				memset(piece->possible_moves[l], 0, board->width);
+		piece->can_move = simulate_piece(board, piece) != 0;
+	}
+	return (1);
+}
 
-	if (target->type == PAWN)
-		return (move_pawn(board, target, y, x));
-	else if (target->type == ROOK)
-		return (move_rook(board, target, y, x));
-	else if (target->type == KNIGHT)
-		return (move_knight(board, target, y, x));
-	else if (target->type == BISHOP)
-		return (move_bishop(board, target, y, x));
-	else if (target->type == QUEEN)
-		return (move_rook(board, target, y, x) + move_bishop(board, target, y, x));
-	else if (target->type == KING)
-		return (move_king(board, target, y, x));
+int	simulate_piece(board_t *board, piece_t *target) {
+	board->selector.origin_x = target->x;
+	board->selector.origin_y = target->y;
+	switch (target->type) {
+		case PAWN:
+			return (move_pawn(board, target, target->y, target->x));
+		case ROOK:
+			return (move_rook(board, target, target->y, target->x));
+		case KNIGHT:
+			return (move_knight(board, target, target->y, target->x));
+		case BISHOP:
+			return (move_bishop(board, target, target->y, target->x));
+		case QUEEN:
+			return (move_rook(board, target, target->y, target->x) + move_bishop(board, target, target->y, target->x));
+		case KING:
+			return (move_king(board, target, target->y, target->x));
+	}
 	return (1);
 }
