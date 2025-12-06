@@ -142,4 +142,11 @@ void	disable_raw_mode(void);
 void	enable_raw_mode(void);
 char	read_char(void);
 
+char *read_passwd();
+int terminal_set_canon(int enable);
+int terminal_set_echo(int enable);
+void restore_tty();
+void save_tty();
+void terminal_set_screen(int is_alt);
+
 #endif
