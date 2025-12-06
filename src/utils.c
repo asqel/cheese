@@ -59,11 +59,11 @@ void	get_cursor_position(int *x, int *y)
 	*x = atoi(strchr(buffer, ';') + 1);
 }
 
-char	*get_tile_pieces(board_t *board, int x, int y)
+piece_t	*get_tile_piece(board_t *board, int y, int x)
 {
 	if (board->tiles[y][x].nb_piece)
-		return (board->tiles[y][x].pieces[0]->character);
-	return (" ");
+		return (board->tiles[y][x].pieces[0]);
+	return (NULL);
 }
 
 void	reset_possible_moves(board_t *board)
@@ -86,6 +86,8 @@ void	free_board(board_t *board, int free_char)
 	}
 	if (board->copy_board)
 		oe_strarr_free(board->occupied_map, board->height);
+	else
+		free(board->simu_changes);
 	free(board->tiles);
 }
 

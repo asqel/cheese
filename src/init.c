@@ -50,11 +50,6 @@ void	init_tiles(char *board_str, board_t *board)
 			prepare_tile(board, cur_piece, j, i - 1);
 		}
 		board_str++;
-		while (i < board->width) {
-			board->tiles[j][i].nb_piece = 0;
-			board->tiles[j][i].pieces = NULL;
-			i++;
-		}
 	}
 	board->tiles[board->height] = NULL;
 }
