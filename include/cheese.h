@@ -20,6 +20,7 @@
 #define BLACK_BG	"\033[40m"
 #define WHITE_BG	"\033[47m"
 #define BLUE_BG		"\033[43m"
+#define RED_BG		"\033[41m"
 
 #define WHITE	0
 #define BLACK	1
@@ -46,6 +47,8 @@ typedef struct {
 	uint64_t	piece_id;
 	int			x; //TODO add support
 	int			y;
+	int			tile_id;
+	int			is_targeted;
 	int			is_dead;
 	int			type;
 	int			color;
@@ -57,9 +60,16 @@ typedef struct {
 	char		character[5];
 }	piece_t;
 
+enum tile_types {
+	REAL_TILE,
+	MODIFIED_TILE,
+	COPY_TILE
+};
+
 typedef struct {
 	int			color;
 	int			nb_piece;
+	int			tile_type;
 	piece_t		**pieces;
 }	tile_t;
 
@@ -74,8 +84,8 @@ typedef struct {
 	int			color;
 }	move_infos_t;
 
-#define MAX_LOG	1024
-#define MAX_PLAYER 16
+#define MAX_LOG	512
+#define MAX_PLAYER 8
 typedef struct {
 	int				last_color_played;
 	uint64_t		nb_move;
@@ -93,6 +103,7 @@ typedef struct player_s
 	int		color;
 }	player_t;
 
+#define MAX_SIMU_MOVES	16
 typedef struct board_s
 {
 	int				width;
@@ -107,7 +118,10 @@ typedef struct board_s
 	char			**possible_moves;
 	selector_t		selector;
 	move_logs_t		*logs;
-	tile_t			*promo_tile;
+	move_infos_t	*simu_changes;
+	int				simu_change_index;
+	void			*special_tile;
+	//tile_t			*promo_tile;
 	int				debug;
 	struct board_s	*copy_board;
 }	board_t;
@@ -133,7 +147,7 @@ int		king_in_check(board_t *board, int color);
 
 //utils
 void	highlight_board(board_t *board, int y, int x);
-char	*get_tile_pieces(board_t *board, int x, int y);
+piece_t	*get_tile_piece(board_t *board, int x, int y);
 int		get_nb_pieces_on_tile(tile_t *tile, int color);
 char	*strjoin(char *s1, char *s2, int free_s1);
 void	get_cursor_position(int *x, int *y);

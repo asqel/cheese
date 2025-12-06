@@ -4,6 +4,10 @@ board_t	*clone_board(board_t *board) {
 	board_t	*dest = malloc(sizeof(board_t));
 	
 	*dest = *board;
+	board->simu_changes = NULL;
+	dest->simu_changes = malloc((MAX_SIMU_MOVES + 1) * sizeof(move_infos_t));
+	if (!dest->simu_changes)
+		exit(1);
 	dest->occupied_map = NULL;
 	dest->tiles = malloc((dest->height + 1) * sizeof(tile_t *));
 	if (!dest->tiles)
@@ -37,10 +41,10 @@ int	king_in_check_simu(board_t *board_base, int color) {
 	reset_possible_moves(board);
 	for (int j = 0; j < board->height; j++) {
 		for (int i = 0; i < board->width; i++) {
-			tile = &board->tiles[j][i];
-			for (int k = 0; k < tile->nb_piece; k++) {
-				if (tile->pieces[k]->color != color)
-					simulate_piece(board, tile->pieces[k]);
+			for (int k = 0; k < board->tiles[j][i].nb_piece; k++) {
+				piece_t	*piece = board->tiles[j][i].pieces[k];
+				if (piece->color != color)
+					simulate_piece(board, piece);
 			}
 		}
 	}
@@ -70,12 +74,17 @@ int	king_in_check(board_t *board, int color) {
 			}
 		}
 	}
+	int	check = 0;
 	for (int p = 0; p < board->nb_piece; p++) {
 		piece_t	*piece = board->pieces[p];
-		if (piece->is_dead || piece->type != KING || piece->color != color)
+		if (piece->is_dead || piece->color != color)
 			continue ;
-		if (board->possible_moves[piece->y][piece->x])
-			return (1);
+		piece->is_targeted = 0;
+		if (!board->possible_moves[piece->y][piece->x])
+			continue ;
+		piece->is_targeted = 1;
+		if (piece->type == KING)
+			check = 1;
 	}
-	return (0);
+	return (check);
 }
