@@ -1,4 +1,5 @@
 #include "cheese.h"
+#include <sys/ioctl.h>
 
 static int old_stdin_flags = 0;
 static struct termios old_tty = {0};
@@ -78,3 +79,78 @@ void terminal_set_screen(int is_alt) {
 		printf("\e[?1049l");
 	fflush(stdout);
 }
+
+int terminal_set_ctrl_key(char key, int state) {
+	struct termios tty;
+	tcgetattr(0, &tty);
+	int old_state = 0;
+
+	switch (key) {
+		case 'C':
+			old_state = tty.c_cc[VINTR];
+			tty.c_cc[VINTR] = state ? 0x03 : _POSIX_VDISABLE;
+			break;
+		case '\\':
+			old_state = tty.c_cc[VQUIT];
+			tty.c_cc[VQUIT] = state ? 0x1c : _POSIX_VDISABLE;
+			break;
+		case 'D':
+			old_state = tty.c_cc[VEOF];
+			tty.c_cc[VEOF] = state ? 0x04 : _POSIX_VDISABLE;
+			break;
+	}
+	tcsetattr(0, TCSAFLUSH, &tty);
+	return old_state;
+}
+
+void terminal_get_pos(int *x, int *y) {
+	tcflush(0, TCIFLUSH);
+	write(1, "\e[6n", 4);
+	char c = 0;
+	int row = 0;
+	int col = 0;
+	while (1) {
+		read(0, &c, 1);
+		if (c != '\e')
+			continue;
+		read(0, &c, 1);
+		if (c != '[')
+			continue;
+		read(0, &c, 1);
+		if (!isdigit(c))
+			continue;
+		row = 0;
+		col = 0;
+		while (isdigit(c)) {
+			row = row * 10 + c - '0';
+			read(0, &c, 1);
+		}
+		if (c != ';')
+			continue;
+		read(0, &c, 1);
+		if (!isdigit(c))
+			continue;
+		while (isdigit(c)) {
+			col = col * 10 + c - '0';
+			read(0, &c, 1);
+		}
+		if (c != 'R')
+			continue;
+		break;
+	}
+	*x = col;
+	*y = row;
+}
+
+void terminal_get_size(int *w, int *h) {
+	struct winsize win;
+	ioctl(0, TIOCGWINSZ, &win);
+
+	*w = win.ws_col;
+	*h = win.ws_row;
+}
+
+void terminal_clear() {
+	write(1, "\e[2J\e[H", 7);
+}
+

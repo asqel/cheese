@@ -148,5 +148,9 @@ int terminal_set_echo(int enable);
 void restore_tty();
 void save_tty();
 void terminal_set_screen(int is_alt);
+void terminal_get_pos(int *x, int *y);
+int terminal_set_ctrl_key(char key, int state);
+void terminal_get_size(int *w, int *h);
+void terminal_clear();
 
 #endif

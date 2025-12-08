@@ -11,9 +11,10 @@ typedef struct {
 	char room_name[ROOM_NAME_LEN + 1];
 	uint8_t room_type;
 	void (*next_menu)();
-	void *data;
 } client_data_t;
 
 extern client_data_t clt;
+
+void main_menu_func();
 
 #endif
