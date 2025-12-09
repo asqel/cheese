@@ -3,43 +3,46 @@
 #define BANNER_WIDTH 23
 
 static char *menu[] ={ \
-	"%*s        ╦  ╦  ╦        \n", \
-	"%*s        ╚╧╧╩╧╧╝        \n", \
-	"%*s╔══ ╦ ╦ ╔══ ╔══ ╔══ ╔══\n", \
-	"%*s║   ╠═╣ ╠══ ╠══ ╚═╗ ╠══\n", \
-	"%*s╚══ ╩ ╩ ╚══ ╚══ ══╝ ╚══\n", \
+	"        ╦  ╦  ╦        \n", \
+	"        ╚╧╧╩╧╧╝        \n", \
+	"╔══ ╦ ╦ ╔══ ╔══ ╔══ ╔══\n", \
+	"║   ╠═╣ ╠══ ╠══ ╚═╗ ╠══\n", \
+	"╚══ ╩ ╩ ╚══ ╚══ ══╝ ╚══\n", \
 	NULL \
 };
 
 static void redisplay(int state) {
 	terminal_clear(0);
-	int width = 0;
-	int height = 0;
-	terminal_get_size(&width, &height);
-	
-	for (int i = 0; menu[i]; i++)
-		printf(menu[i], width / 2 - BANNER_WIDTH / 2, "");
+	terminal_draw_strarr_centered(menu, 1, 0);
 
-	char *mod1 = "";
-	char *mod2 = "";
 	if (state == 0)
-		mod1 = "\e[7m";
-	else
-		mod2 = "\e[7m";
-	printf("\n");
-	printf("\n");
-	printf("\n");
-	printf("%*s%sLog in\e[0m\n", width / 2 - 6 / 2, "", mod1);
-	printf("\n");
-	printf("%*s%sSign up\e[0m\n", width / 2 - 7 / 2, "", mod2);
+		printf("\e[7m");
+	terminal_draw_str_centered("Log in", 8, 0);
+	printf("\e[0m");
+
+	if (state == 1)
+		printf("\e[7m");
+	terminal_draw_str_centered("Register", 10, 0);
+	printf("\e[0m");
+
+	if (state == 2)
+		printf("\e[7m");
+	terminal_draw_str_centered("Exit", 12, 0);
+	printf("\e[0m");
+
 	fflush(stdout);
+}
+
+static void do_button(int state) {
+	if (state == 2)
+		clt.menu = NULL;
 }
 
 void clt_main_menu() {
 	int width = 0;
 	int height = 0;
 	terminal_get_size(&width, &height);
-	terminal_clear();
+	terminal_clear(0);
 	terminal_set_canon(0);
 	terminal_set_echo(0);
 	terminal_set_block(0);
@@ -54,10 +57,14 @@ void clt_main_menu() {
 			usleep(10000);
 			continue;
 		}
-		if (!strcmp(input, "q"))
+		if (!strcmp(input, "\e[B") || !strcmp(input, "j"))
+			state = (state + 1) % 3;
+		if (!strcmp(input, "\e[A") || !strcmp(input, "k"))
+			state = (state + 2) % 3;
+		if (!strcmp(input, " ") || !strcmp(input, "\n")) {
+			do_button(state);
 			break;
-		if (!strcmp(input, "\e[B") || !strcmp(input, "\e[A"))
-			state = !state;
+		}
 		redisplay(state);
 	}
 	terminal_set_flush(1);

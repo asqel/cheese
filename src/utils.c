@@ -101,3 +101,24 @@ int	get_nb_pieces_on_tile(tile_t *tile, int color)
 	}
 	return (res);
 }
+
+size_t strlen_utf8(char *str_ptr) {
+	uint8_t *str = (uint8_t *)str_ptr;
+	size_t res = 0;
+	size_t i = 0;
+	size_t len = strlen(str_ptr);
+	while (i < len) {
+		if (str[i] <= 0b01111111)
+			i++;
+		else if (str[i] >> 5 == 0b110)
+			i += 2;
+		else if (str[i] >> 4 == 0b1110)
+			i += 3;
+		else if (str[i] >> 3 == 0b11110)
+			i += 4;
+		else
+			i++;
+		res++;
+	}
+	return res;
+}

@@ -155,6 +155,7 @@ void	reset_possible_moves(board_t *board);
 int		max(int a, int b);
 int		min(int a, int b);
 char	*sha256(char *str);
+size_t	strlen_utf8(char *str);
 
 //buffers
 typedef struct {
@@ -187,7 +188,9 @@ char *terminal_get_input();
 int terminal_set_block(int state);
 void terminal_set_cursor(int state);
 void terminal_draw_str(char *str, int x, int y, int flush);
+void terminal_draw_str_centered(char *str, int y, int flush);
 void terminal_draw_strarr(char **str, int x, int y, int flush);
 void terminal_set_flush(int state);
+void terminal_draw_strarr_centered(char **str, int y, int flush);
 
 #endif

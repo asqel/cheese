@@ -190,6 +190,26 @@ void terminal_draw_strarr(char **str, int x, int y, int flush) {
 	}
 }
 
+void terminal_draw_strarr_centered(char **str, int y, int flush) {
+	if (!str)
+		return ;
+	int width = 0;
+	int height = 0;
+	terminal_get_size(&width, &height);
+	for (int i = 0; str[i]; i++) {
+		int len = strlen_utf8(str[i]);
+		terminal_draw_str(str[i], width / 2 - len / 2, y, flush);
+		y++;
+	}
+}
+
+void terminal_draw_str_centered(char *str, int y, int flush) {
+	int width = 0;
+	int height = 0;
+	terminal_get_size(&width, &height);
+	terminal_draw_str(str, width / 2 - strlen_utf8(str) / 2, y, flush);
+}
+
 void terminal_set_flush(int state) {
 	fflush(stdout);
 	if (!state)
