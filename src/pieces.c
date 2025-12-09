@@ -1,15 +1,11 @@
 #include "cheese.h"
 
 piece_t	*create_piece(char piece, int index) {
-	piece_t	*dest = malloc(sizeof(piece_t));
+	piece_t	*dest = calloc(1, sizeof(piece_t));
 	if (!dest)
 		exit(1);
 
 	dest->piece_id = index;
-	dest->color = WHITE;
-	dest->kill_count = 0;
-	dest->move_counter = 0;
-	dest->distance_moved = 0;
 	if (piece >= 'a') {
 		dest->color = BLACK;
 		piece -= 32;
@@ -45,33 +41,6 @@ piece_t	*create_piece(char piece, int index) {
 	return (dest);
 }
 
-piece_t	*set_piece(int c) {
-	static int	index = 0;
-	static piece_t	**pieces = NULL;
-
-	if (c < 0) {
-		pieces = realloc(pieces, sizeof(piece_t *) * (index + 2));
-		if (!pieces)
-			exit(1);
-		pieces[index] = create_piece(-c, index);
-		pieces[++index] = NULL;
-		return (pieces[index - 1]);
-	}
-	else if (c == 0) {
-		for (int i = 0; i < index; i++)
-			free(pieces[i]);
-		free(pieces);
-		return (NULL);
-	}
-	return (pieces[c]);
-}
-
-piece_t	*get_piece(int index) {
-	if (index == -1)
-		return (set_piece(0));
-	return (set_piece(index));
-}
-
 void	evaluate_move(board_t *board, piece_t *target, int y, int x, int *valid_move)
 {
 	if (board->copy_board == NULL) {
@@ -79,19 +48,34 @@ void	evaluate_move(board_t *board, piece_t *target, int y, int x, int *valid_mov
 		board->possible_moves[y][x] = 1;
 	}
 	else {
+		int			is_checkmate = board->players[target->color].king_in_check == 2;
 		selector_t	*selec = &board->selector;
 		board->copy_board->selector.origin_x = selec->origin_x;
 		board->copy_board->selector.origin_y = selec->origin_y;
 		board->copy_board->selector.origin_id = selec->origin_id;
+		board->copy_board->simu_change_index = 0;
 		move_piece(board->copy_board, y, x);
-		if (board->debug || !king_in_check(board, target->color)) {
+		if (board->debug || is_checkmate || !king_in_check_simu(board, target->color)) {
 			*valid_move = 1;
-			board->possible_moves[y][x] = 1;
+			target->possible_moves[y][x] = 1;
 		}
-		free(board->copy_board->tiles[y][x].pieces);
-		board->copy_board->tiles[y][x] = board->tiles[y][x];
-		board->copy_board->tiles[selec->origin_y][selec->origin_x] =
-			board->tiles[selec->origin_y][selec->origin_x];
+		for (int i = 0; i < board->copy_board->simu_change_index; i++) {
+			move_infos_t	*change = &board->copy_board->simu_changes[i];
+			tile_t			*tile = &board->copy_board->tiles[change->target_y][change->target_x];
+			piece_t			***pieces = &tile->pieces;
+			
+			if (*pieces != NULL)
+				free(*pieces);
+			*pieces = NULL;
+		}
+		for (int i = 0; i < board->copy_board->simu_change_index; i++) {
+			move_infos_t	*change = &board->copy_board->simu_changes[i];
+
+			board->copy_board->tiles[change->target_y][change->target_x] =
+				board->tiles[change->target_y][change->target_x];
+			board->copy_board->tiles[change->origin_y][change->origin_x] =
+				board->tiles[change->origin_y][change->origin_x];
+		}
 	}
 }
 
@@ -224,10 +208,12 @@ int	move_king(board_t *board, piece_t *target, int y, int x)
 	tile_t	*tile;
 	int		valid_move = 0;
 
-	for (int target_y = (y - 1); target_y < (y + 2); target_y++) {
+	for (int y_offset = -1; y_offset < 2; y_offset++) {
+		int	target_y = y + y_offset;
 		if (target_y < 0 || target_y >= board->height)
 			continue ;
-		for (int target_x = (x - 1); target_x < (x + 2); target_x++) {
+		for (int x_offset = -1; x_offset < 2; x_offset++) {
+			int	target_x = x + x_offset;
 			if (target_x < 0 || target_x >= board->width)
 				continue ;
 			if (target_x == x && target_y == y)
@@ -235,30 +221,79 @@ int	move_king(board_t *board, piece_t *target, int y, int x)
 			tile = &board->tiles[target_y][target_x];
 			if (board->debug || !tile->nb_piece || (tile->pieces[0]->color != target->color))
 				evaluate_move(board, target, target_y, target_x, &valid_move);
+			if (x_offset == 0 || y_offset != 0 || target->move_counter || target->is_targeted)
+				continue ;
+			int	castling_x = x;
+			while (1) {
+				castling_x += x_offset;
+				if (castling_x < 0 || castling_x >= board->width)
+					break ;
+				tile = &board->tiles[target_y][castling_x];
+				if (!tile->nb_piece)
+					continue ;
+				piece_t	*piece = tile->pieces[0];
+				if (piece->type == ROOK && piece->move_counter == 0 &&
+					piece->color == target->color) {
+					evaluate_move(board, target, target_y, x + (x_offset * 2), &valid_move);
+				}
+				break ;
+			}
 		}
 	}
 	return (valid_move);
 }
 
+/* y < 0 && x < 0 = all pieces
+   y < 0 && x >= 0 = only x color
+   y > 0 && x <= 0 = all but y color
+*/
 int	update_possible_moves(board_t *board, int y, int x)
 {
-	board->selector.origin_x = x;
-	board->selector.origin_y = y;
-	if (board->copy_board)
-		sync_boards(board->copy_board, board);
-	piece_t	*target = board->tiles[y][x].pieces[board->selector.origin_id];
+	if (y >= 0 && x >= 0) {
+		board->selector.origin_x = x;
+		board->selector.origin_y = y;
+		piece_t	*piece = board->tiles[y][x].pieces[board->selector.origin_id];
+		board->possible_moves = piece->possible_moves;
+		return (piece->can_move);
+	}
+	sync_boards(board->copy_board, board);
+	for (int p = 0; p < board->nb_piece; p++) {
+		piece_t	*piece = board->pieces[p];
+		if (piece->is_dead ||
+			(x >= 0 && piece->color != x) ||
+			(y >= 0 && piece->color == x))
+			continue ;
+		if (x < 0 && y < 0)
+			for (int l = 0; l < board->height; l++)
+				memset(piece->possible_moves[l], 0, board->width);
+		piece->can_move = simulate_piece(board, piece) != 0;
+		x++;
+		x--;
+	}
+	return (1);
+}
 
-	if (target->type == PAWN)
-		return (move_pawn(board, target, y, x));
-	else if (target->type == ROOK)
-		return (move_rook(board, target, y, x));
-	else if (target->type == KNIGHT)
-		return (move_knight(board, target, y, x));
-	else if (target->type == BISHOP)
-		return (move_bishop(board, target, y, x));
-	else if (target->type == QUEEN)
-		return (move_rook(board, target, y, x) + move_bishop(board, target, y, x));
-	else if (target->type == KING)
-		return (move_king(board, target, y, x));
+int	simulate_piece(board_t *board, piece_t *target) {
+	board->selector.origin_x = target->x;
+	board->selector.origin_y = target->y;
+	board->selector.origin_id = target->tile_id;
+	if (board->copy_board && target->x == 0 && target->y == 6) {
+		board++;
+		board--;
+	}
+	switch (target->type) {
+		case PAWN:
+			return (move_pawn(board, target, target->y, target->x));
+		case ROOK:
+			return (move_rook(board, target, target->y, target->x));
+		case KNIGHT:
+			return (move_knight(board, target, target->y, target->x));
+		case BISHOP:
+			return (move_bishop(board, target, target->y, target->x));
+		case QUEEN:
+			return (move_rook(board, target, target->y, target->x) + move_bishop(board, target, target->y, target->x));
+		case KING:
+			return (move_king(board, target, target->y, target->x));
+	}
 	return (1);
 }

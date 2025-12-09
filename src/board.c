@@ -23,12 +23,12 @@ void	print_board(board_t	*board)
 	for (int i = 0; i < board->width - 1; i++)
 		printf("─┴──");
 	printf("─┘\n%*s", PROMO_OFFSET, "");
-	for (int i = 0; i < (board->height * 2); i++)
-		printf("%s", CURSOR_UP);
+	for (int i = 0; i < board->height; i++)
+		printf("%s%s", CURSOR_UP, CURSOR_UP);
 	for (int j = 0; j < board->height; j++) {
 		printf("\r%*s", PROMO_OFFSET, "");
-		for (int i = 0; i < (j * 2); i++)
-			printf("%s", CURSOR_DOWN);
+		for (int i = 0; i < j; i++)
+			printf("%s%s", CURSOR_DOWN, CURSOR_DOWN);
 		for (int i = 0; i < board->width; i++) {
 			board->occupied_map[j][i] = board->tiles[j][i].nb_piece != 0;
 			if (!board->tiles[j][i].nb_piece)
@@ -36,35 +36,25 @@ void	print_board(board_t	*board)
 			printf("\r%*s", PROMO_OFFSET, "");
 			printf("%s", CURSOR_RIGHT);
 			printf("%s", CURSOR_RIGHT);
-			for (int k = 0; k < (i * 4); k++)
-				printf("%s", CURSOR_RIGHT);
-			printf("%s", board->tiles[j][i].pieces[0]->character);
+			for (int k = 0; k < i; k++)
+				printf("%s%s%s%s", CURSOR_RIGHT, CURSOR_RIGHT, CURSOR_RIGHT, CURSOR_RIGHT);
+			piece_t	*piece = board->tiles[j][i].pieces[0];
+			if (piece->type == KING && piece->is_targeted == 1)
+				printf("%s", RED_BG);
+			printf("%s%s", board->tiles[j][i].pieces[0]->character, BLACK_BG);
 		}
-		for (int i = 0; i < (j * 2); i++)
-			printf("%s", CURSOR_UP);
+		for (int i = 0; i < j; i++)
+			printf("%s%s", CURSOR_UP, CURSOR_UP);
 	}
 	printf("\r%*s", PROMO_OFFSET, "");
-	for (int i = 0; i < ((board->height + 1) * 2); i++)
-		printf("%s", CURSOR_DOWN);
+	for (int i = 0; i < (board->height + 1); i++)
+		printf("%s%s", CURSOR_DOWN, CURSOR_DOWN);
 	printf("\e[?25h");
 	fflush(stdout);
 }
 
-int	play(board_t *board)
-{
-	static int	x = 0;
-	static int	y = 0;
-	int	confirm = 0;
-
-	print_board(board);
-	if (!board->white_kings || !board->black_kings) {
-		char *msg;
-		if (board->white_kings)
-			msg = "White wins!";
-		else if (board->black_kings)
-			msg = "Black wins!";
-		else
-			msg = "Draw!";
+void	print_end_message(board_t *board, char *msg) {
+		print_board(board);
 		printf("\033[?25l");
 		printf("%*s%s\n", (int)((board->width * 4 + 1) - strlen(msg)) / 2, "", msg);
 		printf("%*s", PROMO_OFFSET, "");
@@ -75,18 +65,64 @@ int	play(board_t *board)
 			if (read_char() == 10)
 				break ;
 		printf("\033[?25h");
+}
+
+
+int	play(board_t *board)
+{
+	static int	x = 0;
+	static int	y = 0;
+	int	confirm = 0;
+
+	for (int i = 0; i < board->nb_player; i++) {
+		if (board->players[i].nb_kings)
+			continue ;
+		char *msg;
+		if (i == 0) //TODO change this horror
+			msg = "White wins!";
+		else if (i == 1)
+			msg = "Black wins!";
+		else
+			msg = "Draw!";
+		print_end_message(board, msg);
 		return (1);
 	}
-	if (board->promo_tile) {
-		piece_t *ref = board->promo_tile->pieces[board->promo_tile->nb_piece - 1];
+	if (board->special_tile) {
+		print_board(board);
+		tile_t	*promo_tile = (tile_t *)board->special_tile;
+		piece_t *ref = promo_tile->pieces[promo_tile->nb_piece - 1];
 		int new_piece_type = promo_menu(!ref->color * (board->height + 3), ref->color, board) + 1;
 
 		ref->type = new_piece_type;
 		strcpy(ref->character, "♔");
 		ref->character[2] += new_piece_type + (ref->color * 6);
-		board->promo_tile = NULL;
-		print_board(board);
+		board->special_tile = NULL;
 	}
+	update_possible_moves(board, -1, -1);
+	for (int i = 0; i < board->nb_player; i++) {
+		board->players[i].king_in_check = king_in_check(board, board->players[i].color);
+		int	color = board->players[i].color;
+		int	can_move = 0;
+		for (int p = 0; p < board->nb_piece; p++) {
+			piece_t	*cur = board->pieces[p];
+			if (cur->is_dead || cur->color != color || !cur->can_move)
+				continue ;
+			can_move = 1;
+			break ;
+		}
+		if (!can_move && !board->players[i].king_in_check) {
+			print_end_message(board, "Stalemate");
+			return (1);
+		}
+		else if (!can_move || board->players[i].king_in_check) {
+			board->players[i].king_in_check += !can_move;
+			update_possible_moves(board, -1, color);
+			if (!can_move)
+				while (1)
+					;
+		}
+	}
+	print_board(board);
 	for (int i = 0; i < (x * 4); i++)
 		printf("%s", CURSOR_RIGHT);
 	for (int i = 0; i < ((board->height - y + 1) * 2); i++)
