@@ -152,5 +152,8 @@ void terminal_get_pos(int *x, int *y);
 int terminal_set_ctrl_key(char key, int state);
 void terminal_get_size(int *w, int *h);
 void terminal_clear();
+char *terminal_get_input();
+int terminal_set_block(int state);
+void terminal_set_cursor(int state);
 
 #endif

@@ -15,14 +15,16 @@ void launch_client(int argc, char **argv) {
 	signal(SIGINT, SIG_IGN);
 	if (init_client(argc, argv))
 		return ;
+
 	save_tty();
 	terminal_set_screen(1);
-	clt.next_menu = main_menu_func;
+
 	terminal_set_ctrl_key('C', 0);
 	terminal_set_ctrl_key('D', 0);
 	terminal_set_ctrl_key('\\', 0);
-	while (clt.next_menu)
-		clt.next_menu();
+
+	clt_main_menu();
+
 	terminal_set_screen(0);
 	restore_tty();
 }

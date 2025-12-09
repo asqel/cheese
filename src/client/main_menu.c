@@ -29,28 +29,35 @@ static void redisplay(int state) {
 	printf("\n");
 	printf("\n");
 	printf("\n");
-	printf("%*s%slog in\e[0m\n", width / 2 - 6 / 2, "", mod1);
+	printf("%*s%sLog in\e[0m\n", width / 2 - 6 / 2, "", mod1);
 	printf("\n");
-	printf("%*s%ssign up\e[0m\n", width / 2 - 7 / 2, "", mod2);
+	printf("%*s%sSign up\e[0m\n", width / 2 - 7 / 2, "", mod2);
 	fflush(stdout);
 }
 
-void main_menu_func() {
+void clt_main_menu() {
 	int width = 0;
 	int height = 0;
 	terminal_get_size(&width, &height);
 	terminal_clear();
+	terminal_set_canon(0);
+	terminal_set_echo(0);
+	terminal_set_block(0);
+	terminal_set_cursor(0);
 
 	int state = 0;
 	redisplay(state);
 	while (1) {
-		char buff[256];
-		buff[read(0, buff, 255)] = '\0';
-		if (!strcmp(buff, "\e[A") || !strcmp(buff, "\e[B"))
+		char *input = terminal_get_input();
+		if (!input) {
+			usleep(10000);
+			continue;
+		}
+		if (!strcmp(input, "q"))
+			break;
+		if (!strcmp(input, "\e[B") || !strcmp(input, "\e[A"))
 			state = !state;
-		if (!strcmp(buff, "q"))
-		
+		redisplay(state);
 	}
-	terminal_set_canon(0);
-	clt.next_menu = NULL;
+	terminal_set_cursor(1);
 }

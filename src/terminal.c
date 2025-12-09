@@ -1,5 +1,6 @@
 #include "cheese.h"
 #include <sys/ioctl.h>
+#include <ctype.h>
 
 static int old_stdin_flags = 0;
 static struct termios old_tty = {0};
@@ -154,3 +155,19 @@ void terminal_clear() {
 	write(1, "\e[2J\e[H", 7);
 }
 
+int terminal_set_block(int state) {
+	int flags = fcntl(0, F_GETFL, 0);
+	if (state)
+		fcntl(0, F_SETFL, flags & ~(O_NONBLOCK));
+	else
+		fcntl(0, F_SETFL, flags | O_NONBLOCK);
+	return flags;
+}
+
+void terminal_set_cursor(int state) {
+	if (state)
+		printf("\e[?25h");
+	else
+		printf("\e[?25l");
+	fflush(stdout);
+}
