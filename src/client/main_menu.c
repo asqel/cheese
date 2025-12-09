@@ -12,7 +12,7 @@ static char *menu[] ={ \
 };
 
 static void redisplay(int state) {
-	terminal_clear();
+	terminal_clear(0);
 	int width = 0;
 	int height = 0;
 	terminal_get_size(&width, &height);
@@ -44,6 +44,7 @@ void clt_main_menu() {
 	terminal_set_echo(0);
 	terminal_set_block(0);
 	terminal_set_cursor(0);
+	terminal_set_flush(0);
 
 	int state = 0;
 	redisplay(state);
@@ -59,5 +60,6 @@ void clt_main_menu() {
 			state = !state;
 		redisplay(state);
 	}
+	terminal_set_flush(1);
 	terminal_set_cursor(1);
 }

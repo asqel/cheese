@@ -182,9 +182,12 @@ void terminal_set_screen(int is_alt);
 void terminal_get_pos(int *x, int *y);
 int terminal_set_ctrl_key(char key, int state);
 void terminal_get_size(int *w, int *h);
-void terminal_clear();
+void terminal_clear(int fflush);
 char *terminal_get_input();
 int terminal_set_block(int state);
 void terminal_set_cursor(int state);
+void terminal_draw_str(char *str, int x, int y, int flush);
+void terminal_draw_strarr(char **str, int x, int y, int flush);
+void terminal_set_flush(int state);
 
 #endif
