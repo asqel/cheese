@@ -1,5 +1,6 @@
 #include "cheese.h"
 #include "server.h"
+#include  "client.h"
 #include <signal.h>
 
 static void lexit(void) {

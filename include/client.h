@@ -14,6 +14,7 @@ typedef struct {
 
 extern client_data_t clt;
 
-void main_menu_func();
+void clt_main_menu();
+void launch_client(int argc, char **argv);
 
 #endif
