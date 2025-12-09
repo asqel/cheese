@@ -2,21 +2,21 @@
 
 void	remove_piece(tile_t *target, int id, board_t *board)
 {
-	if (board->copy_board) {
+	if (board->copy_board)
 		board->players[target->pieces[id]->color].nb_piece--;
-		for (int i = (id + 1); i < target->nb_piece; i++) {
-			target->pieces[i - 1] = target->pieces[i];
-		}
-	}
-	target->nb_piece--;
-	if (board->copy_board) {
-		if (!target->nb_piece) {
+	else {
+		piece_t	**new_pieces = malloc(sizeof(piece_t *) *
+			target->nb_piece);
+		memcpy(new_pieces, target->pieces, sizeof(piece_t *) * target->nb_piece);
+		if (target->tile_type == COPY_TILE)
 			free(target->pieces);
-			target->pieces = NULL;
-		}
-		else
-			target->pieces[target->nb_piece] = NULL;
+		target->tile_type = COPY_TILE;
+		target->pieces = new_pieces;
 	}
+	for (int i = (id + 1); i < target->nb_piece; i++) {
+		target->pieces[i - 1] = target->pieces[i];
+	}
+	target->pieces[--target->nb_piece] = NULL;
 }
 
 piece_t	*simple_move(board_t *board, int y_src, int x_src, int y_dest, int x_dest) {
@@ -64,10 +64,11 @@ void	move_piece(board_t *board, int y, int x)
 	tile_t	*target_tile = &board->tiles[s->target_y][s->target_x];
 	piece_t *selected_piece = origin_tile->pieces[s->origin_id];
 	piece_t	*target_piece = NULL;
-	s->target_id = 0;
+	//s->target_id = 0;
 
-	if (board->copy_board && (target_tile->nb_piece > 1) &&
-		get_nb_pieces_on_tile(target_tile, !selected_piece->color))
+	piece_t *new_piece = simple_move(board, s->origin_y, s->origin_x, s->target_y, s->target_x);
+	if (board->copy_board &&
+		get_nb_pieces_on_tile(target_tile, !selected_piece->color) > 1)
 		s->target_id = choose_tile_piece_menu(board, target_tile,
 				!selected_piece->color);
 
@@ -92,14 +93,14 @@ void	move_piece(board_t *board, int y, int x)
 			x_target += x_vel;
 			if (x_target < 0 || x_target >= board->width)
 				exit(1);
-			if (board->tiles[s->origin_y][x_target].nb_piece)
-				break ;
+			if (!board->tiles[s->origin_y][x_target].nb_piece)
+				continue ;
+			break ;
 		}
 		piece_t	*rook = simple_move(board, s->origin_y, x_target, s->target_y, s->target_x - x_vel);
 		if (board->copy_board)
 			rook->x = s->target_x - x_vel;
 	}
-	piece_t *new_piece = simple_move(board, s->origin_y, s->origin_x, s->target_y, s->target_x);
 	reset_possible_moves(board);
 	if (!board->copy_board)
 		return ;

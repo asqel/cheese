@@ -130,7 +130,7 @@ piece_t	*get_piece(int index);
 piece_t	*set_piece(int c);
 
 int		play(board_t *board);
-void	free_board(board_t *board, int free_char);
+void	free_board(board_t *board);
 void	init_board(char *filepath, board_t *board);
 int		update_possible_moves(board_t *board, int y, int x);
 int		simulate_piece(board_t *board, piece_t *target);

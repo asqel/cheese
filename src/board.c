@@ -30,18 +30,24 @@ void	print_board(board_t	*board)
 		for (int i = 0; i < j; i++)
 			printf("%s%s", CURSOR_DOWN, CURSOR_DOWN);
 		for (int i = 0; i < board->width; i++) {
-			board->occupied_map[j][i] = board->tiles[j][i].nb_piece != 0;
-			if (!board->tiles[j][i].nb_piece)
+			tile_t	*tile = &board->tiles[j][i];
+			board->occupied_map[j][i] = tile->nb_piece != 0;
+			if (!tile->nb_piece)
 				continue ;
 			printf("\r%*s", PROMO_OFFSET, "");
 			printf("%s", CURSOR_RIGHT);
 			printf("%s", CURSOR_RIGHT);
 			for (int k = 0; k < i; k++)
 				printf("%s%s%s%s", CURSOR_RIGHT, CURSOR_RIGHT, CURSOR_RIGHT, CURSOR_RIGHT);
-			piece_t	*piece = board->tiles[j][i].pieces[0];
-			if (piece->type == KING && piece->is_targeted == 1)
-				printf("%s", RED_BG);
-			printf("%s%s", board->tiles[j][i].pieces[0]->character, BLACK_BG);
+			piece_t	*piece = tile->pieces[0];
+			for (int k = 0; k < tile->nb_piece; k++) {
+				piece_t	*temp_piece = tile->pieces[k];
+				if (temp_piece->type == KING && temp_piece->is_targeted == 1) {
+					printf("%s", RED_BG);
+					break ;
+				}
+			}
+			printf("%s%s", piece->character, BLACK_BG);
 		}
 		for (int i = 0; i < j; i++)
 			printf("%s%s", CURSOR_UP, CURSOR_UP);
@@ -117,9 +123,6 @@ int	play(board_t *board)
 		else if (!can_move || board->players[i].king_in_check) {
 			board->players[i].king_in_check += !can_move;
 			update_possible_moves(board, -1, color);
-			if (!can_move)
-				while (1)
-					;
 		}
 	}
 	print_board(board);
@@ -164,6 +167,7 @@ int	play(board_t *board)
 				break ;
 			case 'g':
 				board->debug = !board->debug;
+				update_possible_moves(board, -1, -1);
 				break ;
 			case 10:
 				if (!confirm && board->occupied_map[y][x]) {
@@ -178,6 +182,7 @@ int	play(board_t *board)
 					}
 				}
 				else if (confirm && board->possible_moves[y][x]) {
+					board->selector.target_id = 0;
 					move_piece(board, y, x);
 					confirm = 2;
 				}

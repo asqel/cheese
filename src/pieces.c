@@ -40,7 +40,6 @@ piece_t	*create_piece(char piece, int index) {
 		dest->character[2] += "♚"[2] - "♔"[2];
 	return (dest);
 }
-
 void	evaluate_move(board_t *board, piece_t *target, int y, int x, int *valid_move)
 {
 	if (board->copy_board == NULL) {
@@ -49,35 +48,90 @@ void	evaluate_move(board_t *board, piece_t *target, int y, int x, int *valid_mov
 	}
 	else {
 		int			is_checkmate = board->players[target->color].king_in_check == 2;
-		selector_t	*selec = &board->selector;
-		board->copy_board->selector.origin_x = selec->origin_x;
-		board->copy_board->selector.origin_y = selec->origin_y;
-		board->copy_board->selector.origin_id = selec->origin_id;
-		board->copy_board->simu_change_index = 0;
-		move_piece(board->copy_board, y, x);
-		if (board->debug || is_checkmate || !king_in_check_simu(board, target->color)) {
-			*valid_move = 1;
-			target->possible_moves[y][x] = 1;
-		}
-		for (int i = 0; i < board->copy_board->simu_change_index; i++) {
-			move_infos_t	*change = &board->copy_board->simu_changes[i];
-			tile_t			*tile = &board->copy_board->tiles[change->target_y][change->target_x];
-			piece_t			***pieces = &tile->pieces;
-			
-			if (*pieces != NULL)
-				free(*pieces);
-			*pieces = NULL;
-		}
-		for (int i = 0; i < board->copy_board->simu_change_index; i++) {
-			move_infos_t	*change = &board->copy_board->simu_changes[i];
+		tile_t		*target_tile = &board->tiles[y][x];
 
-			board->copy_board->tiles[change->target_y][change->target_x] =
-				board->tiles[change->target_y][change->target_x];
-			board->copy_board->tiles[change->origin_y][change->origin_x] =
-				board->tiles[change->origin_y][change->origin_x];
+		for (int p = 0; p < max(1, target_tile->nb_piece); p++) {
+			int	compute_move = board->debug;
+			if (target_tile->nb_piece < 2)
+				compute_move = 1;
+			else if (target_tile->pieces[p]->color != target->color)
+				compute_move = 1;
+			if (!compute_move)
+				continue ;
+			board->copy_board->selector = board->selector;
+			board->copy_board->selector.target_id = p;
+			board->copy_board->simu_change_index = 0;
+			move_piece(board->copy_board, y, x);
+			if (board->debug || is_checkmate || !king_in_check_simu(board, target->color)) {
+				*valid_move = 1;
+				target->possible_moves[y][x] = 1;
+			}
+			for (int i = 0; i < board->copy_board->simu_change_index; i++) {
+				move_infos_t	*change = &board->copy_board->simu_changes[i];
+				piece_t	***pieces = &board->copy_board->tiles[change->target_y][change->target_x].pieces;
+				if (*pieces != NULL)
+					free(*pieces);
+				*pieces = NULL;
+
+				pieces = &board->copy_board->tiles[change->origin_y][change->origin_x].pieces;
+				if (*pieces != NULL)
+					free(*pieces);
+				*pieces = NULL;
+			}
+			for (int i = 0; i < board->copy_board->simu_change_index; i++) {
+				move_infos_t	*change = &board->copy_board->simu_changes[i];
+
+				board->copy_board->tiles[change->target_y][change->target_x] =
+					board->tiles[change->target_y][change->target_x];
+				board->copy_board->tiles[change->origin_y][change->origin_x] =
+					board->tiles[change->origin_y][change->origin_x];
+			}
 		}
 	}
 }
+
+/*void	evaluate_move(board_t *board, piece_t *target, int y, int x, int *valid_move)
+{
+	if (board->copy_board == NULL) {
+		*valid_move = 1;
+		board->possible_moves[y][x] = 1;
+	}
+	else {
+		int			is_checkmate = board->players[target->color].king_in_check == 2;
+		tile_t		*target_tile = &board->tiles[y][x];
+
+		for (int id = 0; id < target_tile->nb_piece; id++) {
+			if (target_tile->pieces[id]->color == target->color)
+				continue ;
+			board->copy_board->selector = board->selector;
+			board->copy_board->selector.target_id = id;
+			board->copy_board->simu_change_index = 0;
+			move_piece(board->copy_board, y, x);
+			if (board->debug || is_checkmate || !king_in_check_simu(board, target->color)) {
+				*valid_move = 1;
+				target->possible_moves[y][x] = 1;
+			}
+			for (int i = 0; i < board->copy_board->simu_change_index; i++) {
+				move_infos_t	*change = &board->copy_board->simu_changes[i];
+				tile_t			*tile = &board->copy_board->tiles[change->target_y][change->target_x];
+				piece_t			***pieces = &tile->pieces;
+				
+				if (*pieces != NULL)
+					free(*pieces);
+				*pieces = NULL;
+			}
+			for (int i = 0; i < board->copy_board->simu_change_index; i++) {
+				move_infos_t	*change = &board->copy_board->simu_changes[i];
+
+				board->copy_board->tiles[change->target_y][change->target_x] =
+					board->tiles[change->target_y][change->target_x];
+				board->copy_board->tiles[change->origin_y][change->origin_x] =
+					board->tiles[change->origin_y][change->origin_x];
+			}
+			break ;
+		}
+	}
+}*/
 
 int	move_pawn(board_t *board, piece_t *target, int y, int x)
 {
@@ -108,7 +162,7 @@ int	move_pawn(board_t *board, piece_t *target, int y, int x)
 				continue ;
 
 			piece_t	*passant_piece = passant_tile->pieces[0];
-			if (passant_piece->color == target->color || passant_piece->type != PAWN ||
+			if (passant_piece->color == target->color || passant_piece->type != target->type ||
 				passant_piece->move_counter != 1 || passant_piece->distance_moved != 2)
 				continue ;
 
@@ -231,6 +285,8 @@ int	move_king(board_t *board, piece_t *target, int y, int x)
 				tile = &board->tiles[target_y][castling_x];
 				if (!tile->nb_piece)
 					continue ;
+				else if (tile->nb_piece != 1)
+					break ;
 				piece_t	*piece = tile->pieces[0];
 				if (piece->type == ROOK && piece->move_counter == 0 &&
 					piece->color == target->color) {
