@@ -173,4 +173,18 @@ void	enable_raw_mode(void);
 char	read_char(void);
 piece_t	*create_piece(char piece, int index);
 
+char *read_passwd();
+int terminal_set_canon(int enable);
+int terminal_set_echo(int enable);
+void restore_tty();
+void save_tty();
+void terminal_set_screen(int is_alt);
+void terminal_get_pos(int *x, int *y);
+int terminal_set_ctrl_key(char key, int state);
+void terminal_get_size(int *w, int *h);
+void terminal_clear();
+char *terminal_get_input();
+int terminal_set_block(int state);
+void terminal_set_cursor(int state);
+
 #endif
