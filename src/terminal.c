@@ -151,8 +151,10 @@ void terminal_get_size(int *w, int *h) {
 	*h = win.ws_row;
 }
 
-void terminal_clear() {
-	write(1, "\e[2J\e[H", 7);
+void terminal_clear(int flush) {
+	printf("\e[2J\e[H");
+	if (flush)
+		fflush(stdout);
 }
 
 int terminal_set_block(int state) {
@@ -170,4 +172,48 @@ void terminal_set_cursor(int state) {
 	else
 		printf("\e[?25l");
 	fflush(stdout);
+}
+
+void terminal_draw_str(char *str, int x, int y, int flush) {
+	printf("\e[%d;%dH", y, x);
+	printf("%s", str);
+	if (flush)
+		fflush(stdout);
+}
+
+void terminal_draw_strarr(char **str, int x, int y, int flush) {
+	if (!str)
+		return ;
+	for (int i = 0; str[i]; i++) {
+		terminal_draw_str(str[i], x, y, flush);
+		y++;
+	}
+}
+
+void terminal_draw_strarr_centered(char **str, int y, int flush) {
+	if (!str)
+		return ;
+	int width = 0;
+	int height = 0;
+	terminal_get_size(&width, &height);
+	for (int i = 0; str[i]; i++) {
+		int len = strlen_utf8(str[i]);
+		terminal_draw_str(str[i], width / 2 - len / 2, y, flush);
+		y++;
+	}
+}
+
+void terminal_draw_str_centered(char *str, int y, int flush) {
+	int width = 0;
+	int height = 0;
+	terminal_get_size(&width, &height);
+	terminal_draw_str(str, width / 2 - strlen_utf8(str) / 2, y, flush);
+}
+
+void terminal_set_flush(int state) {
+	fflush(stdout);
+	if (!state)
+		setvbuf(stdout, NULL, _IOFBF, BUFSIZ);
+	else
+		setvbuf(stdout, NULL, _IOLBF, BUFSIZ);
 }
