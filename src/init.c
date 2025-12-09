@@ -36,7 +36,16 @@ void	init_tiles(char *board_str, board_t *board)
 
 	board->nb_piece = 0;
 	for (int j = 0; j < board->height; j++) {
-		board->tiles[j] = calloc((board->width + 1), sizeof(tile_t));
+		board->tiles[j] = malloc((board->width + 1) * sizeof(tile_t));
+		for (int i = 0; i < board->width; i++) {
+			tile_t	*tile = &board->tiles[j][i];
+			tile->y = j;
+			tile->x = i;
+			tile->color = (i + j) % 2;
+			tile->nb_piece = 0;
+			tile->tile_type = REAL_TILE;
+			tile->pieces = NULL;
+		}
 		if (!board->tiles[j])
 			exit(1);
 

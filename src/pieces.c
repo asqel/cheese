@@ -64,7 +64,10 @@ void	evaluate_move(board_t *board, piece_t *target, int y, int x, int *valid_mov
 			move_piece(board->copy_board, y, x);
 			if (board->debug || is_checkmate || !king_in_check_simu(board, target->color)) {
 				*valid_move = 1;
-				target->possible_moves[y][x] = 1;
+				if (!target_tile->nb_piece)
+					target->possible_moves[y][x] = 1;
+				else
+					target->possible_moves[y][x][p] = 1;
 			}
 			for (int i = 0; i < board->copy_board->simu_change_index; i++) {
 				move_infos_t	*change = &board->copy_board->simu_changes[i];
@@ -319,12 +322,11 @@ int	update_possible_moves(board_t *board, int y, int x)
 			(x >= 0 && piece->color != x) ||
 			(y >= 0 && piece->color == x))
 			continue ;
-		if (x < 0 && y < 0)
+		if (x < 0 && y < 0) {
 			for (int l = 0; l < board->height; l++)
 				memset(piece->possible_moves[l], 0, board->width);
+		}
 		piece->can_move = simulate_piece(board, piece) != 0;
-		x++;
-		x--;
 	}
 	return (1);
 }

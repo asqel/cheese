@@ -55,7 +55,7 @@ typedef struct {
 	int			kill_count;
 	int			move_counter;
 	int			distance_moved;
-	char		**possible_moves;
+	char		***possible_moves;
 	int			can_move;
 	char		character[5];
 }	piece_t;
@@ -67,6 +67,8 @@ enum tile_types {
 };
 
 typedef struct {
+	int			x;
+	int			y;
 	int			color;
 	int			nb_piece;
 	int			tile_type;
@@ -114,8 +116,8 @@ typedef struct board_s
 	int				nb_piece;
 	tile_t			**tiles;
 	char			**occupied_map;
-	char			**default_moves;
-	char			**possible_moves;
+	char			***default_moves;
+	char			***possible_moves;
 	selector_t		selector;
 	move_logs_t		*logs;
 	move_infos_t	*simu_changes;
