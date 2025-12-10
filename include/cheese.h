@@ -23,8 +23,8 @@
 #define BLUE_BG		"\033[43m"
 #define RED_BG		"\033[41m"
 
-#define WHITE	0
-#define BLACK	1
+#define WHITE	1
+#define BLACK	2
 
 enum pieces {
 	KING,

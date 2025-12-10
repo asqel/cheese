@@ -100,7 +100,7 @@ void	move_piece(board_t *board, int y, int x)
 	if (!board->copy_board)
 		return ;
 	if (selected_piece->type == PAWN &&
-		(y == (!selected_piece->color * (board->height - 1)))) {
+		(y == (!(selected_piece->color - 1) * (board->height - 1)))) {
 		board->special_tile = target_tile;
 	}
 	update_logs(board, new_piece, target_piece);

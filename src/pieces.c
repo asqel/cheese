@@ -5,6 +5,7 @@ piece_t	*create_piece(char piece, int index) {
 	if (!dest)
 		exit(1);
 
+	dest->color = WHITE;
 	dest->piece_id = index;
 	if (piece >= 'a') {
 		dest->color = BLACK;
@@ -116,7 +117,7 @@ int	move_pawn(board_t *board, piece_t *target, int y, int x)
 			if (!board->tiles[y + vert_goal * 2][x].nb_piece)
 				evaluate_move(board, target, y + vert_goal * 2, x, &valid_move);
 		}
-		else if (i && tile->nb_piece && (tile->pieces[0]->color != target->color))
+		else if (i && tile->nb_piece && get_nb_pieces_on_tile(tile, -target->color))
 			evaluate_move(board, target, y + vert_goal, x + i, &valid_move);
 		else if (i && !tile->nb_piece) {
 			tile_t	*passant_tile = &board->tiles[y][x + i];
@@ -157,7 +158,7 @@ int	move_rook(board_t *board, piece_t *target, int y, int x)
 			if (board->debug)
 				evaluate_move(board, target, target_y, target_x, &valid_move);
 			else if (tile->nb_piece) {
-				if (tile->pieces[0]->color != target->color)
+				if (get_nb_pieces_on_tile(tile, -target->color))
 					evaluate_move(board, target, target_y, target_x, &valid_move);
 				break ;
 			}
@@ -182,7 +183,7 @@ int	move_knight(board_t *board, piece_t *target, int y, int x)
 			target_y >= board->height || target_x >= board->width)
 			continue ;
 		tile = &board->tiles[target_y][target_x];
-		if (board->debug || !tile->nb_piece || tile->pieces[0]->color != target->color)
+		if (board->debug || !tile->nb_piece || get_nb_pieces_on_tile(tile, -target->color))
 			evaluate_move(board, target, target_y, target_x, &valid_move);
 	}
 	return (valid_move);
@@ -209,7 +210,7 @@ int	move_bishop(board_t *board, piece_t *target, int y, int x)
 			if (board->debug)
 				evaluate_move(board, target, target_y, target_x, &valid_move);
 			if (!board->debug && tile->nb_piece) {
-				if (tile->pieces[0]->color != target->color)
+				if (get_nb_pieces_on_tile(tile, -target->color))
 					evaluate_move(board, target, target_y, target_x, &valid_move);
 				break ;
 			}
@@ -235,7 +236,7 @@ int	move_king(board_t *board, piece_t *target, int y, int x)
 			if (target_x == x && target_y == y)
 				continue ;
 			tile = &board->tiles[target_y][target_x];
-			if (board->debug || !tile->nb_piece || (tile->pieces[0]->color != target->color))
+			if (board->debug || !tile->nb_piece || get_nb_pieces_on_tile(tile, -target->color))
 				evaluate_move(board, target, target_y, target_x, &valid_move);
 			if (x_offset == 0 || y_offset != 0 || target->move_counter || target->is_targeted)
 				continue ;

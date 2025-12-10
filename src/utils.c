@@ -111,7 +111,9 @@ int	get_nb_pieces_on_tile(tile_t *tile, int color)
 	int	res = 0;
 
 	for (int i = 0; i < tile->nb_piece; i++) {
-		if (tile->pieces[i]->color == color)
+		if (color > 0 && tile->pieces[i]->color == color)
+			res++;
+		else if (color < 0 && tile->pieces[i]->color != color)
 			res++;
 	}
 	return (res);

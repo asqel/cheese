@@ -15,12 +15,14 @@ void	prepare_tile(board_t *board, char piece, int j, int i) {
 	new_piece->y = j;
 	new_piece->x = i;
 
+	new_piece->color--;
 	board->pieces[board->nb_piece] = new_piece;
 	board->pieces[++board->nb_piece] = NULL;
 
 	board->players[new_piece->color].nb_piece++;
 	if (new_piece->type == KING)
 		board->players[new_piece->color].nb_kings++;
+	new_piece->color++;
 	cur_tile->pieces[cur_tile->nb_piece++] = new_piece;
 }
 
@@ -139,7 +141,7 @@ void	init_board(char *filepath, board_t *board)
 	board->players = malloc(sizeof(player_t) * (board->nb_player + 1));
 	for (int i = 0; i < board->nb_player; i++) {
 		board->players[i] = (player_t){0};
-		board->players[i].color = i;
+		board->players[i].color = i + 1;
 	}
 	init_tiles(board_str, board);
 	init_possible_boards(board);
