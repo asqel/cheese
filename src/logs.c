@@ -43,7 +43,7 @@ void	update_logs(board_t *board, piece_t *piece, piece_t *target) {
 	update_move_counter(&board->selector, piece);
 	logs->last_color_played = piece_color;
 	piece->move_counter++;
-	if (target) {
+	if (target && target->hp <= 0) {
 		if (target->type == KING)
 			board->players[target->color].nb_kings--;
 		piece->kill_count++;

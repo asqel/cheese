@@ -1,9 +1,15 @@
 #include "cheese.h"
 
-void	remove_piece(tile_t *target, int id, board_t *board)
+void	remove_piece(tile_t *target, int id, board_t *board, int is_moving, int attack)
 {
-	if (board->copy_board)
+	if (board->copy_board) {
+		if (!is_moving) {
+			target->pieces[id]->hp -= attack;
+			if (target->pieces[id]->hp > 0)
+				return ;
+		}
 		board->players[target->pieces[id]->color].nb_piece--;
+	}
 	else {
 		piece_t	**new_pieces = malloc(sizeof(piece_t *) *
 			target->nb_piece);
@@ -12,6 +18,20 @@ void	remove_piece(tile_t *target, int id, board_t *board)
 			free(target->pieces);
 		target->tile_type = COPY_TILE;
 		target->pieces = new_pieces;
+
+		move_infos_t	*log = &board->simu_changes[board->simu_change_index++];
+		log->piece = NULL;
+		log->target_piece = target->pieces[id];
+		log->origin_x = target->x;
+		log->origin_y = target->y;
+		log->target_x = -1;
+		log->target_y = -1;
+		if (!is_moving) {
+			target->pieces[id]->simu_hp -= attack;
+			if (target->pieces[id]->simu_hp > 0)
+				return ;
+			target->pieces[id]->simu_is_dead = 1;
+		}
 	}
 	for (int i = (id + 1); i < target->nb_piece; i++) {
 		target->pieces[i - 1] = target->pieces[i];
@@ -39,13 +59,14 @@ piece_t	*simple_move(board_t *board, int y_src, int x_src, int y_dest, int x_des
 		exit(2);
 	target_tile->pieces[target_tile->nb_piece++] = origin_tile->pieces[board->selector.origin_id];
 	target_tile->pieces[target_tile->nb_piece] = NULL;
-	remove_piece(origin_tile, board->selector.origin_id, board);
+	remove_piece(origin_tile, board->selector.origin_id, board, 1, 0);
 	if (origin_tile->tile_type == REAL_TILE)
 		origin_tile->tile_type = MODIFIED_TILE;
 	if (!board->copy_board) {
 		move_infos_t	*log = &board->simu_changes[board->simu_change_index++];
 
 		log->piece = target_tile->pieces[target_tile->nb_piece - 1];
+		log->target_piece = NULL;
 		log->origin_y = y_src;
 		log->origin_x = x_src;
 		log->target_y = y_dest;
@@ -64,21 +85,24 @@ void	move_piece(board_t *board, int y, int x)
 	tile_t	*target_tile = &board->tiles[s->target_y][s->target_x];
 	piece_t *selected_piece = origin_tile->pieces[s->origin_id];
 	piece_t	*target_piece = NULL;
-	//s->target_id = 0;
 
 	piece_t *new_piece = simple_move(board, s->origin_y, s->origin_x, s->target_y, s->target_x);
+	if (board->copy_board) {
+		target_tile++;
+		target_tile--;
+	}
 	if (target_tile->nb_piece &&
 		selected_piece->color != target_tile->pieces[s->target_id]->color) {
 		if (board->copy_board)
 			target_piece = target_tile->pieces[s->target_id];
-		remove_piece(target_tile, s->target_id, board);
+		remove_piece(target_tile, s->target_id, board, 0, selected_piece->attack_power);
 	}
-	else if (selected_piece->type == PAWN && !target_tile->nb_piece &&
+	else if (selected_piece->type == PAWN && (target_tile->nb_piece == 1) &&
 		(s->target_x != s->origin_x)) {
 		int y_pos = selected_piece->color == WHITE ? -1 : 1;
 		if (board->copy_board)
 			target_piece = board->tiles[y + y_pos][x].pieces[s->target_id];
-		remove_piece(&board->tiles[y + y_pos][x], s->target_id, board);
+		remove_piece(&board->tiles[y + y_pos][x], s->target_id, board, 0, 999);
 	}
 	else if (selected_piece->type == KING &&
 		abs(s->target_x - s->origin_x) > 1) {

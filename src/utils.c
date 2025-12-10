@@ -73,10 +73,13 @@ piece_t	*get_tile_piece(board_t *board, int y, int x)
 
 void	reset_possible_moves(board_t *board)
 {
-	for (int j = 0; j < board->height; j++)
+	for (int j = 0; j < board->height; j++) {
+		memset(board->default_locations[j], 0, board->width);
 		for (int i = 0; i < board->width; i++)
 			memset(board->default_moves[j][i], 0, board->nb_piece);
+	}
 	board->possible_moves = board->default_moves;
+	board->possible_locations = board->default_locations;
 }
 
 void	free_possible_moves(board_t *board, char ***moves) {
@@ -113,7 +116,7 @@ int	get_nb_pieces_on_tile(tile_t *tile, int color)
 	for (int i = 0; i < tile->nb_piece; i++) {
 		if (color > 0 && tile->pieces[i]->color == color)
 			res++;
-		else if (color < 0 && tile->pieces[i]->color != color)
+		else if (color < 0 && tile->pieces[i]->color != -color)
 			res++;
 	}
 	return (res);

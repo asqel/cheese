@@ -89,14 +89,14 @@ int	choose_target_piece(board_t *board, piece_t *src, tile_t *target_tile) {
 			break ;
 	}
 	nb_pieces = target_tile->nb_piece - 1;
-	if (requested_piece != nb_pieces) {
+	/*if (requested_piece != nb_pieces) {
 		piece_t	*save = target_tile->pieces[requested_piece];
 		target_tile->pieces[requested_piece] = target_tile->pieces[nb_pieces];
 		target_tile->pieces[nb_pieces] = save;
-	}
+	}*/
 	printf("\033[%d;%dH\033[?25h", board_cursor_y, board_cursor_x);
 	fflush(stdout);
-	return (nb_pieces);
+	return (requested_piece);
 }
 
 int	choose_tile_piece_menu(board_t *board, tile_t *tile, int color)
@@ -143,14 +143,14 @@ int	choose_tile_piece_menu(board_t *board, tile_t *tile, int color)
 			break ;
 	}
 	nb_pieces = tile->nb_piece - 1;
-	if (requested_piece != nb_pieces) {
+	/*if (requested_piece != nb_pieces) {
 		piece_t	*save = tile->pieces[requested_piece];
 		tile->pieces[requested_piece] = tile->pieces[nb_pieces];
 		tile->pieces[nb_pieces] = save;
-	}
+	}*/
 	printf("\033[%d;%dH\033[?25h", board_cursor_y, board_cursor_x);
 	fflush(stdout);
-	return (nb_pieces);
+	return (requested_piece);
 }
 
 int	promo_menu(int y, int color, board_t *board)
@@ -161,7 +161,7 @@ int	promo_menu(int y, int color, board_t *board)
 	int 	board_cursor_y, board_cursor_x;
 
  	strcpy(cur_piece, "♕");
-	cur_piece[2] += (color * 6);
+	cur_piece[2] += ((color - 1) * 6);
 	get_cursor_position(&board_cursor_x, &board_cursor_y);
 	printf("\033[%d;%dH\033[?25h", 1 + (y * 2), 0);
 	write(1, "\e[?25l", 6);

@@ -36,24 +36,40 @@ int	king_in_check_simu(board_t *board_base, int color) {
 
    	board = board_base->copy_board;
 	reset_possible_moves(board);
-	for (int j = 0; j < board->height; j++) {
-		for (int i = 0; i < board->width; i++) {
-			for (int k = 0; k < board->tiles[j][i].nb_piece; k++) {
-				piece_t	*piece = board->tiles[j][i].pieces[k];
-				if (piece->color != color)
-					simulate_piece(board, piece);
+	for (int p = 0; p < board->nb_piece; p++) {
+		piece_t	*piece = board->pieces[p];
+		if (piece->is_dead || piece->simu_is_dead || piece->color == color)
+			continue ;
+		for (int j = 0; j < board->height; j++)
+			for (int i = 0; i < board->width; i++)
+				memset(piece->copy_moves[j][i], 0, board->tiles[j][i].nb_piece);
+		simulate_piece(board, piece);
+	}
+	for (int p = 0; p < board->nb_piece; p++) {
+		piece_t	*piece = board->pieces[p];
+		if (piece->is_dead || piece->simu_is_dead || piece->color == color)
+			continue ;
+		for (int j = 0; j < board->height; j++) {
+			for (int i = 0; i < board->width; i++) {
+				tile = &board->tiles[j][i];
+				for (int t = 0; t < tile->nb_piece; t++) {
+					board->possible_moves[j][i][t] =
+						max(board->possible_moves[j][i][t], piece->copy_moves[j][i][t]);
+				}
 			}
 		}
 	}
-	int	check = 0;
+	int check = 0;
 	for (int j = 0; j < board->height; j++) {
 		for (int i = 0; i < board->width; i++) {
 			tile = &board->tiles[j][i];
 			for (int t = 0; t < tile->nb_piece; t++) {
-				if (!board->possible_moves[j][i][t])
+				int	damage = board->possible_moves[j][i][t];
+				if (!damage)
 					continue ;
 				if (tile->pieces[t]->type == KING &&
-					tile->pieces[t]->color == color)
+					tile->pieces[t]->color == color &&
+					damage >= tile->pieces[t]->hp)
 					check++;
 			}
 		}

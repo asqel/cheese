@@ -44,19 +44,52 @@ piece_t	*create_piece(char piece, int index) {
 		dest->character[2] += "♚"[2] - "♔"[2];
 	return (dest);
 }
+
+void	reset_simulation(board_t *board) {
+	for (int i = 0; i < board->copy_board->simu_change_index; i++) {
+		move_infos_t	*change = &board->copy_board->simu_changes[i];
+		if (!change->piece)
+			continue ;
+
+		piece_t	***pieces = &board->copy_board->tiles[change->target_y][change->target_x].pieces;
+		if (*pieces != NULL)
+				free(*pieces);
+		*pieces = NULL;
+
+		pieces = &board->copy_board->tiles[change->origin_y][change->origin_x].pieces;
+		if (*pieces != NULL)
+			free(*pieces);
+		*pieces = NULL;
+	}
+	for (int i = 0; i < board->copy_board->simu_change_index; i++) {
+		move_infos_t	*change = &board->copy_board->simu_changes[i];
+
+		if (!change->piece && change->target_piece) {
+			change->target_piece->simu_is_dead = 0;
+			change->target_piece->simu_hp = change->target_piece->hp;
+		}
+		board->copy_board->tiles[change->origin_y][change->origin_x] =
+			board->tiles[change->origin_y][change->origin_x];
+		if (change->target_y < 0 || change->target_x < 0)
+			continue ;
+		board->copy_board->tiles[change->target_y][change->target_x] =
+			board->tiles[change->target_y][change->target_x];
+	}
+}
+
 void	evaluate_move(board_t *board, piece_t *target, int y, int x, int *valid_move) {
 	tile_t		*target_tile = &board->tiles[y][x];
 
 	if (board->copy_board == NULL) {
 		*valid_move = 1;
 		for (int p = 0; p < max(1, target_tile->nb_piece); p++)
-			board->possible_moves[y][x][p] = 1;
+			target->copy_moves[y][x][p] += target->attack_power;
 		return ;
 	}
 
 	int			is_checkmate = board->players[target->color].king_in_check == 2;
-	int			compute_move = board->debug;
 	for (int p = 0; p < max(1, target_tile->nb_piece); p++) {
+		int	compute_move = board->debug;
 		if (target_tile->nb_piece < 2)
 			compute_move = 1;
 		else if (target_tile->pieces[p]->color != target->color)
@@ -70,29 +103,10 @@ void	evaluate_move(board_t *board, piece_t *target, int y, int x, int *valid_mov
 			move_piece(board->copy_board, y, x);
 		if (board->debug || is_checkmate || !king_in_check_simu(board, target->color)) {
 			*valid_move = 1;
-			target->possible_moves[y][x][p] = 1;
+			target->possible_moves[y][x][p] += target->attack_power;
 			target->possible_locations[y][x] = 1;
 		}
-		for (int i = 0; i < board->copy_board->simu_change_index; i++) {
-			move_infos_t	*change = &board->copy_board->simu_changes[i];
-			piece_t	***pieces = &board->copy_board->tiles[change->target_y][change->target_x].pieces;
-			if (*pieces != NULL)
-					free(*pieces);
-			*pieces = NULL;
-
-			pieces = &board->copy_board->tiles[change->origin_y][change->origin_x].pieces;
-			if (*pieces != NULL)
-				free(*pieces);
-			*pieces = NULL;
-		}
-		for (int i = 0; i < board->copy_board->simu_change_index; i++) {
-			move_infos_t	*change = &board->copy_board->simu_changes[i];
-
-			board->copy_board->tiles[change->target_y][change->target_x] =
-				board->tiles[change->target_y][change->target_x];
-			board->copy_board->tiles[change->origin_y][change->origin_x] =
-				board->tiles[change->origin_y][change->origin_x];
-		}
+		reset_simulation(board);
 	}
 }
 
@@ -145,6 +159,8 @@ int	move_rook(board_t *board, piece_t *target, int y, int x)
 	int		x_moves[] = {0, 0, -1, 1};
 	int		target_y, target_x;
 
+	if (get_nb_pieces_on_tile(&board->tiles[y][x], -target->color))
+		evaluate_move(board, target, y, x, &valid_move);
 	for (size_t i = 0; i < (sizeof(y_moves) / sizeof(y_moves[0])); i++) {
 		target_y = y;
 		target_x = x;
@@ -225,6 +241,8 @@ int	move_king(board_t *board, piece_t *target, int y, int x)
 	tile_t	*tile;
 	int		valid_move = 0;
 
+	if (get_nb_pieces_on_tile(&board->tiles[y][x], -target->color))
+		evaluate_move(board, target, y, x, &valid_move);
 	for (int y_offset = -1; y_offset < 2; y_offset++) {
 		int	target_y = y + y_offset;
 		if (target_y < 0 || target_y >= board->height)
@@ -249,6 +267,8 @@ int	move_king(board_t *board, piece_t *target, int y, int x)
 				if (!tile->nb_piece)
 					continue ;
 				else if (tile->nb_piece != 1)
+					break ;
+				if ((x + (x_offset * 2) < 0) || (x + (x_offset * 2) >= board->width))
 					break ;
 				piece_t	*piece = tile->pieces[0];
 				if (piece->type == ROOK && piece->move_counter == 0 &&

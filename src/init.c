@@ -14,15 +14,16 @@ void	prepare_tile(board_t *board, char piece, int j, int i) {
 	piece_t	*new_piece = create_piece(piece, board->nb_piece);
 	new_piece->y = j;
 	new_piece->x = i;
+	new_piece->hp = 2;
+	new_piece->simu_hp = new_piece->hp; //TODO remove hardcoding
+	new_piece->attack_power = 1;
 
-	new_piece->color--;
 	board->pieces[board->nb_piece] = new_piece;
 	board->pieces[++board->nb_piece] = NULL;
 
 	board->players[new_piece->color].nb_piece++;
 	if (new_piece->type == KING)
 		board->players[new_piece->color].nb_kings++;
-	new_piece->color++;
 	cur_tile->pieces[cur_tile->nb_piece++] = new_piece;
 }
 
@@ -68,12 +69,14 @@ void	init_tiles(char *board_str, board_t *board)
 void	init_possible_boards(board_t *board)
 {
 	board->default_moves = malloc((board->height + 1) * sizeof(char **));
-	if (!board->default_moves)
-		print_error("Malloc error for board->default_moves", 1);
+	board->default_locations = malloc((board->height + 1) * sizeof(char *));
+	if (!board->default_moves || !board->default_locations)
+		print_error("Malloc error for board->default_X", 1);
 	for (int j = 0; j < board->height; j++) {
 		board->default_moves[j] = calloc((board->width + 1), sizeof(char *));
-		if (!board->default_moves[j])
-			print_error("Malloc error for board->default_moves[j]", 1);
+		board->default_locations[j] = malloc((board->width + 1) * sizeof(char));
+		if (!board->default_moves[j] || !board->default_locations[j])
+			print_error("Malloc error for board->default_X[j]", 1);
 		for (int i = 0; i < board->width; i++) {
 			board->default_moves[j][i] = malloc(board->nb_piece * sizeof(char));
 			if (!board->default_moves[j][i])
@@ -82,30 +85,38 @@ void	init_possible_boards(board_t *board)
 		}
 	}
 	board->default_moves[board->height] = NULL;
+	board->default_locations[board->height] = NULL;
 	for (int p = 0; p < board->nb_piece; p++) {
 		char	***possible_map = NULL;
+		char	***possible_copy = NULL;
 		char	**location_map = NULL;
 
 		possible_map = malloc((board->height + 1) * sizeof(char **));
+		possible_copy = malloc((board->height + 1) * sizeof(char **));
 		location_map = malloc((board->height + 1) * sizeof(char *));
-		if (!possible_map || !location_map)
+		if (!possible_map || !location_map || !possible_copy)
 			print_error("Malloc error for possible/location_map", 1);
 
 		for (int j = 0; j < board->height; j++) {
 			possible_map[j] = malloc((board->width + 1) * sizeof(char *));
+			possible_copy[j] = malloc((board->width + 1) * sizeof(char *));
 			location_map[j] = malloc((board->width + 1) * sizeof(char *));
-			if (!possible_map[j] || !location_map[j])
+			if (!possible_map[j] || !location_map[j] || !possible_copy[j])
 				print_error("Malloc error for possible/location_map[j]", 1);
 			for (int i = 0; i < board->width; i++) {
 				possible_map[j][i] = malloc(board->nb_piece * sizeof(char));
-				if (!possible_map[j][i])
+				possible_copy[j][i] = malloc(board->nb_piece * sizeof(char));
+				if (!possible_map[j][i] || !possible_copy[j][i])
 					print_error("Malloc error for possible_map[j][i]", 1);
 				possible_map[j][board->width] = NULL;
+				possible_copy[j][board->width] = NULL;
 			}
 		}
 		possible_map[board->height] = NULL;
+		possible_copy[board->height] = NULL;
 		location_map[board->height] = NULL;
 		board->pieces[p]->possible_moves = possible_map;
+		board->pieces[p]->copy_moves = possible_copy;
 		board->pieces[p]->possible_locations = location_map;
 	}
 }
@@ -139,9 +150,9 @@ void	init_board(char *filepath, board_t *board)
 	}
 	board->nb_player = 2; //TODO change to nb of player
 	board->players = malloc(sizeof(player_t) * (board->nb_player + 1));
-	for (int i = 0; i < board->nb_player; i++) {
+	for (int i = 1; i < (board->nb_player + 1); i++) {
 		board->players[i] = (player_t){0};
-		board->players[i].color = i + 1;
+		board->players[i].color = i;
 	}
 	init_tiles(board_str, board);
 	init_possible_boards(board);

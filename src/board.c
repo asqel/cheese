@@ -82,7 +82,7 @@ int	play(board_t *board)
 	for (int j = 0; j < board->height; j++)
 		for (int i = 0; i < board->width; i++)
 			board->tiles[j][i].is_targeted = 0;
-	for (int i = 0; i < board->nb_player; i++) {
+	for (int i = 1; i < (board->nb_player + 1); i++) {
 		if (board->players[i].nb_kings)
 			continue ;
 		char *msg;
@@ -103,11 +103,11 @@ int	play(board_t *board)
 
 		ref->type = new_piece_type;
 		strcpy(ref->character, "♔");
-		ref->character[2] += new_piece_type + (ref->color * 6);
+		ref->character[2] += new_piece_type + ((ref->color - 1) * 6);
 		board->special_tile = NULL;
 	}
 	update_possible_moves(board, -1, -1);
-	for (int i = 0; i < board->nb_player; i++) {
+	for (int i = 1; i < (board->nb_player + 1); i++) {
 		board->players[i].king_in_check = king_in_check(board, board->players[i].color);
 		int	color = board->players[i].color;
 		int	can_move = 0;

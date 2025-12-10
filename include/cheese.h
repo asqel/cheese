@@ -51,6 +51,10 @@ typedef struct {
 	int			tile_id;
 	int			is_targeted;
 	int			is_dead;
+	int			simu_is_dead;
+	int			attack_power;
+	int			hp;
+	int			simu_hp;
 	int			type;
 	int			color;
 	int			kill_count;
@@ -58,6 +62,7 @@ typedef struct {
 	int			distance_moved;
 	char		**possible_locations;
 	char		***possible_moves;
+	char		***copy_moves;
 	int			can_move;
 	char		character[5];
 }	piece_t;
@@ -120,9 +125,10 @@ typedef struct board_s
 	int				nb_piece;
 	tile_t			**tiles;
 	char			**occupied_map;
+	char			***possible_moves;
 	char			***default_moves;
 	char			**possible_locations;
-	char			***possible_moves;
+	char			**default_locations;
 	selector_t		selector;
 	move_logs_t		*logs;
 	move_infos_t	*simu_changes;
