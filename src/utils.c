@@ -15,6 +15,11 @@ int	min(int a, int b)
 	return (b);
 }
 
+void	print_error(char *error, int ret) {
+	printf("\e[?1049l%s\n", error);
+	exit(ret);
+}
+
 char	*strjoin(char *s1, char *s2, int free_s1)
 {
 	char	*dest;
@@ -69,8 +74,18 @@ piece_t	*get_tile_piece(board_t *board, int y, int x)
 void	reset_possible_moves(board_t *board)
 {
 	for (int j = 0; j < board->height; j++)
-		memset(board->default_moves[j], 0, board->width);
+		for (int i = 0; i < board->width; i++)
+			memset(board->default_moves[j][i], 0, board->nb_piece);
 	board->possible_moves = board->default_moves;
+}
+
+void	free_possible_moves(board_t *board, char ***moves) {
+	for (int j = 0; j < board->height; j++) {
+		for (int i = 0; i < board->width; i++)
+			free(moves[j][i]);
+		free(moves[j]);
+	}
+	free(moves);
 }
 
 void	free_board(board_t *board)

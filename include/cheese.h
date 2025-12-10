@@ -10,6 +10,7 @@
 #include <stdint.h>
 
 #define PROMO_OFFSET	5
+#define MAX_TILE_PIECE	(16 + 1)
 
 #define CURSOR_UP "\033[A"
 #define CURSOR_DOWN "\033[B"
@@ -55,6 +56,7 @@ typedef struct {
 	int			kill_count;
 	int			move_counter;
 	int			distance_moved;
+	char		**possible_locations;
 	char		***possible_moves;
 	int			can_move;
 	char		character[5];
@@ -72,6 +74,7 @@ typedef struct {
 	int			color;
 	int			nb_piece;
 	int			tile_type;
+	int			is_targeted;
 	piece_t		**pieces;
 }	tile_t;
 
@@ -113,10 +116,12 @@ typedef struct board_s
 	int				nb_player;
 	player_t		*players;
 	piece_t			**pieces;
+	piece_t			*selected_piece;
 	int				nb_piece;
 	tile_t			**tiles;
 	char			**occupied_map;
 	char			***default_moves;
+	char			**possible_locations;
 	char			***possible_moves;
 	selector_t		selector;
 	move_logs_t		*logs;
@@ -133,11 +138,13 @@ piece_t	*set_piece(int c);
 
 int		play(board_t *board);
 void	free_board(board_t *board);
+void	free_possible_moves(board_t *board, char ***moves);
 void	init_board(char *filepath, board_t *board);
 int		update_possible_moves(board_t *board, int y, int x);
 int		simulate_piece(board_t *board, piece_t *target);
 int		promo_menu(int y, int color, board_t *board);
 int		choose_tile_piece_menu(board_t *board, tile_t *tile, int color);
+int		choose_target_piece(board_t *board, piece_t *src, tile_t *target_tile);
 void	update_logs(board_t *board, piece_t *piece, piece_t *target);
 void	move_piece(board_t *board, int y, int x);
 
@@ -174,5 +181,7 @@ void	disable_raw_mode(void);
 void	enable_raw_mode(void);
 char	read_char(void);
 piece_t	*create_piece(char piece, int index);
+
+void	print_error(char *error, int ret);
 
 #endif

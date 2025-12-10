@@ -29,10 +29,11 @@ void launch_client(int argc, char **argv) {
 			break ;
 	}
 	for (int i = 0; i < board.nb_piece; i++) {
-		oe_strarr_free(board.pieces[i]->possible_moves, board.height);
+		oe_strarr_free(board.pieces[i]->possible_locations, board.height);
+		free_possible_moves(&board, board.pieces[i]->possible_moves);
 		free(board.pieces[i]);
 	}
-	oe_strarr_free(board.default_moves, board.height);
+	free_possible_moves(&board, board.default_moves);
 	free_board(board.copy_board);
 	free_board(&board);
 	free(board.logs);

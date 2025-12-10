@@ -73,13 +73,15 @@ void	print_end_message(board_t *board, char *msg) {
 		printf("\033[?25h");
 }
 
-
 int	play(board_t *board)
 {
 	static int	x = 0;
 	static int	y = 0;
 	int	confirm = 0;
 
+	for (int j = 0; j < board->height; j++)
+		for (int i = 0; i < board->width; i++)
+			board->tiles[j][i].is_targeted = 0;
 	for (int i = 0; i < board->nb_player; i++) {
 		if (board->players[i].nb_kings)
 			continue ;
@@ -181,8 +183,13 @@ int	play(board_t *board)
 						confirm = 1;
 					}
 				}
-				else if (confirm && board->possible_moves[y][x]) {
+				else if (confirm && (board->debug || board->possible_locations[y][x])) {
+					//TODO make sure the nb of piece doesn't go over MAX_PIECE
 					board->selector.target_id = 0;
+					if (board->tiles[y][x].nb_piece > 1)
+						board->selector.target_id =
+							choose_target_piece(board, board->selected_piece,
+								&board->tiles[y][x]);
 					move_piece(board, y, x);
 					confirm = 2;
 				}

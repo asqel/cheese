@@ -49,12 +49,13 @@ int	king_in_check_simu(board_t *board_base, int color) {
 	for (int j = 0; j < board->height; j++) {
 		for (int i = 0; i < board->width; i++) {
 			tile = &board->tiles[j][i];
-			if (!board->possible_moves[j][i] || !tile->nb_piece)
-				continue ;
-			for (int k = 0; k < tile->nb_piece; k++)
-				if (tile->pieces[k]->type == KING &&
-					tile->pieces[k]->color == color)
+			for (int t = 0; t < tile->nb_piece; t++) {
+				if (!board->possible_moves[j][i][t])
+					continue ;
+				if (tile->pieces[t]->type == KING &&
+					tile->pieces[t]->color == color)
 					check++;
+			}
 		}
 	}
 	return (check == board_base->players[color].nb_kings);
@@ -68,8 +69,13 @@ int	king_in_check(board_t *board, int color) {
 			continue ;
 		for (int j = 0; j < board->height; j++) {
 			for (int i = 0; i < board->width; i++) {
-				if (piece->possible_moves[j][i])
-					board->possible_moves[j][i] = 1;
+				tile_t	*target_tile = &board->tiles[j][i];
+				for (int t = 0; t < max(1, target_tile->nb_piece); t++) {
+					if (!piece->possible_moves[j][i][t])
+						continue ;
+					board->possible_moves[j][i][t] = 1;
+					target_tile->is_targeted = 1;
+				}
 			}
 		}
 	}
@@ -79,7 +85,7 @@ int	king_in_check(board_t *board, int color) {
 		if (piece->is_dead || piece->color != color)
 			continue ;
 		piece->is_targeted = 0;
-		if (!board->possible_moves[piece->y][piece->x])
+		if (!board->possible_moves[piece->y][piece->x][piece->tile_id])
 			continue ;
 		piece->is_targeted = 1;
 		if (piece->type == KING)

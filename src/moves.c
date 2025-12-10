@@ -67,11 +67,6 @@ void	move_piece(board_t *board, int y, int x)
 	//s->target_id = 0;
 
 	piece_t *new_piece = simple_move(board, s->origin_y, s->origin_x, s->target_y, s->target_x);
-	if (board->copy_board &&
-		get_nb_pieces_on_tile(target_tile, !selected_piece->color) > 1)
-		s->target_id = choose_tile_piece_menu(board, target_tile,
-				!selected_piece->color);
-
 	if (target_tile->nb_piece &&
 		selected_piece->color != target_tile->pieces[s->target_id]->color) {
 		if (board->copy_board)
@@ -128,7 +123,7 @@ void	highlight_board(board_t *board, int y, int x)
 		printf("\r%*s%s%s", PROMO_OFFSET, "", CURSOR_RIGHT, CURSOR_RIGHT);
 		for (int i = 0; i < board->width; i++) {
 			piece_t	*piece = get_tile_piece(board, j, i);
-			if (board->possible_moves[j][i])
+			if (board->possible_locations[j][i])
 				printf("%s", BLUE_BG);
 			else if (piece && piece->type == KING && piece->is_targeted)
 				printf("%s", RED_BG);
