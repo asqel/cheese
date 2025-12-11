@@ -3,18 +3,12 @@
 
 client_data_t clt = {0};
 
-static int init_client(int argc, char **argv) {
-	(void)argc;
-	(void)argv;
-	return 0;
-}
-
 void launch_client(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
 	signal(SIGINT, SIG_IGN);
 	signal(SIGTSTP, SIG_IGN);
-	if (init_client(argc, argv))
+	if (clt_init(argc, argv))
 		return ;
 
 	save_tty();
@@ -30,4 +24,5 @@ void launch_client(int argc, char **argv) {
 
 	terminal_set_screen(0);
 	restore_tty();
+	clt_free();
 }

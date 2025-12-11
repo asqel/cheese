@@ -10,15 +10,15 @@ int clt_wait_kb_srv(int *is_srv, int *is_kb, int timeout) {
 
 	fds[0].fd = clt.fd;
 	fds[1].fd = 0;
-	fds[0].events = POLIN;
-	fds[1].events = POLIN;
+	fds[0].events = POLLIN;
+	fds[1].events = POLLIN;
 
 	int count = poll(fds, 2, timeout);
 	if (count < 0)
 		return -1;
-	if (is_srv && (fds[0].revents & POLIN))
+	if (is_srv && (fds[0].revents & POLLIN))
 		*is_srv = 1;
-	if (is_kb && (fds[0].revents & POLIN))
+	if (is_kb && (fds[0].revents & POLLIN))
 		*is_kb = 1;
 
 	return count;
