@@ -13,4 +13,5 @@ void clt_free() {
 	clt.menu = NULL;
 	clt.room_name[0] = '\0';
 	clt.name[0] = '\0';
+	json_destroy(&clt.json);
 }

@@ -67,7 +67,6 @@ int clt_init(int argc, char **argv) {
 		json_destroy(&json);
 		return 1;
 	}
-	json_destroy(&json);
 
 	mtx_init(&clt.fd_lock, mtx_plain);
 	thrd_create(&clt.thread, clt_ping_thread, NULL);
