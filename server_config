@@ -1,5 +1,5 @@
 {
-	"port": 42125,
+	"port": 42124,
 	"rooms": [
 		[2, "./rooms/test.so"]
 	],

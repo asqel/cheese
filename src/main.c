@@ -44,11 +44,11 @@ void launch_gabriel(int argc, char **argv) {
 
 int	main(int argc, char **argv) {
 	if (argc == 1) {
-		launch_gabriel(argc - 2, argv - 2);
+		launch_gabriel(0, NULL);
 		return 0;
 	}
 	if (!strcmp(argv[1], "-c")) {
-		launch_client(argc - 2, argv - 2);
+		launch_client(argc - 2, argv + 2);
 		return 0;
 	}
 	else if (!strcmp(argv[1], "-s")) {
