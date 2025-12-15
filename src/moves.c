@@ -86,11 +86,11 @@ void	move_piece(board_t *board, int y, int x)
 	piece_t *selected_piece = origin_tile->pieces[s->origin_id];
 	piece_t	*target_piece = NULL;
 
-	piece_t *new_piece = simple_move(board, s->origin_y, s->origin_x, s->target_y, s->target_x);
 	if (board->copy_board) {
-		target_tile++;
-		target_tile--;
+		y++;
+		y--;
 	}
+	piece_t *new_piece = simple_move(board, s->origin_y, s->origin_x, s->target_y, s->target_x);
 	if (target_tile->nb_piece &&
 		selected_piece->color != target_tile->pieces[s->target_id]->color) {
 		if (board->copy_board)
@@ -98,7 +98,7 @@ void	move_piece(board_t *board, int y, int x)
 		remove_piece(target_tile, s->target_id, board, 0, selected_piece->attack_power);
 	}
 	else if (selected_piece->type == PAWN && (target_tile->nb_piece == 1) &&
-		(s->target_x != s->origin_x)) {
+		(s->target_x != s->origin_x) && !board->debug) {
 		int y_pos = selected_piece->color == WHITE ? -1 : 1;
 		if (board->copy_board)
 			target_piece = board->tiles[y + y_pos][x].pieces[s->target_id];
@@ -114,7 +114,8 @@ void	move_piece(board_t *board, int y, int x)
 				exit(1);
 			if (!board->tiles[s->origin_y][x_target].nb_piece)
 				continue ;
-			break ;
+			if (board->tiles[s->origin_y][x_target].pieces[0]->type == ROOK)
+				break ;
 		}
 		piece_t	*rook = simple_move(board, s->origin_y, x_target, s->target_y, s->target_x - x_vel);
 		if (board->copy_board)

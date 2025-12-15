@@ -59,10 +59,10 @@ void	update_logs(board_t *board, piece_t *piece, piece_t *target) {
 	update_tile_ids(board->tiles, &board->selector);
 	logs->last_move = &logs->color_logs[piece_color][logs->color_moves[piece_color]++];
 	logs->global_log[logs->nb_move++] = logs->last_move;
-	if (piece->x != move->origin_x || piece->y != move->origin_y) {
+	/*if (piece->x != move->origin_x || piece->y != move->origin_y) {
 		fprintf(stderr, "\e[?1049lMismatched position\n");
 		exit(1);
-	}
+	}*/
 	piece->x = move->target_x;
 	piece->y = move->target_y;
 	piece->tile_id = board->tiles[piece->y][piece->x].nb_piece - 1;

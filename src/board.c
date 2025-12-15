@@ -86,9 +86,9 @@ int	play(board_t *board)
 		if (board->players[i].nb_kings)
 			continue ;
 		char *msg;
-		if (i == 0) //TODO change this horror
+		if (i == 1) //TODO change this horror
 			msg = "White wins!";
-		else if (i == 1)
+		else if (i == 2)
 			msg = "Black wins!";
 		else
 			msg = "Draw!";
