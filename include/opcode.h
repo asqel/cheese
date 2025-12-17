@@ -14,6 +14,8 @@
 #define OPC_ASK_START 9
 #define OPC_STARTING 10
 #define OPC_WIN 11
+#define OPC_ASK_BOARD 12
+#define OPC_SEND_BOARD 13
 #define OPC_PING 0xFFABBAFF
 
 #define OPC_ERR_NAME_LEN 1

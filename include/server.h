@@ -48,6 +48,7 @@ typedef struct {
 	void (*recv)(room_info_t *self, client_t *clt, uint32_t opcode, void *data, uint16_t len);
 	void (*reset)(room_info_t *self);
 	int (*start)(room_info_t *self);
+	void (*send_board)(client_t *clt, room_info_t *self);
 } room_lib_t;
 
 typedef struct {
@@ -93,5 +94,6 @@ void srv_on_room_reset(room_info_t *room);
 int srv_on_room_start(room_info_t *room);
 int srv_start_room(client_t *clt, void *data, uint16_t len);
 void srv_on_room_win(room_info_t *room, char *name);
+int srv_ask_board(client_t *clt, void *data, uint16_t data_len);
 
 #endif
