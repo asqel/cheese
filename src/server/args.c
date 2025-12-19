@@ -21,6 +21,7 @@ static void open_dll_room(uint8_t room_type, char *path) {
 	room->recv = dlsym(room->handler, "recv_func");
 	room->reset = dlsym(room->handler, "reset_func");
 	room->start = dlsym(room->handler, "start_func");
+	room->send_board = dlsym(room->handler, "send_board_func");
 	if (!room->init)
 		PRINT_ERR("%s: missing init_func\n", path);
 	if (!room->free)
@@ -37,8 +38,12 @@ static void open_dll_room(uint8_t room_type, char *path) {
 		PRINT_ERR("%s: missing reset_func\n", path);
 	if (!room->start)
 		PRINT_ERR("%s: missing start_func\n", path);
+	if (!room->send_board)
+		PRINT_ERR("%s: missing send_board_func\n", path);
 	if (room->init && room->free && room->join && room->leave
-		&& room->move && room->recv && room->reset && room->start) {
+		&& room->move && room->recv && room->reset && room->start
+		&& room->send_board
+	) {
 		printf("adding %s as room type %d\n", path, room_type);
 		return ;
 	}

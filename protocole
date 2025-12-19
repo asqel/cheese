@@ -94,6 +94,31 @@ custom opcode:
 			custom_opcode (u32)
 			custom_data
 
+ask_board:
+	send:
+		opcode = OPC_ASK_BOARD
+		len = 0
+		data:
+	
+	response:
+		fail/send_board
+
+send_board:
+	# from server
+	opcode = send_board
+	len = ...
+	data:
+		width (u8)
+		height (u8)
+		depth (u8) # usually 1
+		pieces... (as u16 *)
+
+		piece:
+			u8: color
+			u8: type
+
+	
+
 game_loop:
 	0: 
 	1: send(start)

@@ -78,3 +78,8 @@ void reset_func(room_info_t *self) {
 	*((test_room_t *)self->data) = (test_room_t){0};
 	(void)self;
 }
+
+void send_board_func(client_t *clt, room_info_t *self) {
+	(void)self;
+	srv_send_err(clt, OPC_ERR_FORBIDDEN);
+}

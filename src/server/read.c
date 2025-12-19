@@ -26,6 +26,8 @@ int srv_handle_msg(client_t *clt, uint32_t opcode, void *data, uint16_t len) {
 			return srv_exit_room(clt, data, len);
 		case OPC_ASK_START:
 			return srv_start_room(clt, data, len);
+		case OPC_ASK_BOARD:
+			return srv_ask_board(clt, data, len);
 	 	default:
 			srv_send(clt, OPC_UNKNOW_OP, &opcode, sizeof(uint32_t));
 			break;
