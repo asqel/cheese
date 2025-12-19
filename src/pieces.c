@@ -1,50 +1,5 @@
 #include "cheese.h"
 
-piece_t	*create_piece(char piece, int index) {
-	piece_t	*dest = calloc(1, sizeof(piece_t));
-	if (!dest)
-		exit(1);
-
-	dest->color = WHITE;
-	dest->piece_id = index;
-	if (piece >= 'a') {
-		dest->color = BLACK;
-		piece -= 32;
-	}
-	switch (piece) {
-		case 'P':
-			dest->type = PAWN;
-			strcpy(dest->character, "♙");
-			break ;
-		case 'R':
-			dest->type = ROOK;
-			strcpy(dest->character, "♖");
-			break ;
-		case 'N':
-			dest->type = KNIGHT;
-			strcpy(dest->character, "♘");
-			break ;
-		case 'B':
-			dest->type = BISHOP;
-			strcpy(dest->character, "♗");
-			break ;
-		case 'Q':
-			dest->type = QUEEN;
-			strcpy(dest->character, "♕");
-			break ;
-		case 'K':
-			dest->type = KING;
-			strcpy(dest->character, "♔");
-			break ;
-		default:
-			printf("va te faire foutre\n");
-			exit(1);
-	};
-	if (dest->color == BLACK)
-		dest->character[2] += "♚"[2] - "♔"[2];
-	return (dest);
-}
-
 void	reset_simulation(board_t *board) {
 	for (int i = 0; i < board->copy_board->simu_change_index; i++) {
 		move_infos_t	*change = &board->copy_board->simu_changes[i];

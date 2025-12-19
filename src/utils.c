@@ -109,11 +109,17 @@ void	free_board(board_t *board)
 int	get_nb_pieces_on_tile(tile_t *tile, int color)
 {
 	int	res = 0;
+	int must_match = (color > 0);
 
+	if (color == BOARD)
+		return (0);
 	for (int i = 0; i < tile->nb_piece; i++) {
-		if (color > 0 && tile->pieces[i]->color == color)
+		int piece_color = tile->pieces[i]->color;
+		if (must_match && piece_color == color)
 			res++;
-		else if (color < 0 && tile->pieces[i]->color != -color)
+		else if (!must_match && piece_color != -color && piece_color != BOARD)
+			res++;
+		else if (!must_match && piece_color == BOARD && !tile->pieces[i]->invincible)
 			res++;
 	}
 	return (res);

@@ -23,6 +23,7 @@
 #define BLUE_BG		"\033[43m"
 #define RED_BG		"\033[41m"
 
+#define BOARD	0
 #define WHITE	1
 #define BLACK	2
 
@@ -32,7 +33,8 @@ enum pieces {
 	ROOK,
 	BISHOP,
 	KNIGHT,
-	PAWN
+	PAWN,
+	BLOCK
 };
 
 typedef struct {
@@ -54,6 +56,9 @@ typedef struct {
 	int			simu_is_dead;
 	int			attack_power;
 	int			nb_move;
+	int			block_tile;
+	int			invincible;
+	int			max_hp;
 	int			hp;
 	int			simu_hp;
 	int			type;
@@ -80,6 +85,7 @@ typedef struct {
 	int			color;
 	int			nb_piece;
 	int			tile_type;
+	int			is_blocked;
 	int			is_targeted;
 	piece_t		**pieces;
 }	tile_t;
