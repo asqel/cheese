@@ -137,6 +137,7 @@ void	highlight_board(board_t *board, int y, int x)
 	int	cursor_x;
 
 	get_cursor_position(&cursor_x, &cursor_y);
+	board->possible_locations = board->selected_piece->possible_locations;
 	write(1, "\e[?25l", 6);
 	for (int j = y; j > 0; j--)
 		for (int k = 0; k < 2; k++)

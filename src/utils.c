@@ -20,25 +20,22 @@ void	print_error(char *error, int ret) {
 	exit(ret);
 }
 
-char	*strjoin(char *s1, char *s2, int free_s1)
+char	*strjoin(char *src, char *to_add)
 {
 	char	*dest;
 
-	if (!s1)
-		return (strdup(s2));
-	if (!s2)
-		return (s1);
+	if (!src)
+		return (strdup(to_add));
+	if (!to_add)
+		return (src);
 
-	size_t s1_len = strlen(s1);
-	size_t s2_len = strlen(s2);
-	dest = calloc((s1_len + s2_len + 1), sizeof(char));
+	size_t src_len = strlen(src);
+	size_t to_add_len = strlen(to_add);
+	dest = realloc(src, (src_len + to_add_len + 1) * sizeof(char));
 	if (!dest)
 		return (NULL);
-	strcat(dest, s1);
-	strcat(dest + s1_len, s2);
-	dest[s1_len + s2_len] = 0;
-	if (free_s1)
-		free(s1);
+	memcpy(dest + src_len, to_add, to_add_len);
+	dest[src_len + to_add_len] = 0;
 	return (dest);
 }
 

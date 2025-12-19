@@ -17,6 +17,7 @@ void	prepare_tile(board_t *board, char piece, int j, int i) {
 	new_piece->hp = 2;
 	new_piece->simu_hp = new_piece->hp; //TODO remove hardcoding
 	new_piece->attack_power = 1;
+	new_piece->nb_move = 2;
 
 	board->pieces[board->nb_piece] = new_piece;
 	board->pieces[++board->nb_piece] = NULL;
@@ -125,20 +126,24 @@ void	init_board(char *filepath, board_t *board)
 {
 	FILE	*f = fopen(filepath, "r");
 	char	*board_str = NULL;
-	char	line[256];
+	char	*line = NULL;
 
 	if (!f) {
 		fprintf(stderr, "Cannot open file %s\n", filepath);
 		exit(1);
 	}
 
-	while (fgets(line, sizeof(line), f)) {
+	size_t a = 0;
+	while (getline(&line, &a, f) >= 0) {
 		size_t line_len = strlen(line);
 
-		board_str = strjoin(board_str, line, 1);
+		board_str = strjoin(board_str, line);
 		board->height++;
 		board->width = max(board->width, line_len - 1);
+		free(line);
+		line = NULL;
 	}
+	free(line);
 	fclose(f);
 	board->occupied_map = malloc((board->height + 1) * sizeof(char *));
 	if (!board->occupied_map)

@@ -80,10 +80,21 @@ void	reset_simulation(board_t *board) {
 void	evaluate_move(board_t *board, piece_t *target, int y, int x, int *valid_move) {
 	tile_t		*target_tile = &board->tiles[y][x];
 
+	if (!board->players[target->color].compute_check) {
+		*valid_move = 1;
+		target->possible_locations[y][x] = 1;
+		for (int p = 0; p < target_tile->nb_piece; p++)
+			if (target_tile->pieces[p]->color != target->color)
+				target->possible_moves[y][x][p] += target->attack_power;
+		if (!target_tile->nb_piece)
+			target->possible_moves[y][x][0] += target->attack_power;
+		return ;
+	}
 	if (board->copy_board == NULL) {
 		*valid_move = 1;
 		for (int p = 0; p < max(1, target_tile->nb_piece); p++)
-			target->copy_moves[y][x][p] += target->attack_power;
+			if (target_tile->pieces[p]->color != target->color)
+				target->copy_moves[y][x][p] += target->attack_power;
 		return ;
 	}
 
@@ -303,13 +314,6 @@ int	update_possible_moves(board_t *board, int y, int x) {
 			(x >= 0 && piece->color != x) ||
 			(y >= 0 && piece->color == x))
 			continue ;
-		if (x < 0 && y < 0) {
-			for (int j = 0; j < board->height; j++) {
-				memset(piece->possible_locations[j], 0, board->width);
-				for (int i = 0; i < board->width; i++)
-					memset(piece->possible_moves[j][i], 0, max(1, board->tiles[j][i].nb_piece));
-			}
-		}
 		piece->can_move = simulate_piece(board, piece) != 0;
 	}
 	return (1);
@@ -319,6 +323,13 @@ int	simulate_piece(board_t *board, piece_t *target) {
 	board->selector.origin_x = target->x;
 	board->selector.origin_y = target->y;
 	board->selector.origin_id = target->tile_id;
+	if (board->copy_board) {
+		for (int j = 0; j < board->height; j++) {
+			memset(target->possible_locations[j], 0, board->width);
+			for (int i = 0; i < board->width; i++)
+				memset(target->possible_moves[j][i], 0, max(1, board->tiles[j][i].nb_piece));
+		}
+	}
 	switch (target->type) {
 		case PAWN:
 			return (move_pawn(board, target, target->y, target->x));
