@@ -15,25 +15,27 @@ int	min(int a, int b)
 	return (b);
 }
 
-char	*strjoin(char *s1, char *s2, int free_s1)
+void	print_error(char *error, int ret) {
+	printf("\e[?1049l%s\n", error);
+	exit(ret);
+}
+
+char	*strjoin(char *src, char *to_add)
 {
 	char	*dest;
 
-	if (!s1)
-		return (strdup(s2));
-	if (!s2)
-		return (s1);
+	if (!src)
+		return (strdup(to_add));
+	if (!to_add)
+		return (src);
 
-	size_t s1_len = strlen(s1);
-	size_t s2_len = strlen(s2);
-	dest = calloc((s1_len + s2_len + 1), sizeof(char));
+	size_t src_len = strlen(src);
+	size_t to_add_len = strlen(to_add);
+	dest = realloc(src, (src_len + to_add_len + 1) * sizeof(char));
 	if (!dest)
 		return (NULL);
-	strcat(dest, s1);
-	strcat(dest + s1_len, s2);
-	dest[s1_len + s2_len] = 0;
-	if (free_s1)
-		free(s1);
+	memcpy(dest + src_len, to_add, to_add_len);
+	dest[src_len + to_add_len] = 0;
 	return (dest);
 }
 
@@ -68,17 +70,30 @@ piece_t	*get_tile_piece(board_t *board, int y, int x)
 
 void	reset_possible_moves(board_t *board)
 {
-	for (int j = 0; j < board->height; j++)
-		memset(board->default_moves[j], 0, board->width);
+	for (int j = 0; j < board->height; j++) {
+		memset(board->default_locations[j], 0, board->width);
+		for (int i = 0; i < board->width; i++)
+			memset(board->default_moves[j][i], 0, board->nb_piece);
+	}
 	board->possible_moves = board->default_moves;
+	board->possible_locations = board->default_locations;
 }
 
-void	free_board(board_t *board, int free_char)
+void	free_possible_moves(board_t *board, char ***moves) {
+	for (int j = 0; j < board->height; j++) {
+		for (int i = 0; i < board->width; i++)
+			free(moves[j][i]);
+		free(moves[j]);
+	}
+	free(moves);
+}
+
+void	free_board(board_t *board)
 {
 	for (int j = 0; j < board->height; j++) {
-		if (free_char) {
+		if (board->copy_board) {
 			for (int i = 0; i < board->width; i++) {
-				if (board->tiles[j][i].nb_piece)
+				if (board->tiles[j][i].pieces)
 					free(board->tiles[j][i].pieces);
 			}
 		}
@@ -96,7 +111,9 @@ int	get_nb_pieces_on_tile(tile_t *tile, int color)
 	int	res = 0;
 
 	for (int i = 0; i < tile->nb_piece; i++) {
-		if (tile->pieces[i]->color == color)
+		if (color > 0 && tile->pieces[i]->color == color)
+			res++;
+		else if (color < 0 && tile->pieces[i]->color != -color)
 			res++;
 	}
 	return (res);

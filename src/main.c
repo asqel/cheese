@@ -30,12 +30,15 @@ void launch_gabriel(int argc, char **argv) {
 			break ;
 	}
 	for (int i = 0; i < board.nb_piece; i++) {
-		oe_strarr_free(board.pieces[i]->possible_moves, board.height);
+		oe_strarr_free(board.pieces[i]->possible_locations, board.height);
+		free_possible_moves(&board, board.pieces[i]->possible_moves);
+		free_possible_moves(&board, board.pieces[i]->copy_moves);
 		free(board.pieces[i]);
 	}
-	oe_strarr_free(board.default_moves, board.height);
-	free_board(board.copy_board, 0);
-	free_board(&board, 1);
+	free_possible_moves(&board, board.default_moves);
+	oe_strarr_free(board.default_locations, board.height);
+	free_board(board.copy_board);
+	free_board(&board);
 	free(board.logs);
 	free(board.copy_board);
 	free(board.pieces);

@@ -10,6 +10,7 @@
 #include <stdint.h>
 
 #define PROMO_OFFSET	5
+#define MAX_TILE_PIECE	(16 + 1)
 
 #define CURSOR_UP "\033[A"
 #define CURSOR_DOWN "\033[B"
@@ -22,8 +23,8 @@
 #define BLUE_BG		"\033[43m"
 #define RED_BG		"\033[41m"
 
-#define WHITE	0
-#define BLACK	1
+#define WHITE	1
+#define BLACK	2
 
 enum pieces {
 	KING,
@@ -50,12 +51,19 @@ typedef struct {
 	int			tile_id;
 	int			is_targeted;
 	int			is_dead;
+	int			simu_is_dead;
+	int			attack_power;
+	int			nb_move;
+	int			hp;
+	int			simu_hp;
 	int			type;
 	int			color;
 	int			kill_count;
 	int			move_counter;
 	int			distance_moved;
-	char		**possible_moves;
+	char		**possible_locations;
+	char		***possible_moves;
+	char		***copy_moves;
 	int			can_move;
 	char		character[5];
 }	piece_t;
@@ -67,9 +75,12 @@ enum tile_types {
 };
 
 typedef struct {
+	int			x;
+	int			y;
 	int			color;
 	int			nb_piece;
 	int			tile_type;
+	int			is_targeted;
 	piece_t		**pieces;
 }	tile_t;
 
@@ -101,6 +112,7 @@ typedef struct player_s
 	int		nb_kings;
 	int		king_in_check;
 	int		color;
+	int		compute_check;
 }	player_t;
 
 #define MAX_SIMU_MOVES	16
@@ -111,11 +123,14 @@ typedef struct board_s
 	int				nb_player;
 	player_t		*players;
 	piece_t			**pieces;
+	piece_t			*selected_piece;
 	int				nb_piece;
 	tile_t			**tiles;
 	char			**occupied_map;
-	char			**default_moves;
-	char			**possible_moves;
+	char			***possible_moves;
+	char			***default_moves;
+	char			**possible_locations;
+	char			**default_locations;
 	selector_t		selector;
 	move_logs_t		*logs;
 	move_infos_t	*simu_changes;
@@ -130,12 +145,16 @@ piece_t	*get_piece(int index);
 piece_t	*set_piece(int c);
 
 int		play(board_t *board);
-void	free_board(board_t *board, int free_char);
+void	free_board(board_t *board);
+void	free_possible_moves(board_t *board, char ***moves);
 void	init_board(char *filepath, board_t *board);
 int		update_possible_moves(board_t *board, int y, int x);
 int		simulate_piece(board_t *board, piece_t *target);
+piece_t	*create_piece(char piece, int index);
+void	print_error(char *error, int ret);
 int		promo_menu(int y, int color, board_t *board);
 int		choose_tile_piece_menu(board_t *board, tile_t *tile, int color);
+int		choose_target_piece(board_t *board, piece_t *src, tile_t *target_tile);
 void	update_logs(board_t *board, piece_t *piece, piece_t *target);
 void	move_piece(board_t *board, int y, int x);
 
@@ -149,7 +168,7 @@ int		king_in_check(board_t *board, int color);
 void	highlight_board(board_t *board, int y, int x);
 piece_t	*get_tile_piece(board_t *board, int x, int y);
 int		get_nb_pieces_on_tile(tile_t *tile, int color);
-char	*strjoin(char *s1, char *s2, int free_s1);
+char	*strjoin(char *src, char *to_add);
 void	get_cursor_position(int *x, int *y);
 void	reset_possible_moves(board_t *board);
 int		max(int a, int b);
@@ -166,14 +185,12 @@ typedef struct {
 
 
 
+char	read_char(void);
 int		buffer_append(buffer_t *buffer, void *data, size_t len);
 void	buffer_remove(buffer_t *buffer, size_t start, size_t len);
 void 	buffer_free(buffer_t *buffer);
 void	disable_raw_mode(void);
 void	enable_raw_mode(void);
-char	read_char(void);
-piece_t	*create_piece(char piece, int index);
-
 char *read_passwd();
 int terminal_set_canon(int enable);
 int terminal_set_echo(int enable);
