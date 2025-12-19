@@ -150,6 +150,8 @@ void	free_possible_moves(board_t *board, char ***moves);
 void	init_board(char *filepath, board_t *board);
 int		update_possible_moves(board_t *board, int y, int x);
 int		simulate_piece(board_t *board, piece_t *target);
+piece_t	*create_piece(char piece, int index);
+void	print_error(char *error, int ret);
 int		promo_menu(int y, int color, board_t *board);
 int		choose_tile_piece_menu(board_t *board, tile_t *tile, int color);
 int		choose_target_piece(board_t *board, piece_t *src, tile_t *target_tile);
@@ -172,6 +174,7 @@ void	reset_possible_moves(board_t *board);
 int		max(int a, int b);
 int		min(int a, int b);
 char	*sha256(char *str);
+size_t	strlen_utf8(char *str);
 
 //buffers
 typedef struct {
@@ -182,14 +185,29 @@ typedef struct {
 
 
 
+char	read_char(void);
 int		buffer_append(buffer_t *buffer, void *data, size_t len);
 void	buffer_remove(buffer_t *buffer, size_t start, size_t len);
 void 	buffer_free(buffer_t *buffer);
 void	disable_raw_mode(void);
 void	enable_raw_mode(void);
-char	read_char(void);
-piece_t	*create_piece(char piece, int index);
-
-void	print_error(char *error, int ret);
+char *read_passwd();
+int terminal_set_canon(int enable);
+int terminal_set_echo(int enable);
+void restore_tty();
+void save_tty();
+void terminal_set_screen(int is_alt);
+void terminal_get_pos(int *x, int *y);
+int terminal_set_ctrl_key(char key, int state);
+void terminal_get_size(int *w, int *h);
+void terminal_clear(int fflush);
+char *terminal_get_input();
+int terminal_set_block(int state);
+void terminal_set_cursor(int state);
+void terminal_draw_str(char *str, int x, int y, int flush);
+void terminal_draw_str_centered(char *str, int y, int flush);
+void terminal_draw_strarr(char **str, int x, int y, int flush);
+void terminal_set_flush(int state);
+void terminal_draw_strarr_centered(char **str, int y, int flush);
 
 #endif

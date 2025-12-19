@@ -315,6 +315,8 @@ int	update_possible_moves(board_t *board, int y, int x) {
 			(y >= 0 && piece->color == x))
 			continue ;
 		piece->can_move = simulate_piece(board, piece) != 0;
+		x++;
+		x--;
 	}
 	return (1);
 }

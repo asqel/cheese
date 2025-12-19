@@ -1,18 +1,19 @@
 #include "cheese.h"
 #include "server.h"
+#include  "client.h"
 #include <signal.h>
 
-void lexit(void) {
+static void lexit(void) {
 	printf("\e[?1049l");
 	fflush(stdout);
 }
 
-void on_sigint(int _) {
+static void on_sigint(int _) {
 	(void)_;
 	exit(1);
 }
 
-void launch_client(int argc, char **argv) {
+void launch_gabriel(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
 	atexit(lexit);
@@ -44,14 +45,13 @@ void launch_client(int argc, char **argv) {
 	free(board.players);
 }
 
-
 int	main(int argc, char **argv) {
 	if (argc == 1) {
-		launch_client(argc - 2, argv - 2);
+		launch_gabriel(0, NULL);
 		return 0;
 	}
 	if (!strcmp(argv[1], "-c")) {
-		launch_client(argc - 2, argv - 2);
+		launch_client(argc - 2, argv + 2);
 		return 0;
 	}
 	else if (!strcmp(argv[1], "-s")) {
@@ -61,6 +61,10 @@ int	main(int argc, char **argv) {
 	}
 	else if (!strcmp(argv[1], "-g")) {
 		fprintf(stderr, "AH lol\n");
+		char *passwd = read_passwd();
+		printf("passwd %s|\n", passwd);
+		explicit_bzero(passwd, strlen(passwd) + 1);
+		free(passwd);
 		return 1;
 	}
 	fprintf(stderr, "Error: expected `-s' or `-c' as first argument\n");

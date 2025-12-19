@@ -86,10 +86,6 @@ void	move_piece(board_t *board, int y, int x)
 	piece_t *selected_piece = origin_tile->pieces[s->origin_id];
 	piece_t	*target_piece = NULL;
 
-	if (board->copy_board) {
-		y++;
-		y--;
-	}
 	piece_t *new_piece = simple_move(board, s->origin_y, s->origin_x, s->target_y, s->target_x);
 	if (target_tile->nb_piece &&
 		selected_piece->color != target_tile->pieces[s->target_id]->color) {

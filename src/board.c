@@ -171,6 +171,9 @@ int	play(board_t *board)
 		else if (!can_move || board->players[i].king_in_check) {
 			board->players[i].king_in_check += !can_move;
 			update_possible_moves(board, -1, color);
+			if (!can_move)
+				while (1)
+					;
 		}
 	}
 	print_board(board);
