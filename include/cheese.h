@@ -53,6 +53,7 @@ typedef struct {
 	int			is_dead;
 	int			simu_is_dead;
 	int			attack_power;
+	int			nb_move;
 	int			hp;
 	int			simu_hp;
 	int			type;
@@ -111,6 +112,7 @@ typedef struct player_s
 	int		nb_kings;
 	int		king_in_check;
 	int		color;
+	int		compute_check;
 }	player_t;
 
 #define MAX_SIMU_MOVES	16
@@ -164,7 +166,7 @@ int		king_in_check(board_t *board, int color);
 void	highlight_board(board_t *board, int y, int x);
 piece_t	*get_tile_piece(board_t *board, int x, int y);
 int		get_nb_pieces_on_tile(tile_t *tile, int color);
-char	*strjoin(char *s1, char *s2, int free_s1);
+char	*strjoin(char *src, char *to_add);
 void	get_cursor_position(int *x, int *y);
 void	reset_possible_moves(board_t *board);
 int		max(int a, int b);
