@@ -183,7 +183,12 @@ typedef struct {
 	size_t alloc_len;
 } buffer_t;
 
+#define K_UP "\e[A"
+#define K_DOWN "\e[B"
+#define K_LEFT "\e[D"
+#define K_RIGHT "\e[C"
 
+#define ARR_LEN(X) (sizeof(X) / sizeof(X[0]))
 
 char	read_char(void);
 int		buffer_append(buffer_t *buffer, void *data, size_t len);
@@ -201,7 +206,7 @@ void terminal_get_pos(int *x, int *y);
 int terminal_set_ctrl_key(char key, int state);
 void terminal_get_size(int *w, int *h);
 void terminal_clear(int fflush);
-char *terminal_get_input();
+char *terminal_get_input(int reset);
 int terminal_set_block(int state);
 void terminal_set_cursor(int state);
 void terminal_draw_str(char *str, int x, int y, int flush);
@@ -209,5 +214,6 @@ void terminal_draw_str_centered(char *str, int y, int flush);
 void terminal_draw_strarr(char **str, int x, int y, int flush);
 void terminal_set_flush(int state);
 void terminal_draw_strarr_centered(char **str, int y, int flush);
+void term_set_mode_gui();
 
 #endif

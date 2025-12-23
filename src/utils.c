@@ -139,3 +139,11 @@ size_t strlen_utf8(char *str_ptr) {
 	}
 	return res;
 }
+
+void term_set_mode_gui() {
+	terminal_set_canon(0);
+	terminal_set_echo(0);
+	terminal_set_block(0);
+	terminal_set_cursor(0);
+	terminal_set_flush(0);
+}

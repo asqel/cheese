@@ -20,11 +20,14 @@ typedef struct {
 
 extern client_data_t clt;
 
-void clt_main_menu();
 void launch_client(int argc, char **argv);
 int clt_wait_kb_srv(int *is_srv, int *is_kb, int timeout); // returns 1 if to read;
 int clt_init(int argc, char **argv);
 void clt_free();
 int clt_ping_thread(void *arg); 
+
+// menus
+void clt_main_menu();
+void clt_register_menu();
 
 #endif

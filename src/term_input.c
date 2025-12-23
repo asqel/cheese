@@ -36,10 +36,16 @@ static void process_stash(char *res, uint8_t *s, int s_len) {
 	memcpy(s, s + to_read, s_len);
 }
 
-char *terminal_get_input() {
+char *terminal_get_input(int reset) {
 	static char res[256];
 	static char stash[4096];
 	static int stash_len;
+	if (reset) {
+		bzero(res, 256);
+		bzero(stash, 256);
+		stash_len = 0;
+		return NULL;
+	}
 
 	while (stash_len < (int)sizeof(stash)) {	
 		int ret = read(0, &stash[stash_len], sizeof(stash) - stash_len);
