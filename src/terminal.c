@@ -217,3 +217,9 @@ void terminal_set_flush(int state) {
 	else
 		setvbuf(stdout, NULL, _IOLBF, BUFSIZ);
 }
+
+void terminal_goto(int x, int y, int flush) {
+	printf("\e[%d;%dH", y, x);
+	if (flush)
+		fflush(stdout);
+}

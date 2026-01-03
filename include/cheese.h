@@ -215,5 +215,6 @@ void terminal_draw_strarr(char **str, int x, int y, int flush);
 void terminal_set_flush(int state);
 void terminal_draw_strarr_centered(char **str, int y, int flush);
 void term_set_mode_gui();
+void terminal_goto(int x, int y, int flush);
 
 #endif
