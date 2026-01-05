@@ -1,4 +1,5 @@
 #include "cheese.h"
+#include <stdarg.h>
 #include <sys/ioctl.h>
 #include <ctype.h>
 
