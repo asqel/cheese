@@ -26,7 +26,7 @@ piece_t	*create_player_piece(char piece, int index) {
 	}
 
 	dest->piece_id = index;
-	dest->max_hp = 2;
+	dest->max_hp = 1;
 	dest->hp = dest->max_hp;
 	dest->simu_hp = dest->max_hp; //TODO remove hardcoding
 	dest->attack_power = 1;
@@ -104,7 +104,7 @@ void	init_tiles(char *board_str, board_t *board)
 
 	board->nb_piece = 0;
 	for (int j = 0; j < board->height; j++) {
-		board->tiles[j] = malloc((board->width + 1) * sizeof(tile_t));
+		board->tiles[j] = calloc((board->width + 1), sizeof(tile_t));
 		for (int i = 0; i < board->width; i++) {
 			tile_t	*tile = &board->tiles[j][i];
 			tile->y = j;
@@ -165,7 +165,7 @@ void	init_possible_boards(board_t *board)
 		for (int j = 0; j < board->height; j++) {
 			possible_map[j] = malloc((board->width + 1) * sizeof(char *));
 			possible_copy[j] = malloc((board->width + 1) * sizeof(char *));
-			location_map[j] = malloc((board->width + 1) * sizeof(char *));
+			location_map[j] = malloc((board->width + 1) * sizeof(char));
 			if (!possible_map[j] || !location_map[j] || !possible_copy[j])
 				print_error("Malloc error for possible/location_map[j]", 1);
 			for (int i = 0; i < board->width; i++) {

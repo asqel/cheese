@@ -152,6 +152,8 @@ void	print_board(board_t	*board) {
 			for (int k = 0; k < i; k++)
 				printf("%s%s%s%s", CURSOR_RIGHT, CURSOR_RIGHT, CURSOR_RIGHT, CURSOR_RIGHT);
 			piece_t	*piece = tile->pieces[0];
+			if (piece->color == BOARD)
+				continue ;
 			for (int k = 0; k < tile->nb_piece; k++) {
 				piece_t	*temp_piece = tile->pieces[k];
 				if (temp_piece->type == KING && temp_piece->is_targeted == 1) {
