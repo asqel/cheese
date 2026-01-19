@@ -1,0 +1,9 @@
+input 73 0
+input 73 0
+input 73 0
+input 73 0
+input 73 0
+input 7f 0
+input 7f 0
+input 7f 0
+input 3a 0

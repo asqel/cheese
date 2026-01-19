@@ -82,13 +82,21 @@ void clt_register_menu() {
 		else if (state == 0) {
 			int is_good = 1;
 			for (int i = 0; input[i] && is_good; i++) {
-				if (input[i] < ' ' && input[i] > 0)
+				unsigned char c = input[i];
+				if (c < ' ' || c == 0x7f)
 					is_good = 0;
 			}
-			if (!is_good && strcmp(input, "\b"))
+			if (!is_good && !!strcmp(input, "\x7f"))
 				continue;
-
-
+			if (!strcmp(input, "\x7f")) {
+				if (!name[0])
+					continue;
+				name[strlen(name) - 1] = '\0';
+				redisplay(state, name, error);
+				continue;
+			}
+			if (strlen(input) + strlen(name) <= CLIENT_NAME_LEN)
+				strcat(name, input);
 		}
 		redisplay(state, name, error);
 	}
