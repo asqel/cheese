@@ -48,27 +48,93 @@ int	board_move_cursor(board_t *board, int *y, int *x) {
 }
 
 void	print_board(board_t	*board) {
+	tile_t	**tiles = board->tiles;
 	printf("\033[2J\033[0;0m\033[?25l\033[%d;0H", PROMO_OFFSET);
 	fflush(stdout);
-	printf("%*s┌──", PROMO_OFFSET, "");
-	for (int i = 0; i < board->width - 1; i++)
-		printf("─┬──");
-	printf("─┐\n%*s", PROMO_OFFSET, "");
-
-	for (int i = 0; i < board->height - 1; i++) {
-		for (int j = 0; j < board->width; j++)
-			printf("│   ");
-		printf("│\n%*s├──", PROMO_OFFSET, "");
-		for (int j = 0; j < board->width - 1; j++)
-			printf("─┼──");
-		printf("─┤\n%*s", PROMO_OFFSET, "");
+	printf("%*s", PROMO_OFFSET, "");
+	for (int i = 0; i < (board->width + 1); i++) {
+		if (i == 0)
+			printf("%s", !tiles[0][0].is_blocked ? "┌──" : "   " );
+		else if (i == board->width)
+			printf("%s", !tiles[0][i - 1].is_blocked ? "─┐" : "  " );
+		else {
+			printf("%s", (!tiles[0][i - 1].is_blocked) ? "─" : " ");
+			if (tiles[0][i - 1].is_blocked + tiles[0][i].is_blocked == 1)
+				printf("%s", (tiles[0][i].is_blocked) ? "┐" : "┌");
+			else
+				printf("%s", (tiles[0][i].is_blocked) ? " " : "┬");
+			printf("%s", (!tiles[0][i].is_blocked) ? "──" : "  ");
+		}
 	}
-	for (int i = 0; i < board->width; i++)
-		printf("│   ");
-	printf("│\n%*s└──", PROMO_OFFSET, "");
-	for (int i = 0; i < board->width - 1; i++)
-		printf("─┴──");
-	printf("─┘\n%*s", PROMO_OFFSET, "");
+	for (int j = 0; j < board->height; j++) {
+		printf("\n%*s", PROMO_OFFSET, "");
+		for (int i = 0; i < (board->width + 1); i++) {
+			if (i == 0)
+				printf("%s", (!tiles[j][0].is_blocked) ? "│  " : "   ");
+			else if (i == board->width)
+				printf("%s", (!tiles[j][i - 1].is_blocked) ? " │" : "  ");
+			else
+				printf("%s", (!tiles[j][i - 1].is_blocked + !tiles[j][i].is_blocked) ? " │  " : "    ");
+		}
+		printf("\n%*s", PROMO_OFFSET, "");
+		if (j == (board->height - 1))
+			continue ;
+		for (int i = 0; i < (board->width + 1); i++) {
+			if (i == 0) {
+				if ((tiles[j][0].is_blocked + tiles[j + 1][0].is_blocked) == 1)
+					printf("%s", !tiles[j][0].is_blocked ? "└──" : "┌──");
+				else
+					printf("%s", tiles[j][0].is_blocked ? "   " : "├──");
+			}
+			else if (i == board->width) {
+				if ((!tiles[j][i - 1].is_blocked + !tiles[j + 1][i - 1].is_blocked) == 1)
+					printf("%s", tiles[j + 1][i - 1].is_blocked ? "─┘" : "─┐");
+				else
+					printf("%s", tiles[j][i - 1].is_blocked ? "  " : "─┤");
+			}
+			else {
+				printf("%s", (!tiles[j + 1][i - 1].is_blocked + !tiles[j][i - 1].is_blocked) ? "─" : " ");
+				int sum = !tiles[j][i].is_blocked + !tiles[j][i - 1].is_blocked +
+						!tiles[j + 1][i].is_blocked + !tiles[j + 1][i - 1].is_blocked;
+				if (sum == 0 || sum == 4)
+					printf("%s", !tiles[j + 1][i].is_blocked ? "┼" : " ");
+				else if (sum == 3)
+					printf("┼");
+				else if (sum == 2) {
+					if (!(tiles[j][i - 1].is_blocked + tiles[j + 1][i].is_blocked) ||
+						!(tiles[j][i].is_blocked + tiles[j + 1][i - 1].is_blocked))
+						printf("┼");
+					else if (!tiles[j + 1][i].is_blocked)
+						printf("%s", (!tiles[j][i].is_blocked) ? "├" : "┬");
+					else
+						printf("%s", tiles[j][i].is_blocked ? "┤" : "┴");
+				}
+				else {
+					if ((tiles[j + 1][i].is_blocked + tiles[j + 1][i - 1].is_blocked) == 1)
+						printf("%s", tiles[j + 1][i].is_blocked ? "┐" : "┌");
+					else
+						printf("%s", tiles[j + 1][i].is_blocked ? "└" : "┘");
+				}
+				printf("%s", (!tiles[j + 1][i].is_blocked + !tiles[j][i].is_blocked) ? "──" : "  ");
+			}
+		}
+	}
+	int j = board->height - 1;
+	for (int i = 0; i < (board->width + 1); i++) {
+		if (i == 0)
+			printf("%s", !tiles[j][0].is_blocked ? "└──" : "   " );
+		else if (i == board->width)
+			printf("%s", !tiles[j][i - 1].is_blocked ? "─┘" : "  " );
+		else {
+			printf("%s", (!tiles[j][i - 1].is_blocked) ? "─" : " ");
+			if (tiles[j][i - 1].is_blocked + tiles[j][i].is_blocked == 1)
+				printf("%s", (tiles[j][i].is_blocked) ? "┘" : "└");
+			else
+				printf("%s", (tiles[j][i].is_blocked) ? " " : "┴");
+			printf("%s", (!tiles[j][i].is_blocked) ? "──" : "  ");
+		}
+	}
+	printf("\n%*s", PROMO_OFFSET, "");
 	for (int i = 0; i < board->height; i++)
 		printf("%s%s", CURSOR_UP, CURSOR_UP);
 	for (int j = 0; j < board->height; j++) {
@@ -86,6 +152,8 @@ void	print_board(board_t	*board) {
 			for (int k = 0; k < i; k++)
 				printf("%s%s%s%s", CURSOR_RIGHT, CURSOR_RIGHT, CURSOR_RIGHT, CURSOR_RIGHT);
 			piece_t	*piece = tile->pieces[0];
+			if (piece->color == BOARD)
+				continue ;
 			for (int k = 0; k < tile->nb_piece; k++) {
 				piece_t	*temp_piece = tile->pieces[k];
 				if (temp_piece->type == KING && temp_piece->is_targeted == 1) {

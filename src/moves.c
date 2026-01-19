@@ -145,6 +145,8 @@ void	highlight_board(board_t *board, int y, int x)
 		printf("\r%*s%s%s", PROMO_OFFSET, "", CURSOR_RIGHT, CURSOR_RIGHT);
 		for (int i = 0; i < board->width; i++) {
 			piece_t	*piece = get_tile_piece(board, j, i);
+			if (piece && piece->color == BOARD)
+				piece = NULL;
 			if (board->possible_locations[j][i])
 				printf("%s", BLUE_BG);
 			else if (piece && piece->type == KING && piece->is_targeted)

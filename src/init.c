@@ -1,5 +1,71 @@
 #include "cheese.h"
 
+void	create_board_piece(char c, piece_t *dest) {
+	dest->color = BOARD;
+	switch (c) {
+		case '#':
+			dest->type = BLOCK;
+			dest->block_tile = 1;
+			dest->invincible = 1;
+			strcpy(dest->character, "#");
+			break ;
+		default:
+			exit(1);
+	}
+}
+
+piece_t	*create_player_piece(char piece, int index) {
+	piece_t	*dest = calloc(1, sizeof(piece_t));
+	if (!dest)
+		exit(1);
+
+	dest->color = WHITE;
+	if (piece >= 'a' && piece <= 'z') {
+		dest->color = BLACK;
+		piece -= 32;
+	}
+
+	dest->piece_id = index;
+	dest->max_hp = 1;
+	dest->hp = dest->max_hp;
+	dest->simu_hp = dest->max_hp; //TODO remove hardcoding
+	dest->attack_power = 1;
+	dest->nb_move = 1;
+
+	switch (piece) {
+		case 'P':
+			dest->type = PAWN;
+			strcpy(dest->character, "♙");
+			break ;
+		case 'R':
+			dest->type = ROOK;
+			strcpy(dest->character, "♖");
+			break ;
+		case 'N':
+			dest->type = KNIGHT;
+			strcpy(dest->character, "♘");
+			break ;
+		case 'B':
+			dest->type = BISHOP;
+			strcpy(dest->character, "♗");
+			break ;
+		case 'Q':
+			dest->type = QUEEN;
+			strcpy(dest->character, "♕");
+			break ;
+		case 'K':
+			dest->type = KING;
+			strcpy(dest->character, "♔");
+			break ;
+		default:
+			create_board_piece(piece, dest);
+			break ;
+	};
+	if (dest->color == BLACK)
+		dest->character[2] += "♚"[2] - "♔"[2];
+	return (dest);
+}
+
 void	prepare_tile(board_t *board, char piece, int j, int i) {
 	tile_t	*cur_tile = &board->tiles[j][i];
 	board->pieces = realloc(board->pieces, sizeof(piece_t *) * (board->nb_piece + 2));
@@ -11,14 +77,12 @@ void	prepare_tile(board_t *board, char piece, int j, int i) {
 	if (!cur_tile->pieces)
 		print_error("Malloc error for tile->pieces", 1);
 
-	piece_t	*new_piece = create_piece(piece, board->nb_piece);
+	piece_t	*new_piece = create_player_piece(piece, board->nb_piece);
+	if (new_piece->block_tile) {
+		cur_tile->is_blocked = 1;
+	}
 	new_piece->y = j;
 	new_piece->x = i;
-	new_piece->hp = 2;
-	new_piece->simu_hp = new_piece->hp; //TODO remove hardcoding
-	new_piece->attack_power = 1;
-	new_piece->nb_move = 2;
-
 	board->pieces[board->nb_piece] = new_piece;
 	board->pieces[++board->nb_piece] = NULL;
 
@@ -40,7 +104,7 @@ void	init_tiles(char *board_str, board_t *board)
 
 	board->nb_piece = 0;
 	for (int j = 0; j < board->height; j++) {
-		board->tiles[j] = malloc((board->width + 1) * sizeof(tile_t));
+		board->tiles[j] = calloc((board->width + 1), sizeof(tile_t));
 		for (int i = 0; i < board->width; i++) {
 			tile_t	*tile = &board->tiles[j][i];
 			tile->y = j;
@@ -101,7 +165,7 @@ void	init_possible_boards(board_t *board)
 		for (int j = 0; j < board->height; j++) {
 			possible_map[j] = malloc((board->width + 1) * sizeof(char *));
 			possible_copy[j] = malloc((board->width + 1) * sizeof(char *));
-			location_map[j] = malloc((board->width + 1) * sizeof(char *));
+			location_map[j] = malloc((board->width + 1) * sizeof(char));
 			if (!possible_map[j] || !location_map[j] || !possible_copy[j])
 				print_error("Malloc error for possible/location_map[j]", 1);
 			for (int i = 0; i < board->width; i++) {
