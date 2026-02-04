@@ -9,7 +9,7 @@ LD = gcc
 LIBS_INCLUDE = -Ioeuf/ -Ionion/include
 LIBS = liboeuf.a libonion.a
 CFLAGS = -Wall -Wextra -Iinclude $(LIBS_INCLUDE) -g -rdynamic
-LDFLAGS = -rdynamic -ldl
+LDFLAGS = -rdynamic -Wl,--no-as-needed -ldl -lpthread
 
 NAME = cheese
 
