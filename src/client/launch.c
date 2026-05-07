@@ -6,7 +6,7 @@ client_data_t clt = {0};
 void launch_client(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
-	signal(SIGINT, SIG_IGN);
+	//signal(SIGINT, SIG_IGN);
 	signal(SIGTSTP, SIG_IGN);
 	if (clt_init(argc, argv))
 		return ;
@@ -14,7 +14,7 @@ void launch_client(int argc, char **argv) {
 	save_tty();
 	terminal_set_screen(1);
 
-	terminal_set_ctrl_key('C', 0);
+	terminal_set_ctrl_key('C', 1);
 	terminal_set_ctrl_key('D', 0);
 	terminal_set_ctrl_key('\\', 0);
 

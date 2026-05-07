@@ -40,7 +40,24 @@ static void do_button(int state) {
 		clt.menu = NULL;
 }
 
+void test() {
+	mtx_lock(&clt.lock);
+	send(clt.fd, "\x01\x00\x00\x00\x00\x00", 6, 0);
+	mtx_unlock(&clt.lock);
+	while (1) {
+		client_event_t ev;
+		clt_get_event(&ev);
+		if (ev.type == CLT_EVENT_NONE) {
+			usleep(1000 * 5);
+			continue;
+		}
+		printf("ev %d %d\n", ev.type, ev.error);
+		clt_event_free(&ev);
+	}
+}
+
 void clt_main_menu() {
+	test();
 	int width = 0;
 	int height = 0;
 	terminal_get_size(&width, &height);

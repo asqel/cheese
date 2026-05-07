@@ -68,7 +68,7 @@ int clt_init(int argc, char **argv) {
 		return 1;
 	}
 
-	mtx_init(&clt.fd_lock, mtx_plain);
-	thrd_create(&clt.thread, clt_ping_thread, NULL);
+	mtx_init(&clt.lock, mtx_plain);
+	thrd_create(&clt.thread, clt_recv_thread, NULL);
 	return 0;
 }
