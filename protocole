@@ -133,3 +133,23 @@ game_loop:
 	8: goto 5
 
 
+### ecnryption algorithm for s->c is argon2id (client doesnt know if it successfully deciphered) (anti offline)
+
+how to create an account:
+	client:
+		s = random 512 bit
+		c = crypt(s, password)
+		send to server (s, c)
+	
+how to connect to account:
+	server:
+		send to client c
+	
+	client:
+		s' = uncrypt(c, password)
+		send to server s'
+	
+	server:
+		verify
+
+

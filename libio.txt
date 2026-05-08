@@ -1,0 +1,13 @@
+
+init(do_read_stdin):
+	start thread
+	settup client temp key
+
+get_event(timeout_ms):
+
+
+thread:
+	alarm(10s)
+	poll(sock [, stdin])
+	if alarm:
+		send ping
