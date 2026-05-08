@@ -1,0 +1,16 @@
+piece:
+  id: K
+  char: ♔
+  hp: 1
+  nb_move: 1
+  color: white
+  default_move: move_king
+
+piece:
+  id: k
+  char: ♚
+  hp: 1
+  nb_move: 1
+  color: black
+  default_move: move_king
+

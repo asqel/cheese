@@ -1,0 +1,74 @@
+piece:
+  id: K
+  char: ♔
+  color: 1
+  is_king: 1
+  default_move: move_king
+
+piece:
+  id: Q
+  char: ♕ 
+  color: 1
+  default_move: move_queen
+
+piece:
+  id: R
+  char: ♖
+  color: 1
+  default_move: move_rook
+
+piece:
+  id: B
+  char: ♗
+  color: 1
+  default_move: move_bishop
+
+piece:
+  id: N
+  char: ♘
+  color: 1
+  default_move: move_knight
+
+piece:
+  id: P
+  char: ♙
+  color: 1
+  default_move: move_pawn
+
+piece:
+  id: k
+  char: ♚
+  is_king: 1
+  color: 2
+  default_move: move_king
+
+piece:
+  id: q
+  char: ♛
+  color: 2
+  default_move: move_queen
+
+piece:
+  id: r
+  char: ♜
+  color: 2
+  default_move: move_rook
+
+piece:
+  id: b
+  char: ♝
+  color: 2
+  default_move: move_bishop
+
+piece:
+  id: n
+  char: ♞
+  color: 2
+  default_move: move_knight
+
+piece:
+  id: p
+  char: ♟
+  color: 2
+  default_move: move_pawn
+

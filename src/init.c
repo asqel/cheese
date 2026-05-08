@@ -1,6 +1,25 @@
 #include "cheese.h"
 
-void	create_board_piece(char c, piece_t *dest) {
+piece_t	*create_new_piece(char id);
+
+board_t	*clone_board(board_t *board) {
+	board_t	*dest = malloc(sizeof(board_t));
+
+	*dest = *board;
+	dest->occupied_map = NULL;
+	dest->tiles = malloc((dest->height + 1) * sizeof(tile_t *));
+	if (!dest->tiles)
+		exit(1);
+	for (int j = 0; j < dest->height; j++) {
+		dest->tiles[j] = malloc(dest->width * sizeof(tile_t));
+		if (!dest->tiles[j])
+			exit(1);
+	}
+	dest->tiles[dest->height] = NULL;
+	return (dest);
+}
+
+/*void	create_board_piece(char c, piece_t *dest) {
 	dest->color = BOARD;
 	switch (c) {
 		case '#':
@@ -12,58 +31,12 @@ void	create_board_piece(char c, piece_t *dest) {
 		default:
 			exit(1);
 	}
-}
+}*/
 
-piece_t	*create_player_piece(char piece, int index) {
-	piece_t	*dest = calloc(1, sizeof(piece_t));
-	if (!dest)
-		exit(1);
-
-	dest->color = WHITE;
-	if (piece >= 'a' && piece <= 'z') {
-		dest->color = BLACK;
-		piece -= 32;
-	}
-
-	dest->piece_id = index;
-	dest->max_hp = 1;
-	dest->hp = dest->max_hp;
-	dest->simu_hp = dest->max_hp; //TODO remove hardcoding
-	dest->attack_power = 1;
-	dest->nb_move = 1;
-
-	switch (piece) {
-		case 'P':
-			dest->type = PAWN;
-			strcpy(dest->character, "♙");
-			break ;
-		case 'R':
-			dest->type = ROOK;
-			strcpy(dest->character, "♖");
-			break ;
-		case 'N':
-			dest->type = KNIGHT;
-			strcpy(dest->character, "♘");
-			break ;
-		case 'B':
-			dest->type = BISHOP;
-			strcpy(dest->character, "♗");
-			break ;
-		case 'Q':
-			dest->type = QUEEN;
-			strcpy(dest->character, "♕");
-			break ;
-		case 'K':
-			dest->type = KING;
-			strcpy(dest->character, "♔");
-			break ;
-		default:
-			create_board_piece(piece, dest);
-			break ;
-	};
-	if (dest->color == BLACK)
-		dest->character[2] += "♚"[2] - "♔"[2];
-	return (dest);
+piece_t	*create_player_piece(char piece, int index)
+{
+	(void)index;
+	return (create_new_piece(piece));
 }
 
 void	prepare_tile(board_t *board, char piece, int j, int i) {
@@ -78,17 +51,17 @@ void	prepare_tile(board_t *board, char piece, int j, int i) {
 		print_error("Malloc error for tile->pieces", 1);
 
 	piece_t	*new_piece = create_player_piece(piece, board->nb_piece);
-	if (new_piece->block_tile) {
+	/*if (new_piece->type->block_tile) {
 		cur_tile->is_blocked = 1;
-	}
+	}*/
 	new_piece->y = j;
 	new_piece->x = i;
 	board->pieces[board->nb_piece] = new_piece;
 	board->pieces[++board->nb_piece] = NULL;
 
-	board->players[new_piece->color].nb_piece++;
-	if (new_piece->type == KING)
-		board->players[new_piece->color].nb_kings++;
+	board->players[new_piece->type->color].nb_piece++;
+	if (new_piece->type->is_king)
+		board->players[new_piece->type->color].nb_kings++;
 	cur_tile->pieces[cur_tile->nb_piece++] = new_piece;
 }
 
@@ -153,35 +126,28 @@ void	init_possible_boards(board_t *board)
 	board->default_locations[board->height] = NULL;
 	for (int p = 0; p < board->nb_piece; p++) {
 		char	***possible_map = NULL;
-		char	***possible_copy = NULL;
 		char	**location_map = NULL;
 
 		possible_map = malloc((board->height + 1) * sizeof(char **));
-		possible_copy = malloc((board->height + 1) * sizeof(char **));
 		location_map = malloc((board->height + 1) * sizeof(char *));
-		if (!possible_map || !location_map || !possible_copy)
+		if (!possible_map || !location_map)
 			print_error("Malloc error for possible/location_map", 1);
 
 		for (int j = 0; j < board->height; j++) {
 			possible_map[j] = malloc((board->width + 1) * sizeof(char *));
-			possible_copy[j] = malloc((board->width + 1) * sizeof(char *));
 			location_map[j] = malloc((board->width + 1) * sizeof(char));
-			if (!possible_map[j] || !location_map[j] || !possible_copy[j])
+			if (!possible_map[j] || !location_map[j])
 				print_error("Malloc error for possible/location_map[j]", 1);
 			for (int i = 0; i < board->width; i++) {
 				possible_map[j][i] = malloc(board->nb_piece * sizeof(char));
-				possible_copy[j][i] = malloc(board->nb_piece * sizeof(char));
-				if (!possible_map[j][i] || !possible_copy[j][i])
+				if (!possible_map[j][i])
 					print_error("Malloc error for possible_map[j][i]", 1);
 				possible_map[j][board->width] = NULL;
-				possible_copy[j][board->width] = NULL;
 			}
 		}
 		possible_map[board->height] = NULL;
-		possible_copy[board->height] = NULL;
 		location_map[board->height] = NULL;
 		board->pieces[p]->possible_moves = possible_map;
-		board->pieces[p]->copy_moves = possible_copy;
 		board->pieces[p]->possible_locations = location_map;
 	}
 }
@@ -225,6 +191,9 @@ void	init_board(char *filepath, board_t *board)
 	}
 	init_tiles(board_str, board);
 	init_possible_boards(board);
+	for (int i = 1; i < (board->nb_player + 1); i++) {
+		if (board->players[i].nb_kings == 0)
+			board->players[i].nb_kings = board->players[i].nb_piece;
+	}
 	free(board_str);
-	board->copy_board = clone_board(board);
 }
