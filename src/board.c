@@ -152,7 +152,7 @@ void	print_board(board_t	*board) {
 			for (int k = 0; k < i; k++)
 				printf("%s%s%s%s", CURSOR_RIGHT, CURSOR_RIGHT, CURSOR_RIGHT, CURSOR_RIGHT);
 			piece_t	*piece = tile->pieces[0];
-			if (piece->color == BOARD)
+			if (piece->type->color == BOARD)
 				continue ;
 			for (int k = 0; k < tile->nb_piece; k++) {
 				piece_t	*temp_piece = tile->pieces[k];
@@ -161,7 +161,7 @@ void	print_board(board_t	*board) {
 					break ;
 				}
 			}
-			printf("%s%s", piece->character, BLACK_BG);
+			printf("%s%s", piece->type->character, BLACK_BG);
 		}
 		for (int i = 0; i < j; i++)
 			printf("%s%s", CURSOR_UP, CURSOR_UP);
@@ -209,7 +209,7 @@ int	play(board_t *board)
 		print_end_message(board, msg);
 		return (1);
 	}
-	if (board->special_tile) {
+	/*if (board->special_tile) {
 		print_board(board);
 		tile_t	*promo_tile = (tile_t *)board->special_tile;
 		piece_t *ref = promo_tile->pieces[promo_tile->nb_piece - 1];
@@ -219,7 +219,7 @@ int	play(board_t *board)
 		strcpy(ref->character, "♔");
 		ref->character[2] += new_piece_type + ((ref->color - 1) * 6);
 		board->special_tile = NULL;
-	}
+	}*/
 	update_possible_moves(board, -1, -1);
 	for (int i = 1; i < (board->nb_player + 1); i++) {
 		board->players[i].king_in_check = king_in_check(board, board->players[i].color);
@@ -227,7 +227,7 @@ int	play(board_t *board)
 		int	can_move = 0;
 		for (int p = 0; p < board->nb_piece; p++) {
 			piece_t	*cur = board->pieces[p];
-			if (cur->is_dead || cur->color != color || !cur->can_move)
+			if (cur->is_dead || cur->type->color != color || !cur->can_move)
 				continue ;
 			can_move = 1;
 			break ;
@@ -270,14 +270,16 @@ int	play(board_t *board)
 				}
 				else if (confirm && (board->debug || board->possible_locations[y][x])) {
 					//TODO make sure the nb of piece doesn't go over MAX_PIECE
-					for (int i = 0; i < board->selected_piece->nb_move; i++) {
+					for (int i = 0; i < board->selected_piece->type->nb_move; i++) {
 						board->selector.target_id = 0;
 						if (board->tiles[y][x].nb_piece > 1)
 							board->selector.target_id =
 								choose_target_piece(board, board->selected_piece,
 									&board->tiles[y][x]);
-						move_piece(board, y, x);
-						if (i != (board->selected_piece->nb_move - 1)) {
+						board->selector.target_y = y;
+						board->selector.target_x = x;
+						default_move_piece(board);
+						if (i != (board->selected_piece->type->nb_move - 1)) {
 							board->selected_piece->can_move = simulate_piece(board, board->selected_piece);
 							if (!board->selected_piece->can_move)
 								break ;

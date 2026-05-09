@@ -1,0 +1,71 @@
+default:
+  color: 1
+  is_cannibal: 1
+  hp: 2
+
+piece:
+  id: K
+  char: ♔
+  is_king: 1
+  default_move: move_king
+
+piece:
+  id: Q
+  char: ♕ 
+  default_move: move_queen
+
+piece:
+  id: R
+  char: ♖
+  hp: 2
+  default_move: move_rook
+
+piece:
+  id: B
+  char: ♗
+  default_move: move_bishop
+
+piece:
+  id: N
+  char: ♘
+  default_move: move_knight
+
+piece:
+  id: P
+  char: ♙
+  default_move: move_pawn
+
+default:
+  color: 2
+
+piece:
+  id: k
+  char: ♚
+  is_king: 1
+  default_move: move_king
+
+piece:
+  id: q
+  char: ♛
+  default_move: move_queen
+
+piece:
+  id: r
+  char: ♜
+  hp: 2
+  default_move: move_rook
+
+piece:
+  id: b
+  char: ♝
+  default_move: move_bishop
+
+piece:
+  id: n
+  char: ♞
+  default_move: move_knight
+
+piece:
+  id: p
+  char: ♟
+  default_move: move_pawn
