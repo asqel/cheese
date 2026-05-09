@@ -56,6 +56,7 @@ void	prepare_tile(board_t *board, char piece, int j, int i) {
 	}*/
 	new_piece->y = j;
 	new_piece->x = i;
+	new_piece->cur_tile = cur_tile;
 	board->pieces[board->nb_piece] = new_piece;
 	board->pieces[++board->nb_piece] = NULL;
 
@@ -84,7 +85,6 @@ void	init_tiles(char *board_str, board_t *board)
 			tile->x = i;
 			tile->color = (i + j) % 2;
 			tile->nb_piece = 0;
-			tile->tile_type = REAL_TILE;
 			tile->pieces = NULL;
 		}
 		if (!board->tiles[j])

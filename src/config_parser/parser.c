@@ -1,7 +1,5 @@
 #include "cheese.h"
 
-piece_type_t *update_current_piece(char *line, size_t line_size);
-
 static piece_type_t **piece_types = NULL;
 
 void update_element(char current_read, char *line_ptr, size_t read)
@@ -10,7 +8,10 @@ void update_element(char current_read, char *line_ptr, size_t read)
 
 	switch (current_read) {
 		case 'p':
-			res = update_current_piece(line_ptr, read);
+			res = update_current_piece(line_ptr, read, 0);
+			break ;
+		case 'd':
+			res = update_current_piece(line_ptr, read, 1);
 			break ;
 	}
 	if (!res)
@@ -39,6 +40,7 @@ void parse_config_file(char *filepath)
 	if (!fp)
 		exit(1);
 
+	init_default_config(NULL);
 	while ((read = getline(&line_ptr, &buffer_limit, fp)) != -1) {
 		if (read <= 1)
 			continue ;
@@ -56,16 +58,11 @@ void parse_config_file(char *filepath)
 		update_element(current_read, line_ptr, read);
 		if (!strcmp(line_ptr, "piece:"))
 			current_read = 'p';
+		else if (!strcmp(line_ptr, "default:"))
+			current_read = 'd';
 	}
 	update_element(current_read, 0, 0);
 	free(line_ptr);
 	fclose(fp);
-	config_file.piece_types = piece_types;
+	g_config_file.piece_types = piece_types;
 }
-
-/*int main(void)
-{
-	char *filepath = "config_template.yml";
-
-	parse_config_file(filepath);
-}*/

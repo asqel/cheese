@@ -27,6 +27,7 @@
 #define RED_BG		"\033[41m"
 
 typedef struct {
+	piece_type_t default_conf;
 	piece_type_t **piece_types;
 } config_file_t;
 
@@ -56,6 +57,11 @@ int		promo_menu(int y, int color, board_t *board);
 int		choose_tile_piece_menu(board_t *board, tile_t *tile, int color);
 int		choose_target_piece(board_t *board, piece_t *src, tile_t *target_tile);
 void	update_logs(board_t *board, piece_t *piece, piece_t *target);
+
+//config files
+void parse_config_file(char *filepath);
+void init_default_config(piece_type_t *piece);
+piece_type_t *update_current_piece(char *line, size_t line_size, int is_default);
 
 //simulations
 void	sync_boards(board_t *cpy, board_t *src);
@@ -101,6 +107,6 @@ void terminal_draw_strarr(char **str, int x, int y, int flush);
 void terminal_set_flush(int state);
 void terminal_draw_strarr_centered(char **str, int y, int flush);
 
-extern config_file_t config_file;
+extern config_file_t g_config_file;
 
 #endif

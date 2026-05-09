@@ -20,21 +20,17 @@ typedef struct player_s
 }	player_t;
 
 typedef struct {
-	int			origin_x;
-	int			origin_y;
-	int			origin_id;
-	int			target_x;
-	int			target_y;
-	int			target_id;
+	int		origin_x;
+	int		origin_y;
+	int		origin_id;
+	int		target_x;
+	int		target_y;
+	int		target_id;
 }	selector_t;
 
-enum tile_types {
-	REAL_TILE,
-	MODIFIED_TILE,
-	COPY_TILE
-};
-
 struct piece_s;
+struct tile_s;
+
 typedef struct {
 	int	piece_type_id;
 	int attack_power;
@@ -47,10 +43,15 @@ typedef struct {
 	char is_king;
 	char id;
 	int (*default_move_func)(void *board, struct piece_s *target, int x, int y);
+	void (*default_hurt_func)(void *board, struct piece_s *myself, struct piece_s *attacker);
+	void (*default_attack_func)(void *board, struct piece_s *myself, struct piece_s *victim);
+	void (*default_death_func)(void *board, struct piece_s *myself, struct piece_s *attacker);
+	void (*default_kill_func)(void *board, struct piece_s *myself, struct piece_s *victim);
 } piece_type_t;
 
 typedef struct piece_s {
 	piece_type_t	*type;
+	struct tile_s	*cur_tile;
 	uint16_t		piece_id;
 	uint16_t		x; //TODO add support
 	uint16_t		y;
@@ -73,7 +74,6 @@ typedef struct {
 	int			y;
 	int			color;
 	int			nb_piece;
-	int			tile_type;
 	int			is_blocked;
 	int			is_targeted;
 	piece_t		**pieces;
@@ -126,7 +126,7 @@ typedef struct board_s
 int	max(int a, int b);
 int	min(int a, int b);
 
-void default_move_piece(board_t *board, int y, int x);
+void default_move_piece(board_t *board);
 void default_evaluate_move(board_t *board, piece_t *target, int y, int x, int *valid_move);
 piece_t	*get_tile_piece(board_t *board, int y, int x);
 void reset_possible_moves(board_t *board);

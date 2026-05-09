@@ -4,7 +4,7 @@
 #include <signal.h>
 
 void *libpiss_handler;
-config_file_t config_file;
+config_file_t g_config_file;
 
 static void lexit(void) {
 	printf("\e[?1049l");
@@ -41,9 +41,9 @@ void launch_gabriel(int argc, char **argv) {
 		if (play(&board))
 			break ;
 	}
-	for (int i = 0; config_file.piece_types[i]; i++)
-		free(config_file.piece_types[i]);
-	free(config_file.piece_types);
+	for (int i = 0; g_config_file.piece_types[i]; i++)
+		free(g_config_file.piece_types[i]);
+	free(g_config_file.piece_types);
 
 	dlclose(libpiss_handler);
 	for (int i = 0; i < board.nb_piece; i++) {

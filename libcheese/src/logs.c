@@ -39,9 +39,6 @@ void	update_logs(board_t *board, piece_t *piece, piece_t *target)
 		fprintf(stderr, "\e[?1049lMismatched position\n");
 		exit(1);
 	}*/
-	piece->x = move->target_x;
-	piece->y = move->target_y;
-	piece->tile_id = board->tiles[piece->y][piece->x].nb_piece - 1;
 	if (logs->nb_move >= MAX_LOG) {
 		fprintf(stderr, "\e[?1049lYOUR TAKING TOO LONG\n");
 		exit(1);

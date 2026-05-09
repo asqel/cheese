@@ -10,4 +10,7 @@ int	move_knight(board_t *board, piece_t *target, int y, int x);
 int	move_queen(board_t *board, piece_t *target, int y, int x);
 int	move_pawn(board_t *board, piece_t *target, int y, int x);
 
+void im_hurt(board_t *board, piece_t *myself, piece_t *attacker);
+void im_dead(board_t *board, piece_t *myself, piece_t *attacker);
+
 #endif

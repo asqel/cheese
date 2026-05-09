@@ -3,8 +3,8 @@
 piece_t	*create_new_piece(char id)
 {
 	int i = -1;
-	while (config_file.piece_types[++i]) {
-		piece_type_t *cur_type = config_file.piece_types[i];
+	while (g_config_file.piece_types[++i]) {
+		piece_type_t *cur_type = g_config_file.piece_types[i];
 		if (cur_type->id != id)
 			continue ;
 		piece_t *dest = calloc(1, sizeof(piece_t));

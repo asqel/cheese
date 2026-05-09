@@ -20,9 +20,8 @@ int	move_bishop(board_t *board, piece_t *target, int y, int x)
 			tile = &board->tiles[target_y][target_x];
 			if (board->debug)
 				default_evaluate_move(board, target, target_y, target_x, &valid_move);
-			if (!board->debug && tile->nb_piece) {
-				if (get_nb_pieces_on_tile(tile, -target->type->color))
-					default_evaluate_move(board, target, target_y, target_x, &valid_move);
+			if (tile->nb_piece) {
+				default_evaluate_move(board, target, target_y, target_x, &valid_move);
 				break ;
 			}
 			default_evaluate_move(board, target, target_y, target_x, &valid_move);

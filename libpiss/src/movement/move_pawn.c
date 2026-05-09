@@ -21,7 +21,7 @@ int	move_pawn(board_t *board, piece_t *target, int y, int x)
 			if (!board->tiles[y + vert_goal * 2][x].nb_piece)
 				default_evaluate_move(board, target, y + vert_goal * 2, x, &valid_move);
 		}
-		else if (i && tile->nb_piece && get_nb_pieces_on_tile(tile, -target->type->color))
+		else if (i && tile->nb_piece)
 			default_evaluate_move(board, target, y + vert_goal, x + i, &valid_move);
 		else if (i && !tile->nb_piece) {
 			tile_t	*passant_tile = &board->tiles[y][x + i];

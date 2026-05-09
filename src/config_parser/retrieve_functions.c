@@ -5,6 +5,9 @@ extern void *libpiss_handler;
 
 void *retrieve_function(char *func_name)
 {
+	if (func_name == NULL)
+		return (NULL);
+
 	void *function = dlsym(libpiss_handler, func_name);
 	char *error = dlerror();
 

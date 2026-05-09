@@ -1,5 +1,7 @@
-SRC = $(wildcard src/*.c)
+SRC = $(wildcard src/*.c src/*/*.c)
 OBJ = $(SRC:.c=.o)
+OBJ := $(OBJ:src/%=%)
+OBJ := $(addprefix obj/, $(OBJ))
 
 CC = gcc
 LD = gcc
@@ -19,11 +21,12 @@ $(NAME_SO): $(OBJ)
 $(NAME_A): $(OBJ)
 	ar rcs $@ $^
 
-%.o: %.c
+obj/%.o: src/%.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(OBJ)
+	rm -rf obj/
 
 fclean: clean
 	rm -rf $(NAME_A) $(NAME_SO)
