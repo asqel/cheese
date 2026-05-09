@@ -43,8 +43,8 @@ void	default_move_piece(board_t *board, int y, int x)
 	piece_t	*target_piece = NULL;
 
 	piece_t *new_piece = simple_move(board, s->origin_y, s->origin_x, s->target_y, s->target_x);
-	if (target_tile->nb_piece &&
-		selected_piece->type->color != target_tile->pieces[s->target_id]->type->color) {
+	if ((target_tile->nb_piece > 1) && (selected_piece->type->is_cannibal || 
+		selected_piece->type->color != target_tile->pieces[s->target_id]->type->color)) {
 		target_piece = target_tile->pieces[s->target_id];
 		remove_piece(target_tile, s->target_id, board, 0, selected_piece->attack_power);
 	}

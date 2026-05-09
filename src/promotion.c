@@ -45,7 +45,8 @@ int	choose_piece(int limit_x, int limit_y)
 	}
 }
 
-int	choose_target_piece(board_t *board, piece_t *src, tile_t *target_tile) {
+int	choose_target_piece(board_t *board, piece_t *src, tile_t *target_tile)
+{
 	int	nb_pieces = 0;
 	int board_cursor_y, board_cursor_x;
 	int	menu_x, menu_y;

@@ -15,6 +15,8 @@ piece:
   id: R
   char: ♖
   color: 1
+  hp: 2
+  is_cannibal: 1
   default_move: move_rook
 
 piece:
@@ -52,6 +54,7 @@ piece:
   id: r
   char: ♜
   color: 2
+  hp: 2
   default_move: move_rook
 
 piece:

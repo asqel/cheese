@@ -43,6 +43,7 @@ typedef struct {
 	int color;
 	char character[5];
 	char name[8];
+	char is_cannibal;
 	char is_king;
 	char id;
 	int (*default_move_func)(void *board, struct piece_s *target, int x, int y);

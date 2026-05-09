@@ -8,7 +8,7 @@ int	move_rook(board_t *board, piece_t *target, int y, int x)
 	int		x_moves[] = {0, 0, -1, 1};
 	int		target_y, target_x;
 
-	if (get_nb_pieces_on_tile(&board->tiles[y][x], -target->type->color))
+	if (board->tiles[y][x].nb_piece > 1)
 		default_evaluate_move(board, target, y, x, &valid_move);
 	for (size_t i = 0; i < (sizeof(y_moves) / sizeof(y_moves[0])); i++) {
 		target_y = y;
@@ -23,8 +23,7 @@ int	move_rook(board_t *board, piece_t *target, int y, int x)
 			if (board->debug)
 				default_evaluate_move(board, target, target_y, target_x, &valid_move);
 			else if (tile->nb_piece) {
-				if (get_nb_pieces_on_tile(tile, -target->type->color))
-					default_evaluate_move(board, target, target_y, target_x, &valid_move);
+				default_evaluate_move(board, target, target_y, target_x, &valid_move);
 				break ;
 			}
 			default_evaluate_move(board, target, target_y, target_x, &valid_move);

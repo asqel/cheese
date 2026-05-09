@@ -45,6 +45,8 @@ static int handle_attributes_adding(piece_type_t *piece, char *key, char *value)
 		piece->default_move_func = retrieve_function(value);
 	else if (!strcmp(key, "is_king"))
 		piece->is_king = safe_atoi(value, 2, &res);
+	else if (!strcmp(key, "is_cannibal"))
+		piece->is_cannibal = safe_atoi(value, 2, &res);
 	else {
 		fprintf(stderr, "Warning: unrecognized token `%s'\n", key);
 		res = 1;
@@ -70,9 +72,10 @@ piece_type_t *update_current_piece(char *line, size_t line_size)
 		if (!cur_piece)
 			exit(1);
 		cur_piece->is_king = 0; //TODO defaults
+		cur_piece->is_cannibal = 0;
 		cur_piece->attack_power = 1;
 		cur_piece->nb_move = 1;
-		cur_piece->max_hp = 1;
+		cur_piece->max_hp = 2;
 	}
 
 	key = line;
