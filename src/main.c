@@ -60,10 +60,10 @@ void launch_gabriel(int argc, char **argv) {
 }
 
 int	main(int argc, char **argv) {
-	load_libpiss();
-	parse_config_file("config_template.yml");
 	//return (0);
 	if (argc == 1) {
+		load_libpiss();
+		parse_config_file("config_template.yml");
 		launch_gabriel(0, NULL);
 		return 0;
 	}
