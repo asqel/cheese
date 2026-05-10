@@ -18,13 +18,6 @@ void	update_logs(board_t *board, piece_t *piece, piece_t *target)
 	move_infos_t	*move = &logs->color_logs[piece_color][logs->color_moves[piece_color]];
 
 	logs->last_color_played = piece_color;
-	piece->move_counter++;
-	if (target && target->hp <= 0) {
-		if (target->type->is_king)
-			board->players[target->type->color].nb_kings--;
-		piece->kill_count++;
-		target->is_dead = 1;
-	}
 	move->piece = piece;
 	move->color = piece_color;
 	move->target_piece = target;

@@ -2,6 +2,15 @@
 
 piece_t	*create_new_piece(char id);
 
+static int count_line_backslash(char *line)
+{
+	int count = 0;
+	for (size_t i = 0; i < strlen(line); i++)
+		if (line[i] == '\\')
+			count++;
+	return (count);
+}
+
 board_t	*clone_board(board_t *board) {
 	board_t	*dest = malloc(sizeof(board_t));
 
@@ -51,6 +60,10 @@ void	prepare_tile(board_t *board, char piece, int j, int i) {
 		print_error("Malloc error for tile->pieces", 1);
 
 	piece_t	*new_piece = create_player_piece(piece, board->nb_piece);
+	if (new_piece == NULL) {
+		fprintf(stderr, "Error: error creating piece with id `%c'\n", piece);
+		exit(1);
+	}
 	/*if (new_piece->type->block_tile) {
 		cur_tile->is_blocked = 1;
 	}*/
@@ -92,12 +105,21 @@ void	init_tiles(char *board_str, board_t *board)
 
 		int i = 0;
 		while (*board_str && *board_str != '\n') {
-			char	cur_piece = *board_str++;
-
+			char goto_next_tile = 0;
+			
+			while (!goto_next_tile) {
+				char cur_piece = *board_str++;
+				if (cur_piece == ' ') {
+					goto_next_tile = 1;
+					continue ;
+				}
+				prepare_tile(board, cur_piece, j, i);
+				if (*board_str != '\\')
+					goto_next_tile = 1;
+				else
+					board_str++;
+			}
 			i++;
-			if (cur_piece == ' ')
-				continue ;
-			prepare_tile(board, cur_piece, j, i - 1);
 		}
 		board_str++;
 	}
@@ -169,6 +191,8 @@ void	init_board(char *filepath, board_t *board)
 
 		board_str = strjoin(board_str, line);
 		board->height++;
+
+		line_len -= count_line_backslash(line) * 2;
 		board->width = max(board->width, line_len - 1);
 		free(line);
 		line = NULL;

@@ -278,7 +278,7 @@ int	play(board_t *board)
 									&board->tiles[y][x]);
 						board->selector.target_y = y;
 						board->selector.target_x = x;
-						default_move_piece(board);
+						start_move(board);
 						if (i != (board->selected_piece->type->nb_move - 1)) {
 							board->selected_piece->can_move = simulate_piece(board, board->selected_piece);
 							if (!board->selected_piece->can_move)

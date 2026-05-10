@@ -1,7 +1,10 @@
-SRC = $(wildcard src/*.c src/*/*.c)
+SRC_DIR = src
+OBJ_DIR = obj
+
+SRC = $(wildcard $(SRC_DIR)/*.c $(SRC_DIR)/*/*.c)
 OBJ = $(SRC:.c=.o)
-OBJ := $(OBJ:src/%=%)
-OBJ := $(addprefix obj/, $(OBJ))
+OBJ := $(OBJ:$(SRC_DIR)/%=%)
+OBJ := $(addprefix $(OBJ_DIR)/, $(OBJ))
 
 CC = gcc
 LD = gcc
@@ -21,12 +24,12 @@ $(NAME_SO): $(OBJ)
 $(NAME_A): $(OBJ)
 	ar rcs $@ $^
 
-obj/%.o: src/%.c
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf obj/
+	rm -rf $(OBJ_DIR)
 
 fclean: clean
 	rm -rf $(NAME_A) $(NAME_SO)

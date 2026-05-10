@@ -28,14 +28,15 @@ static void load_libpiss(void)
 void launch_gabriel(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
+
+	board_t		board = {0};
+	init_board("base", &board);
 	atexit(lexit);
 	signal(SIGINT, on_sigint);
 	printf("\e[?1049h");
 	fflush(stdout);
 
 	// do your stuff
-	board_t		board = {0};
-	init_board("base", &board);
 	while (1) {
 		write(1, "\033[2J\033[H", 7);
 		if (play(&board))

@@ -19,6 +19,9 @@
 #define DEFAULT_COLOR_STR "color"
 
 //DEFAULTS FUNC
+#define DEFAULT_TURN_FUNC "default_move_piece"
+#define DEFAULT_TURN_FUNC_STR "turn_func"
+
 #define DEFAULT_MOVE_FUNC "move_king"
 #define DEFAULT_MOVE_FUNC_STR "default_move"
 
