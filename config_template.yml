@@ -6,7 +6,7 @@ default:
 
 piece:
   id: P
-  char: P
+  char: ♖
   default_move: move_pawn
 
 piece:
@@ -52,7 +52,7 @@ piece:
 
 piece:
   id: r
-  char: ♜
+  char: ✈
   hp: 2
   default_move: move_rook
 
