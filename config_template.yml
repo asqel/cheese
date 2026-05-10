@@ -2,11 +2,10 @@ default:
   color: 1
   is_cannibal: 1
   hp: 1
-  on_death: atomic_death
 
 piece:
   id: P
-  char: ♖
+  char: ♙
   default_move: move_pawn
 
 piece:
