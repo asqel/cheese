@@ -2,7 +2,7 @@
 
 static piece_type_t **piece_types = NULL;
 
-void update_element(char current_read, char *line_ptr, size_t read)
+static void update_element(char current_read, char *line_ptr, size_t read)
 {
 	void *res = 0;
 

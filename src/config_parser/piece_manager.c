@@ -45,16 +45,18 @@ static int handle_attributes_adding(piece_type_t *piece,
 		piece->is_king = safe_atoi(value, 2, &res);
 	else if (!strcmp(key, DEFAULT_IS_CANNIBAL_STR))
 		piece->is_cannibal = safe_atoi(value, 2, &res);
+	else if (!strcmp(key, DEFAULT_TURN_FUNC_STR))
+		piece->turn_function = retrieve_function(value);
 	else if (!strcmp(key, DEFAULT_MOVE_FUNC_STR))
 		piece->default_move_func = retrieve_function(value);
 	else if (!strcmp(key, DEFAULT_HURT_FUNC_STR))
-		piece->default_hurt_func = retrieve_function(value);
-	else if (!strcmp(key, DEFAULT_ATTACK_FUNC_STR))
-		piece->default_attack_func = retrieve_function(value);
-	else if (!strcmp(key, DEFAULT_DEATH_FUNC_STR))
-		piece->default_death_func = retrieve_function(value);
+		piece->piece_callbacks[ON_ATTACK] = retrieve_function(value);
 	else if (!strcmp(key, DEFAULT_KILL_FUNC_STR))
-		piece->default_kill_func = retrieve_function(value);
+		piece->piece_callbacks[ON_HIT] = retrieve_function(value);
+	else if (!strcmp(key, DEFAULT_ATTACK_FUNC_STR))
+		piece->piece_callbacks[ON_KILL]  = retrieve_function(value);
+	else if (!strcmp(key, DEFAULT_DEATH_FUNC_STR))
+		piece->piece_callbacks[ON_DEATH] = retrieve_function(value);
 	else if (!strcmp(key, DEFAULT_ID_STR) && strlen(value) == 1) {
 		if (changing_default) {
 			fprintf(stderr, "Error: modifying 'id' is forbidden in default config\n");
@@ -82,11 +84,12 @@ void init_default_config(piece_type_t *piece)
 		conf->is_cannibal = DEFAULT_IS_CANNIBAL;
 		strncpy(conf->character, DEFAULT_CHARACTER, sizeof(conf->character));
 
+		conf->turn_function = retrieve_function(DEFAULT_TURN_FUNC);
 		conf->default_move_func = retrieve_function(DEFAULT_MOVE_FUNC);
-		conf->default_hurt_func = retrieve_function(DEFAULT_HURT_FUNC);
-		conf->default_attack_func = retrieve_function(DEFAULT_ATTACK_FUNC);
-		conf->default_death_func = retrieve_function(DEFAULT_DEATH_FUNC);
-		conf->default_kill_func = retrieve_function(DEFAULT_KILL_FUNC);
+		conf->piece_callbacks[ON_ATTACK]  = retrieve_function(DEFAULT_ATTACK_FUNC);
+		conf->piece_callbacks[ON_HIT] = retrieve_function(DEFAULT_HURT_FUNC);
+		conf->piece_callbacks[ON_KILL] = retrieve_function(DEFAULT_KILL_FUNC);
+		conf->piece_callbacks[ON_DEATH] = retrieve_function(DEFAULT_DEATH_FUNC);
 		return ;
 	}
 	piece->max_hp = conf->max_hp;
@@ -97,11 +100,12 @@ void init_default_config(piece_type_t *piece)
 	piece->is_cannibal = conf->is_cannibal;
 	strncpy(piece->character, conf->character, sizeof(conf->character));
 
+	piece->turn_function = conf->turn_function;
 	piece->default_move_func = conf->default_move_func;
-	piece->default_hurt_func = conf->default_hurt_func;
-	piece->default_attack_func = conf->default_attack_func;
-	piece->default_death_func = conf->default_death_func;
-	piece->default_kill_func = conf->default_kill_func;
+	piece->piece_callbacks[ON_HIT] = conf->piece_callbacks[ON_HIT];
+	piece->piece_callbacks[ON_ATTACK] = conf->piece_callbacks[ON_ATTACK];
+	piece->piece_callbacks[ON_DEATH] = conf->piece_callbacks[ON_DEATH];
+	piece->piece_callbacks[ON_KILL] = conf->piece_callbacks[ON_KILL];
 }
 
 piece_type_t *update_current_piece(char *line, size_t line_size, int is_default)
@@ -142,6 +146,8 @@ piece_type_t *update_current_piece(char *line, size_t line_size, int is_default)
 		while (isspace(line[++i]))
 			;
 		value = line + i;
+		if (value[0] == 0)
+			memcpy(value, " \0", 2);
 		break ;
 	}
 	handle_attributes_adding(cur_piece, key, value, is_default);

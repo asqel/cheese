@@ -10,22 +10,25 @@ void	remove_piece(tile_t *target, int id, board_t *board)
 	target->pieces[--target->nb_piece] = NULL;
 }
 
-void	damage_piece(board_t *board, tile_t *target_tile,
+int damage_piece(board_t *board, tile_t *target_tile,
 		piece_t *victim, piece_t *attacker, int attack)
 {
 	victim->hp -= attack;
 	if (victim->hp > 0) {
-		if (attacker->type->default_attack_func)
-			attacker->type->default_hurt_func(board, attacker, victim);
-		if (victim->type->default_hurt_func)
-			victim->type->default_hurt_func(board, victim, attacker);
-		return ;
+		call_piece_callback(board, ON_ATTACK, attacker, victim);
+		call_piece_callback(board, ON_HIT, attacker, victim);
+		return (0);
 	}
+	if (attacker)
+		++attacker->kill_count;
 	remove_piece(target_tile, victim->tile_id, board);
-	if (attacker->type->default_kill_func)
-		attacker->type->default_kill_func(board, attacker, victim);
-	if (victim->type->default_death_func)
-		victim->type->default_death_func(board, victim, attacker);
+	victim->is_dead = 1;
+	if (victim->type->is_king)
+		--board->players[victim->type->color].nb_kings;
+
+	call_piece_callback(board, ON_KILL, attacker, victim);
+	call_piece_callback(board, ON_DEATH, victim, attacker);
+	return (1);
 }
 
 piece_t	*simple_move(board_t *board, piece_t *target_piece, int y_dest, int x_dest)
@@ -33,6 +36,10 @@ piece_t	*simple_move(board_t *board, piece_t *target_piece, int y_dest, int x_de
 	tile_t	*origin_tile = target_piece->cur_tile;
 	tile_t	*target_tile = &board->tiles[y_dest][x_dest];
 
+	if (origin_tile == target_tile)
+		return (target_piece);
+
+	target_piece->move_counter++;
 	target_tile->pieces = realloc(target_tile->pieces,
 		(target_tile->nb_piece + 2) * sizeof(piece_t *));
 	if (!target_tile->pieces)
@@ -46,22 +53,4 @@ piece_t	*simple_move(board_t *board, piece_t *target_piece, int y_dest, int x_de
 	target_tile->pieces[target_tile->nb_piece] = NULL;
 	remove_piece(origin_tile, board->selector.origin_id, board);
 	return (target_tile->pieces[target_tile->nb_piece - 1]);
-}
-
-void	default_move_piece(board_t *board)
-{
-	selector_t	*s = &board->selector;
-	tile_t	*origin_tile = &board->tiles[s->origin_y][s->origin_x];
-	tile_t	*target_tile = &board->tiles[s->target_y][s->target_x];
-	piece_t *selected_piece = origin_tile->pieces[s->origin_id];
-	piece_t	*target_piece = NULL;
-
-	piece_t *new_piece = simple_move(board, selected_piece, s->target_y, s->target_x);
-	if ((target_tile->nb_piece > 1) && (selected_piece->type->is_cannibal || 
-		selected_piece->type->color != target_tile->pieces[s->target_id]->type->color)) {
-		target_piece = target_tile->pieces[s->target_id];
-		damage_piece(board, target_tile, target_piece, new_piece, new_piece->attack_power);
-	}
-	reset_possible_moves(board);
-	update_logs(board, new_piece, target_piece);
 }

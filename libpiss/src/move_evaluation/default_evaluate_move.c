@@ -1,10 +1,10 @@
-#include "libcheese_chess.h"
+#include "libpiss.h"
 
 static int	should_compute_move(board_t *board, piece_t *target, tile_t *target_tile, int p_index)
 {
 	int compute_move = board->debug;
 
-	if (target_tile->nb_piece < 2)
+	if (!target_tile->nb_piece)
 		return (1);
 
 	if (target_tile->pieces[p_index]->type->color != target->type->color)

@@ -33,6 +33,8 @@ clean:
 	make -C onion clean
 	make -C oeuf clean
 	make -C rooms fclean
+	make -C libpiss fclean
+	make -C libcheese fclean
 
 fclean: clean
 	rm -rf $(NAME)

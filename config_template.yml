@@ -1,7 +1,13 @@
 default:
   color: 1
   is_cannibal: 1
-  hp: 2
+  hp: 1
+  on_death: atomic_death
+
+piece:
+  id: P
+  char: P
+  default_move: move_pawn
 
 piece:
   id: K
@@ -29,11 +35,6 @@ piece:
   id: N
   char: ♘
   default_move: move_knight
-
-piece:
-  id: P
-  char: ♙
-  default_move: move_pawn
 
 default:
   color: 2
@@ -67,5 +68,12 @@ piece:
 
 piece:
   id: p
-  char: ♟
+  char: ♟ 
   default_move: move_pawn
+
+piece:
+  id: Z
+  char: Z
+  attack: 99
+  default_move: target_all
+  turn_func: attack_no_move
