@@ -209,5 +209,6 @@ void terminal_draw_str_centered(char *str, int y, int flush);
 void terminal_draw_strarr(char **str, int x, int y, int flush);
 void terminal_set_flush(int state);
 void terminal_draw_strarr_centered(char **str, int y, int flush);
+uint64_t cheese_get_time();
 
 #endif
